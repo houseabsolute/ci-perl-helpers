@@ -1,0 +1,99 @@
+parameters:
+  allow_failure: ''
+  cache_key: 'cache'
+  coverage: ''
+  name: ''
+  perl: ''
+  test_xt: ''
+
+jobs:
+  - job: Test_Linux_${{ parameters.name }}
+    displayName: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }})
+    container: houseabsolute/ci-perl-helpers-ubuntu:${{ parameters.perl }}
+    variables:
+      CIPH_ALLOW_FAILURE: ${{ parameters.allow_failure }}
+      CIPH_COVERAGE: ${{ parameters.coverage }}
+      CIPH_TEST_XT: ${{ parameters.test_xt }}
+    steps:
+      - template: check-perl-parameter.yml
+        parameters:
+          perl: ${{ parameters.perl }}
+      - bash: |
+          if [ "$CIPH_COVERAGE" == "" ]; then
+              exit 0
+          fi
+          if [ "$CIPH_COVERAGE" == "codecov" ]; then
+              if [ -z "$CIPH_CODECOV_TOKEN" ]; then
+                  echo "##vso[task.logissue type=error;]You must set the CODECOV_TOKEN secret for this pipeline if you want to submit coverage data to codecov.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
+                  echo "##vso[task.complete result=Failed;]"
+              fi
+          fi
+          if [ "$CIPH_COVERAGE" == "coveralls" ]; then
+              if [ -z "$CIPH_COVERALLS_TOKEN" ]; then
+                  echo "##vso[task.logissue type=error;]You must set the COVERALLS_TOKEN secret for this pipeline if you want to submit coverage data to coveralls.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
+                  echo "##vso[task.complete result=Failed;]"
+              fi
+          fi
+          if [ "$CIPH_COVERAGE" == "kritika" ]; then
+              if [ -z "$CIPH_KRITIKA_TOKEN" ]; then
+                  echo "##vso[task.logissue type=error;]You must set the KRITIKA_TOKEN secret for this pipeline if you want to submit coverage data to kritika.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines"
+                  echo "##vso[task.complete result=Failed;]"
+              fi
+          fi
+        env:
+          CIPH_CODECOV_TOKEN: $(CODECOV_TOKEN)
+          CIPH_COVERALLS_TOKEN: $(COVERALLS_TOKEN)
+          CIPH_KRITIKA_TOKEN: $(KRITIKA_TOKEN)
+        displayName: Check coverage settings
+
+      # It'd be nice to skip the checkout step, but we may need access to
+      # config files from the repo for things like coverage. For example,
+      # codecov.io uses a AML config file that goes in the repo.
+
+      - bash: 'mkdir -p $(CI_ARTIFACT_STAGING_DIRECTORY)'
+        displayName: Make artifacts directory
+      - task: DownloadPipelineArtifact@2
+        displayName: Download distro tarball pipeline artifact
+        inputs:
+          artifactName: dist-tarball
+          targetPath: '$(CI_ARTIFACT_STAGING_DIRECTORY)'
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl
+        displayName: Show environment
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-test.pl --runtime-perl ${{ parameters.perl }}
+        displayName: Pre test
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl
+        displayName: Create cpanfile for test & runtime dependencies
+      - task: CacheBeta@1
+        displayName: Define runtime dependencies cache
+        inputs:
+          key: '"v1" | "runtime-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/runtime-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/prereqs-cpanfile'
+          path: $(Pipeline.Workspace)/local-lib/runtime-perl
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl
+        displayName: Install test & runtime dependencies
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl
+        displayName: Prep distro for tests (make or ./Build)
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl
+        displayName: Run tests
+        env:
+          CIPH_COVERALLS_TOKEN: $(COVERALLS_TOKEN)
+          CIPH_KRITIKA_TOKEN: $(KRITIKA_TOKEN)
+      - bash: |
+          set -e
+          set -x
+          bash <(curl -s https://codecov.io/bash) -f $(CI_WORKSPACE_DIRECTORY)/coverage/codecov.json -R $(CI_SOURCE_DIRECTORY)
+        env:
+          CIPH_CODECOV_TOKEN: $(CODECOV_TOKEN)
+        condition: eq( '${{ parameters.coverage }}', 'codecov' )
+        displayName: Upload coverage results to codecov.io
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathToPublish: $(CI_WORKSPACE_DIRECTORY)/coverage
+          artifactName: coverage-results
+        displayName: Publish coverage results as a build artifact
+        condition: ne( '${{ parameters.coverage }}', '' )
+      - task: PublishTestResults@2
+        displayName: Publish test results
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: $(CI_WORKSPACE_DIRECTORY)/junit/**/*.xml
+          mergeTestResults: true

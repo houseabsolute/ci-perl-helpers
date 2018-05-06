@@ -1,0 +1,103 @@
+parameters:
+  cache_key: 'cache'
+  name: ''
+  perl: ''
+
+jobs:
+  - job: Test_macOS_${{ parameters.name }}
+    displayName: MacOS - ${{ parameters.perl }}
+    pool:
+      vmImage: macOS-latest
+    variables:
+      PERLBREW_ROOT: $(Pipeline.Workspace)/perl5/perlbrew
+    steps:
+      - template: check-perl-parameter.yml
+        parameters:
+          perl: ${{ parameters.perl }}
+      - checkout: none
+      - template: install-helper-tools.yml
+      - bash: |
+          set -x
+          curl -L https://install.perlbrew.pl | sh
+        displayName: Install perlbrew
+      - task: CacheBeta@1
+        displayName: Define tools-perls cache
+        inputs:
+          key: '"v1" | "tools-perl" | "${{ parameters.cache_key }}" | "5.30.1" | "macOS"'
+          path: $(Pipeline.Workspace)/perl5/perlbrew/perls/tools-perl
+      - bash: |
+          set -x
+          if [ ! -d "$PERLBREW_ROOT/perls/tools-perl" ]; then
+              "$PERLBREW_ROOT/bin/perlbrew" install --verbose --notest --noman -j $( sysctl -n hw.ncpu ) --as tools-perl 5.30.1
+          fi
+        displayName: Perlbrew install Perl 5.30.1 as tools-perl
+      - task: CacheBeta@1
+        displayName: Define runtime-perls cache
+        inputs:
+          key: '"v1" | "runtime-perl" | "${{ parameters.cache_key }}" | "${{ parameters.perl }}" | "macOS"'
+          path: $(Pipeline.Workspace)/perl5/perlbrew/perls/tools-perl
+      - bash: |
+          set -x
+          if [ ! -d "$PERLBREW_ROOT/perls/runtime-perl" ]; then
+              "$PERLBREW_ROOT/bin/perlbrew" install --verbose --notest --noman -j $( sysctl -n hw.ncpu ) --as runtime-perl ${{ parameters.perl }}
+          fi
+        displayName: Perlbrew install Perl ${{ parameters.perl }} as runtime-perl
+      - bash: |
+          set -x
+          mkdir "$CI_WORKSPACE_DIRECTORY/bin" && \
+          curl -fsSL --compressed https://git.io/cpm > "$CI_WORKSPACE_DIRECTORY/bin/cpm" && \
+          chmod 0755 "$CI_WORKSPACE_DIRECTORY/bin/cpm"
+        displayName: Install cpm
+      - bash: |
+          set -x
+          "$PERLBREW_ROOT/bin/perlbrew" exec --with tools-perl \
+          "$CI_WORKSPACE_DIRECTORY/bin/cpm" install \
+          --global \
+          --show-build-log-on-failure \
+          --verbose \
+          --workers 16 \
+          --feature tools-perl \
+          --cpanfile "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/cpanfile"
+        displayName: Install tools prereqs
+      - bash: mkdir -p "$CI_ARTIFACT_STAGING_DIRECTORY"
+        displayName: Make artifacts directory
+      - task: DownloadPipelineArtifact@2
+        displayName: Download distro tarball pipeline artifact
+        inputs:
+          artifactName: dist-tarball
+          targetPath: '$(CI_ARTIFACT_STAGING_DIRECTORY)'
+      - bash: |
+          set -x
+          "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl show-env.pl
+        displayName: Show environment
+      - bash: |
+          set -x
+          "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl pre-test.pl --runtime-perl ${{ parameters.perl }}
+        displayName: Pre test
+      - bash: |
+          set -x
+          "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl build-cpanfile.pl
+        displayName: Create cpanfile for test & runtime dependencies
+      - task: CacheBeta@1
+        displayName: Define runtime dependencies cache
+        inputs:
+          key: '"v1" | "runtime-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/runtime-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/prereqs-cpanfile'
+          path: $(Pipeline.Workspace)/local-lib/runtime-perl
+      - bash: |
+          set -x
+          "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl install-prereqs.pl
+        displayName: Install test & runtime dependencies
+      - bash: |
+          set -x
+          "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl prep-for-tests.pl
+        displayName: Prep distro for tests (make or ./Build)
+      - bash: |
+          set -x
+          "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl run-tests.pl
+        displayName: Run tests
+      - task: PublishTestResults@2
+        displayName: Publish test results
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: $(CI_WORKSPACE_DIRECTORY)/junit/**/*.xml
+          mergeTestResults: true

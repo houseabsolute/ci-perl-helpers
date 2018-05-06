@@ -1,0 +1,12 @@
+parameters:
+  perl: ''
+
+steps:
+  - bash: |
+      if [ -z "$PERL" ]; then
+          echo "##vso[task.logissue type=error;]Missing template parameter \"perl\""
+          echo "##vso[task.complete result=Failed;]"
+      fi
+    env:
+      PERL: ${{ parameters.perl }}
+    displayName: Check that perl parameter was set

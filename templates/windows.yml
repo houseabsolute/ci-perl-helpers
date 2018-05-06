@@ -1,0 +1,125 @@
+parameters:
+  cache_key: 'cache'
+  name: ''
+  perl: ''
+
+jobs:
+  - job: Test_Windows_${{ parameters.name }}
+    displayName: Windows - ${{ parameters.perl }}
+    pool:
+      vmImage: windows-latest
+    steps:
+      - template: check-perl-parameter.yml
+        parameters:
+          perl: ${{ parameters.perl }}
+      - checkout: none
+      - template: install-helper-tools.yml
+      - bash: |
+          set -e
+          set -x
+          choco upgrade berrybrew --yes
+        displayName: Install berrybrew
+      - task: CacheBeta@1
+        displayName: Define tools-perl cache
+        inputs:
+          key: '"v1" | "tools-perl" | "${{ parameters.cache_key }}" | "5.30.0" | "Windows"'
+          path: C:\berrybrew\5.30.0_64\perl
+      - bash: |
+          set -e
+          set -x
+          if [ ! -d C:\\berrybrew\\5.30.0_64 ]; then
+              berrybrew install 5.30.0_64
+          fi
+          berrybrew exec --with 5.30.0_64 perl -e 'use strict;use warnings;my $file = shift;open my $fh, $file or die $!;my $content = do { local $/; <$fh> };close $fh or die $!;my $q = chr(34); $content =~ s/(${q}custom_exec${q}\s*:\s*)${q}false${q}/$1${q}true${q}/;open $fh, q{>}, $file or die $!;print {$fh} $content or die $!;close $fh or die $!;' C:\\ProgramData\\chocolatey\\lib\\berrybrew\\tools\\data\\config.json
+          cat C:\\ProgramData\\chocolatey\\lib\\berrybrew\\tools\\data\\config.json
+        displayName: Berrybrew install Perl 5.30.0 (for use as tools-perl)
+      - task: CacheBeta@1
+        displayName: Define runtime-perl base perl cache
+        inputs:
+          key: '"v1" | "base-runtime-perl" | "${{ parameters.cache_key }}" | "${{ parameters.perl }}" | "Windows"'
+          path: C:\berrybrew\${{ parameters.perl }}_64\perl
+      # It seems like we need to re-run this even if we already have a cached
+      # version. I'm guessing it does some sort of registry fiddling that's
+      # necessary for the clone command that comes after this to work. But
+      # this reinstall does not wipe the installed modules, so the later step
+      # to install deps is still much quicker when we get this perl from the
+      # cache.
+      - bash: |
+          set -e
+          set -x
+          berrybrew install ${{ parameters.perl }}_64
+        displayName: Berrybrew install Perl ${{ parameters.perl }} (for use as runtime-perl)
+      - task: CacheBeta@1
+        displayName: Define runtime-perl cache
+        inputs:
+          key: '"v1" | "runtime-perl-clone" | "${{ parameters.cache_key }}" | "${{ parameters.perl }}" | "Windows"'
+          path: C:\berrybrew\runtime-perl\perl
+      - bash: |
+          set -e
+          set -x
+          berrybrew clone ${{ parameters.perl }}_64 runtime-perl
+        displayName: Berrybrew clone Perl ${{ parameters.perl }} as runtime-perl
+      - bash: |
+          set -e
+          set -x
+          mkdir "$CI_WORKSPACE_DIRECTORY\\bin" && \
+          curl -fsSL --compressed https://git.io/cpm > "$CI_WORKSPACE_DIRECTORY/bin/cpm" && \
+          chmod 0755 "$CI_WORKSPACE_DIRECTORY\\bin\\cpm"
+        displayName: Install cpm
+      - bash: |
+          set -e
+          set -x
+          berrybrew exec --with 5.30.0_64 \
+          perl "$CI_WORKSPACE_DIRECTORY\\bin\\cpm" install \
+          --global \
+          --show-build-log-on-failure \
+          --verbose \
+          --feature tools-perl \
+          --cpanfile "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\cpanfile"
+        displayName: Install tools prereqs
+      - bash: |
+          set -e
+          set -x
+          mkdir -p "$CI_ARTIFACT_STAGING_DIRECTORY"
+        displayName: Make artifacts directory
+      - task: DownloadPipelineArtifact@2
+        displayName: Download distro tarball pipeline artifact
+        inputs:
+          artifactName: dist-tarball
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+      - bash: |
+          set -e
+          set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 show-env.pl
+        displayName: Show environment
+      - bash: |
+          set -e
+          set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 pre-test.pl --runtime-perl ${{ parameters.perl }}
+        displayName: Pre test
+      - bash: |
+          set -e
+          set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 build-cpanfile.pl
+        displayName: Create cpanfile for test & runtime dependencies
+      - bash: |
+          set -e
+          set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 install-prereqs.pl
+        displayName: Install test & runtime dependencies
+      - bash: |
+          set -e
+          set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 prep-for-tests.pl
+        displayName: Prep distro for tests (make or ./Build)
+      - bash: |
+          set -e
+          set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 run-tests.pl
+        displayName: Run tests
+      - task: PublishTestResults@2
+        displayName: Publish test results
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: $(CI_WORKSPACE_DIRECTORY)\\junit\\**\\*.xml
+          mergeTestResults: true

@@ -1,0 +1,102 @@
+# This cpanfile contains just those things that are needed by the tools both
+# for the dist building code and runtime test execution code.
+
+feature 'tools-perl' => sub {
+
+    # This list comes from running scan-prereqs-cpanfile ./tools
+    requires 'CPAN::Meta';
+    requires 'Data::Dumper::Concise';
+    requires 'Devel::Confess';
+    requires 'File::Which';
+    requires 'File::pushd';
+    requires 'Getopt::Long';
+    requires 'IPC::Run3';
+    requires 'IPC::System::Simple';
+    requires 'List::AllUtils';
+    requires 'MetaCPAN::Client';
+    requires 'Module::CPANfile';
+    requires 'Moo';
+    requires 'Moo::Role';
+    requires 'MooX::Options';
+    requires 'MooX::StrictConstructor';
+    requires 'Moose';
+    requires 'MooseX::Getopt::Dashes';
+    requires 'Path::Tiny';
+    requires 'Path::Tiny::Rule';
+    requires 'Specio::Declare';
+    requires 'Specio::Library::Builtins';
+    requires 'Specio::Library::Path::Tiny';
+    requires 'Specio::Library::String';
+    requires 'autodie';
+    requires 'feature';
+    requires 'local::lib';
+    requires 'namespace::autoclean';
+
+    # Our fallback if the built distro does not include a META.* or cpanfile.
+    requires 'App::scan_prereqs_cpanfile';
+
+    # These aren't loaded in the tools but we do need them installed for the
+    # tools to run; as they expect dzil; minilla; and other such scripts to be
+    # available.
+    requires 'Dist::Zilla';
+    requires 'Minilla';
+    requires 'Module::Build';
+    requires 'Module::Install';
+
+    # This contains the tap2junit script we use to produce jUnit results that
+    # can be used for display in CI.
+    requires 'TAP::Formatter::JUnit';
+};
+
+feature docker => sub {
+
+    # Pre-installing these two gets us quite a few common dzil plugins.
+    requires 'Dist::Zilla::PluginBundle::DROLSKY';
+    requires 'Dist::Zilla::PluginBundle::Author::ETHER';
+};
+
+# Used for coverage tests.
+feature coverage => sub {
+    requires 'Devel::Cover';
+};
+
+feature 'coverage-codecov' => sub {
+    requires 'Devel::Cover::Report::Codecovbash';
+};
+
+feature 'coverage-clover' => sub {
+    requires 'Devel::Cover::Report::Clover';
+};
+
+feature 'coverage-coveralls' => sub {
+    requires 'Devel::Cover::Report::Coveralls';
+};
+
+feature 'coverage-html' => sub {
+
+};
+
+feature 'coverage-kritika' => sub {
+    requires 'Devel::Cover::Report::Kritika';
+};
+
+feature 'coverage-sonarqube' => sub {
+    requires 'Devel::Cover::Report::SonarGeneric';
+};
+
+# These are only used for test running.
+feature runtime => sub {
+    # For some reason TAP::Harness::Archive blows up in weird ways with older
+    # versions of base that ship with Perl 5.10 and earlier.
+    requires 'base', '>= 2.23';
+
+    # For some reason this doesn't get installed on Perl < 5.12 even though
+    # it's a dep for TAP::Harness::Archive.
+    requires 'YAML::Tiny';
+
+    # This one is needed to make prove's --archive option work.
+    requires 'TAP::Harness::Archive';
+
+    # We want a recent version of prove.
+    requires 'Test::Harness';
+};

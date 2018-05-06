@@ -1,0 +1,254 @@
+parameters:
+  cache_key: 'cache'
+  coverage: ''
+  debug: 0
+  include_5_30: 'true'
+  include_5_28: 'true'
+  include_5_26: 'true'
+  include_5_24: 'true'
+  include_5_22: 'true'
+  include_5_20: 'true'
+  include_5_18: 'true'
+  include_5_16: 'true'
+  include_5_14: 'true'
+  include_5_12: 'true'
+  include_5_10: 'true'
+  include_5_8: 'true'
+  include_dev: 'true'
+  include_blead: 'true'
+  include_threaded_perls: 'false'
+  include_macos: 'true'
+  include_windows: 'true'
+
+stages:
+  - stage: Test
+    displayName: Test distro on various perls
+    dependsOn: BuildDist
+    variables:
+      - template: variables.yml
+        parameters:
+          debug: ${{ parameters.debug }}
+    jobs:
+
+    - ${{ if eq( parameters.include_windows, 'true' ) }}:
+      - template: windows.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_30_0"
+          perl: "5.30.0"
+
+    - ${{ if eq( parameters.include_macos, 'true' ) }}:
+      - template: macos.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_30_1"
+          perl: "5.30.1"
+
+    - ${{ if ne( parameters.coverage, '' ) }}:
+      - template: linux.yml
+        parameters:
+          coverage: ${{ parameters.coverage }}
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_30_coverage_${{ parameters.coverage }}"
+          perl: "5.30"
+    
+    - ${{ if eq( parameters.include_5_30, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_30_test_xt"
+          perl: "5.30"
+          test_xt: 1
+      
+    - ${{ if and( eq( parameters.include_5_30, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_30_thread"
+          perl: "5.30-thread"
+
+    - ${{ if eq( parameters.include_5_28, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_28"
+          perl: "5.28"
+
+    - ${{ if and( eq( parameters.include_5_28, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_28_thread"
+          perl: "5.28-thread"
+
+    - ${{ if eq( parameters.include_5_26, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_26"
+          perl: "5.26"
+
+    - ${{ if and( eq( parameters.include_5_26, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_26_thread"
+          perl: "5.26-thread"
+
+    - ${{ if eq( parameters.include_5_24, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_24"
+          perl: "5.24"
+
+    - ${{ if and( eq( parameters.include_5_24, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_24_thread"
+          perl: "5.24-thread"
+
+    - ${{ if eq( parameters.include_5_22, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_22"
+          perl: "5.22"
+
+    - ${{ if and( eq( parameters.include_5_22, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_22_thread"
+          perl: "5.22-thread"
+
+    - ${{ if eq( parameters.include_5_20, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_20"
+          perl: "5.20"
+
+    - ${{ if and( eq( parameters.include_5_20, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_20_thread"
+          perl: "5.20-thread"
+
+    - ${{ if eq( parameters.include_5_18, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_18"
+          perl: "5.18"
+
+    - ${{ if and( eq( parameters.include_5_18, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_18_thread"
+          perl: "5.18-thread"
+
+    - ${{ if eq( parameters.include_5_16, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_16"
+          perl: "5.16"
+
+    - ${{ if and( eq( parameters.include_5_16, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_16_thread"
+          perl: "5.16-thread"
+
+    - ${{ if eq( parameters.include_5_14, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_14"
+          perl: "5.14"
+
+    - ${{ if and( eq( parameters.include_5_14, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_14_thread"
+          perl: "5.14-thread"
+
+    - ${{ if eq( parameters.include_5_12, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_12"
+          perl: "5.12"
+
+    - ${{ if and( eq( parameters.include_5_12, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_12_thread"
+          perl: "5.12-thread"
+
+    - ${{ if eq( parameters.include_5_10, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_10"
+          perl: "5.10"
+
+    - ${{ if and( eq( parameters.include_5_10, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_10_thread"
+          perl: "5.10-thread"
+
+    - ${{ if eq( parameters.include_5_8, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_8"
+          perl: "5.8"
+
+    - ${{ if and( eq( parameters.include_5_8, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "5_8_thread"
+          perl: "5.8-thread"
+
+    - ${{ if eq( parameters.include_dev, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "dev"
+          perl: "dev"
+          allow_failure: 1
+
+    - ${{ if and( eq( parameters.include_dev, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "dev_thread"
+          perl: "dev-thread"
+          allow_failure: 1
+
+    - ${{ if eq( parameters.include_blead, 'true' ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "blead"
+          perl: "blead"
+          allow_failure: 1
+
+    - ${{ if and( eq( parameters.include_blead, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
+      - template: linux.yml
+        parameters:
+          cache_key: ${{ parameters.cache_key }}
+          name: "blead_thread"
+          perl: "blead-thread"
+          allow_failure: 1

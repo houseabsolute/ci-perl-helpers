@@ -1,0 +1,205 @@
+steps:
+  # This base64 blob is the result of running `tar -cvzf
+  # /tmp/tools.tar.gz ./tools && base64 /tmp/tools.tar.gz` in the root
+  # of the github.com:houseabsolute/ci-perl-helpers repo. This works
+  # around the fact that the macOS and Windows builds run on an image
+  # that we don't supply. Unlike with Docker, there's no way to bake
+  # the helper tools into the base image/VM that is launched for
+  # non-Linux platforms.
+  # 
+  # There are some other ways to do this, for example downloading a
+  # tarball from the helpers repo's release page or cloning a tag from
+  # the helpers repo itself, but I don't love either solution. In both
+  # cases I would have to sync the release of this template to
+  # publishing something in the repo. That's not a huge issue, but I
+  # really like the idea that the template is totally
+  # self-contained. So once the template is published, I know that
+  # version will work indefinitely no matter what I do with the repo.
+  #
+  # On Windows a single echo command with the entire content fails with:
+  #     bash: -c: line 1: unexpected EOF while looking for matching `"'
+  #
+  # Presumably bash on Windows has a shorter limit for single
+  # commands.
+
+  # Install the helper tools step
+  - bash: |
+      echo 'H4sIAMDK0l0AA+w9+1fbxtL9mb9iS9zK7sHmDfeYQuOAk/CVBI4hTXtDrirLa6xElhQ9cGhK//ZvZnYl' >> /tmp/tools-base64
+      echo 'rV48Epvm9npPgu19zM7OzszOzr5Mz3CGls2/mWFYgbC1sYGfq9ubK+onhs2tzc1vVtc3tzY211c2MN/q' >> /tmp/tools-base64
+      echo '2sbG5jdsZZZIxSEKQsNn7Bsjgk9zVJnvtvT/0vCInY2sgJmSDZjpOqFhOQF7B4Rh4cgNOPy1nIsAPoyQ' >> /tmp/tools-base64
+      echo 'GT5nDucDPmD9K4iCVNe1A9Z3w9HCIzZ0fYocWFC6H1n2AIoC0AFnhjNgfuSE1hjKcEjmH7kZhZbrUHpr' >> /tmp/tools-base64
+      echo 'YWHIjTAC+BqBbHrctzW2u8eCqM8+LSwwCBJdG8Gb7pgHbOi7Y4TrYEWBaThNz+c+/xA0kza1lgkgAYCU' >> /tmp/tools-base64
+      echo 'yPKhnLZ/0nnZbr/goaHt5JIOjNBotw+iMaDQbu+7jmkFvJiLX3Kbkoc8CArJT6Hqdvv1yDJHFWleFIwG' >> /tmp/tools-base64
+      echo 'hbRnPHS9sN0+cp2LQuLhyX673Yuc9fKU06sg5GP4tMaeXcT4CMjWbnds+1Vo2UWMkRaCKvu2xZ2wmMEd' >> /tmp/tools-base64
+      echo 'RIg4ZkLKlmRwy+IAZbc896/t9rGHPFCCDaWehr5lhkDjIPQjM3T9snwlnUOxUD6m5oERjHixkhMjHLXb' >> /tmp/tools-base64
+      echo 'Z5ZzdUMSUrwE/VOPmxa07YCbNohFZfqR1fcNH6A8AXkIrZKmFnLegFYhL1KohFNAX7kDq4iVFLJCvO2a' >> /tmp/tools-base64
+      echo 'BnCzbfULSY4BguYZJvQ8QjVtbjiQSQrkceSzoWHbfcN8z6whiT9KfkhKwHfZwAUgjhsyyzHtCDUBe9E9' >> /tmp/tools-base64
+      echo '67R+YKAsYiFt5erseF67jeKsS3HW45xpzWfQoxw1kqOFzHYNVEqWoyqlKGQTUEYuqSxMGEMGUPi2DT+l' >> /tmp/tools-base64
+      echo 'rpLARInQRV2ywwxUd/wKdBSQG1ryh2XvsLHlWLZt7JAqA33HfVBN5gi0jm95IRXux+CMS8OyjX6xYQck' >> /tmp/tools-base64
+      echo 'g/9GQEWmFRVUyh0yUFFhxKmHomUqfVCzxwqdyGJ4a+8ixwolzkidCDW8yzwfwJicvXuFyQA4skOh8yU0' >> /tmp/tools-base64
+      echo '6AtoHmYXpIPe9WzjCim+f5hv5VnnpN1+6vpjIwxRh/4fQgXMrndSNT9wzfdAwryCP/F5U3YSqvSQOjmc' >> /tmp/tools-base64
+      echo 'uOyCA0JRwKCOEJloyCc4BoxhAMH+YZ4dXUDBGwgOgkV5nkTOACl20Ds+Ov35t6Jmry7SiWBMhAZ1z553' >> /tmp/tools-base64
+      echo 'e7JBj9irmCime8l940KMcIBK3NYkPmltxVgC2XJk0uKyTRwm4Yd2FyCgs7jn+iH+pFJ9UIDVkG2q+J6A' >> /tmp/tools-base64
+      echo '7VuwxS82jDP3xTcuVwV5FI4zhkF5rve+FVrvjXvW/rMsVVV34DqG/yHq83vCPcVyz7jDYThL2CZRYMx1' >> /tmp/tools-base64
+      echo '7KtUtMg8kjZNykOx8ZSp9xEDKWMBmEKAggHYMRK954bvgFEC/Ao2q3UJGtl2JyA9HorrhFv+gE2Mq4BN' >> /tmp/tools-base64
+      echo 'rHDEXHvAfQkNkA5wOGbukAHLcGH1BSPLE3lPwChjm63VFVKC3PDBUvDzIocFtSWm7e2ytdbaeqqR8riG' >> /tmp/tools-base64
+      echo 'qKFwfEANDvKtaGdIpbp+xNrWGBAVs7vRxUjCAn0SgBYYcI9oVtrsPGK/dV4cJeOqqiVdhzP4kJYtqMOx' >> /tmp/tools-base64
+      echo '8Z6jTrzkUEuzaUgyumSssInrvy9VeXkE0mpec6C4AwY0FDHBuIopjYSmegrwOCohCVCwzAzs/77lLJOd' >> /tmp/tools-base64
+      echo 'npjLLc+ech23zP9W1lbWc/O/je2Vjfn87yECjv4B2dg7C/h9AvyGsz3gW/z51HIGT0BlfJjUWQ2/NEQ2' >> /tmp/tools-base64
+      echo 'MBPZIkYst1rL8GNR5j+TRsq+ZCaI5h/BnsjHN/ccPmnuoa01C66eh7uGVP7RWp++7GO4Tf5Xtwvyv7I9' >> /tmp/tools-base64
+      echo 'l/8HCTOSf7Sg87KPcXO5/8oCyj+O/PGUaxYa4Hb5387L/8ba3P/7IGH68o/OQemKUDSAEjvXAV9RQPmX' >> /tmp/tools-base64
+      echo 'ot+UdgD3gulqgVvt/9XVnPxvbq6tzuX/IcL05V9KuRjygZcUJZBPmmuCvz2o8i897VM3AW6f/+fXfzdB' >> /tmp/tools-base64
+      echo 'A8zl/yHCzOT/RDBTUfplwlz2v4qA8g9yL8b+2Uz/72D/58f/9e3Vufw/SJi+/IN80wCvSH4cNZf5ry7E' >> /tmp/tools-base64
+      echo '8o9LTjMS/9vlfys//1/fWlmby/9DhJnIPy5dZcUfY+bS/xUGKf9ec+j6TbFp4W9Y/8uP/xvbq1tz+X+I' >> /tmp/tools-base64
+      echo 'MBP59566Pkp8kFUCSfRcE3w1AeUf+mFWok/hc+z/7bn8P0iYvvz3Iicv+3HUXO6/uoDyH4zcSZM7l1+V' >> /tmp/tools-base64
+      echo '/T+f/z9ImL78nwI3dZ1LRfxlzFz6v8KA8o8bO+m0zYzqQBnf3tyskv9V+J+X//W1+fj/IOHRt8u0BcwI' >> /tmp/tools-base64
+      echo 'RgsLAQ9Zky8sIC/s1lYXgpE1DBfEUYH094KJ+4IXa8enZ7+ddBeZ5dDO1QmoCncS/PDnOLgKfmhQHIa+' >> /tmp/tools-base64
+      echo 'zye7fe77V/gtiabzFruLtf1D/fVx7+fTk85+Vz847HX3z457vy2bFnFkc8Rt+AyalB1RXUwg7Iht+wPD' >> /tmp/tools-base64
+      echo 'h6rzFS7WTrq9oye97mu9d3x8Ro1EgJi4OH0k8tUvR4G/TEdqqNbNpO4MIjk8lEKVNasV88AwZad9XFis' >> /tmp/tools-base64
+      echo 'UdPoVB1rNmmzdg1hsHMqQ19rAk5Nnv6oPV4A3b3cW35O1ZxSbMsbT5nHbh7/1zZXttek/G+A4G/j/H9r' >> /tmp/tools-base64
+      echo 'c77+/yDBM8z3eC6l126rTCCH8xssg/T4pEjGY5DWBRkK38nv0lYoPU1JGUVcki9znnJH2h/JIUoqMaFv' >> /tmp/tools-base64
+      echo 'DTWRTlFSoviWJJZbLskJSkrx8YtMSQ/dCWjwM07KHfWjdO5E43x64ahfRXJaFZ0DeUon0eiQbRTgoSd5' >> /tmp/tools-base64
+      echo 'eI/qaRu2zRop7tkznrI3kkOW8HtkBMwccfO9G4X6wKITVnXSAVYgdAdEaL6rLclII44M69qB5WsNkWAb' >> /tmp/tools-base64
+      echo 'f1zJhFURM+BDI7LD5AQK0QjI2335yydQoafHr3qq/rxmjeae0Q9cOwo5u15aaEjs8PgEHSjUfdcNHwy/' >> /tmp/tools-base64
+      echo 'EhVfiaJpAAlnS71ElY+vWG3AdllNf7PytrmXpU5zzxxZ9qCuEUZaYycpVhs098bvRRNXlhiaWCyTLL4r' >> /tmp/tools-base64
+      echo 'jTL80Boa5oy5otCubC90emeHTzv7Z/rpWefZ4ctnFZ3xJe3kH0MfmskHOm5q/6p6MUGN9tt/WXfSYP5A' >> /tmp/tools-base64
+      echo 'rav955jxD0yzLSf6qCXRGH4SHYy6Ci0YRhYMK7VgWEPp4QyQ9m3cXwYuJp9CEzSC/haSVJCBrD8WG3w3' >> /tmp/tools-base64
+      echo 'tl+CE/ZsnsQ3UoeGq3xFOfCEnLbfPk9M8RLqWcBOeJT2PsR7Aj1xD5UsG6IOUEkn0xEUy7E0oBKgQpc3' >> /tmp/tools-base64
+      echo 'ZLGTR7CniCBtfBHHkDWdfuhpPZqoHDEvpElOQLEPuD0EyafpkTzw5/Mw8h22iifiKb2iyQSsFbpjGxvN' >> /tmp/tools-base64
+      echo 'P1rCc6qAWGGRY4NBFIMBSkhcPFvmxPOPiAdwImf1OGOcqbmH8SB7Cu9m0KNiu3+x5Wfdl91e56x7wJ78' >> /tmp/tools-base64
+      echo 'xl4cvjw8OuosSybJ4rSzcJ32CZ0/1+Uuwtl3Taa68h7KYnSXjiqjMp4BRR5MCY0w8EA9nt/cjbMq2Zp7' >> /tmp/tools-base64
+      echo 'gR35nh6Fw3/tFPkgKQq0zp3aX96pIHDci/eiK9qXU5JJ2rjTOjnSGqooqkz4ANoiZeUStaDQ/+8i0guJ' >> /tmp/tools-base64
+      echo 'QimdPhe/zyNVhhtLqCWMBvIG3AeZ0zAZIos1y5Hrxelry1lfw6FQ22ytr7RW9K0NDcaezIU+Ci7yRPu0' >> /tmp/tools-base64
+      echo 'sNEkPFFRlkFm2tgLrIEaKr6oJrdtuxMdV1f1oWGBcgBF/LlMoOAijemT53rn6Oj4tf60c3j0qtdVKh7w' >> /tmp/tools-base64
+      echo 'fnQx3aoOuk9ePZNVPHrEHJeZeFuCyeqnUd8HmcBhBlf63ZHVt8JXDl5ocOJbl0bIlRwwmSV1LabrVco5' >> /tmp/tools-base64
+      echo 'jkVbLqeypd7VqYn1RQEHMy42MkqXEuqY0CB1SrVSIR2m0N6tVVOmXYAmh/Dy6nvy7imRHf8gGioekQPk' >> /tmp/tools-base64
+      echo 'zGFwp0EpOyRROZnB8y0YRxb39vYYdk2bPdbPnUVG17JwVvv2RgTI6ZGrX3JHngTmeMCq0gwbr5AA3uY5' >> /tmp/tools-base64
+      echo '7CGxzh4H4QA6fAnpAoO4H89lKqj35vEnrOz6rbjQq7aS9CUgW09tbsizlPw6p4alv2PYgFKdnacYKJg2' >> /tmp/tools-base64
+      echo 'lNISMxET9xmM02BB/cT+/DPFPDfLGwcXGeN6ly12fR9o7xca02S0CAZDfBgFbAJyuZgp2hKV/fgj+xdU' >> /tmp/tools-base64
+      echo '02KL0IvpnI9wgRaC1AwSbL7/ntncuUD3bgl+RAZAkLUAq1ORDtW2zx2ZO1PBdfKN2AbKlVl7kpApAyEh' >> /tmp/tools-base64
+      echo '78Y/UOz+/COrpcKxCCiZqWcKEiELFefkwrpVK8cgBEgkKlKTJIPqYNCLgML1ksgmKZMYZjS/022rf38n' >> /tmp/tools-base64
+      echo '1udZHhUzY8Kjifd2JZYHdRKuAOg4z+MDGmDpzyYu3N6m98RwXNCGALQo6I89GNG4fynJI6QHR4yTztnz' >> /tmp/tools-base64
+      echo '6wxrJlkByoWP+pd9u5xgv8yuWeDZICzL7eUlBUbMkTEefcvRyTebGODZnogJI9qxxDQooCXiTRexiNvA' >> /tmp/tools-base64
+      echo 'XIZLJ3gtFoED1A3nityweC0WyDILfYvTtV7iqkK8w5Cu/ZKQxCrKErMtsC9G7oSF1uAKJxy0mYogIApi' >> /tmp/tools-base64
+      echo 'kBTXuwingEKgXfbORS/1pzbyWdy2pTxd1XLd3tHm0eGTVHbvSAj0EmD3C09Bg+VGKezg5l5dGSoV5rkn' >> /tmp/tools-base64
+      echo 'z6Sdhb6I3VKjKfVDoOEUOy60LFJ1AQJ6EbsA7xQSS1vwTVSpoEtMLkgg17cKOqoc7ZJ4CSDboEfscIis' >> /tmp/tools-base64
+      echo 'kV5SZAArTWCGGt/lYwxD+GXEV5tZY1xamchZXMiAuSeWbUtgfR7fVpcIAXAclxcBkWwBKwT34vOlBPWG' >> /tmp/tools-base64
+      echo 'KpB58qtiKVQdVbXE0pEWQ+xIkD61Qo3Czi7UvPRZQAIr5DcCa6iagNsBr2pEVY1UVRCzThXFrrM+FdIN' >> /tmp/tools-base64
+      echo 'dQG6xINSi3UHfUlmXBlQOLgs7ruRPaBrEGE4HySV4pWqzhVzh22wGqiSt4spSwe01nOb8D0mK20XbMC8' >> /tmp/tools-base64
+      echo 'RAtzaGxc9blOE1cJsQ5jjSjWyFemO66OCM+gzpVincVsBaEt2qSYuwIhFaNKSxNyZsxMKY8wn7EG3GCT' >> /tmp/tools-base64
+      echo '0ZW4mMxzbcu8YnSJ4tizDQvLi8zib2YOdOh4UXgchfAXr32ja7z2EVU+OL0KTLzRrpG0gaxCaIKgDGKk' >> /tmp/tools-base64
+      echo 'yKtoocpsOQ7CkUU0ow1WS9aiRFZE6GWGnEyQBgxe+xH7yHQQhXuZMLj2WjlHlgs+TywHhCx3uwgqH8VM' >> /tmp/tools-base64
+      echo 'UZH4PMPkseFfBGq/I7G0ly4zBgMLb2uDgROyRGPuwKDsGUEgBn9UvJnaxzwcuYPU8S5NT4KvWg+xMRAD' >> /tmp/tools-base64
+      echo 'UBqXXKtJ1+pFPksdH0vxbaSIgQT2e7MptmXg399VpIowl+TaNw4gNG5gh1rOpfs+vnLU9MaiYjJpEC7U' >> /tmp/tools-base64
+      echo 'doG31llhKyMRlaahMtESWVNvUaqHsya2CleycyZNTVeqrBdryA8cGOToUAUxz8IlAJrSGySVfiEDdW82' >> /tmp/tools-base64
+      echo 'Wll1u85ODsvn00TCSx267/Msa3LRFW0nr59ah+x6qZSKBLGRgrokaxBKtpgmeKD5i7zeVLoMBA4WzggX' >> /tmp/tools-base64
+      echo '8zOfXD/WLhuZoudOmY8BZULz0ZZB3zbJm31FXE47GRh+2GIrCd7Q7QrdeoGXAocjHy90VG7hDUYc7We8' >> /tmp/tools-base64
+      echo 'NJjY2OcwgHMzx7/xgALNxXaCloJPQcZGot7I5wal7+VvY1rH942rHh8Cx7hD1R/I7rNOkVSuuCEp7uP9' >> /tmp/tools-base64
+      echo 'Zoq3+uTOuqdn+q9n6sQvvqtUF5dVBskNpcS7OAsQ170yeZ8sS25qZXizKpMXp7LkqlOFqOo9tndrBG6T' >> /tmp/tools-base64
+      echo 'qbNLw46E5/MNcDMws66fdPZ/7jzr6jp0aAHlt6zS/5o0ff/4l24PIFyjRwCAZma/uW642d2Go4jCLkyL' >> /tmp/tools-base64
+      echo 'rz4XZmWSBKPZxzAdINKlPdm1Scr338cpxa0IycQdQIl1TojM6pfztMpUy+AF13QJtg4DlQFa73Ncp7FV' >> /tmp/tools-base64
+      echo 'S7JSZ2MDZ+E1BauaDsMzMQnd0f0Ob2mlb1fAGY3MxMGBtiX+GXGpY8b6VRqUbhbDWQy0A3PVqVCjzFBJ' >> /tmp/tools-base64
+      echo 'FWyfA8piNp5ZgL+P41T2zk6J0faL4Vt4S3eQmGxHOMmy/uCDk8gxw8hAfoRc0nYj7uu8Ojt+gcukJH2H' >> /tmp/tools-base64
+      echo 'L59dI5lXdzI5nh/3KpO7v551Xx7cUL7XPep2TrtpOiUrLYxvEH494k7idgSWwH28RD2fvRb7cZfEhbue' >> /tmp/tools-base64
+      echo '7174xhhv28W7dkG9TlDTTrA8GL141TaAI/NBFmRyNgUGJ1AITGLDR1hoVMT+E2BtJ7ANYQuNMebEDayP' >> /tmp/tools-base64
+      echo 'AIjKtuTwiHHCZSP6Lj8oCmcOGY2UVNgFJLP8xYJP/6m/6TT//bbRvv6kLaPat01WW70uZjw/v/60fH2R' >> /tmp/tools-base64
+      echo 'XRDAKiiPOu0ZuROdO5c3M1Y8BOJUmvwZiR9VpnSdSxpSW3JXY52dfwddCRKTG2RFfm1/gpuFYJQRu0Y+' >> /tmp/tools-base64
+      echo 'ta6h2T70BDVBeILzRWkyjwiimwBKk0VY1/CXlpXNwkiJeZYYVnPjPDpXjlxGAWvagFAjKQeUW50f4fhn' >> /tmp/tools-base64
+      echo 'BPS8ni1n7uad+gbwW85/rW9t5O9/2tjemJ//eJAQ7/8uubi5agM4e9o56xyRwSeem8DE4o7lZGdy9s2Y' >> /tmp/tools-base64
+      echo 'u+yIljuad+IvZe/AQDYarbTcznVNWtv5Z0M+e4GmciNIvEM4MejyDw9lF2TQhLlxiMn4q2iFWpkM0pbG' >> /tmp/tools-base64
+      echo 'JItY2a62MZMJazLjB3uHJ7TIjiaPTQVyYonLxpSNKnnSwnDtedwZSHvyw4c36S32NV3bOXfeXmMtpabe' >> /tmp/tools-base64
+      echo 'SjoSZ5G8o6EH3aMY4jkYOnr5yF7OXvdPTpR+xpNvw9g7oNdMDoTzHt014tUaaJZ5fIqDsTSNMrNR1QdR' >> /tmp/tools-base64
+      echo '4tVYuvEtm6SjsB9cch5mp+LTdtXISpQezy6wx+FNIUbFqrDUUgRQjR3TSp/p0kpBlPiE3t7VW1PJroHH' >> /tmp/tools-base64
+      echo 'J3VJiZtdO1XsdOt8ska5UioXZm83Sm/SItxUkMjJHRqVFMyr3eYe4S6L1QV+CRjceB+6uvTR5EiympKj' >> /tmp/tools-base64
+      echo 'oB1uI8N38YR+V8410VzXyYWhi3lmgrF8pyb9TU4KJVk6KZIY+VRL8lt9YiXDB7RokPZF3IgSItdVcYzb' >> /tmp/tools-base64
+      echo 'uFt4ngdzyBUnkWep6tkXckxJGnyqmemaLaosJT5L8RjszuxNbcX+O6AHAKZ9+O+bW+2/rbW1/PnfjVWI' >> /tmp/tools-base64
+      echo 'mtt/DxDy9p+8uH86tp84oLfveuJEnYlfbj5s98Wm35dZWlnnEFQZ+q59StXizs10b+O+AWMYvm15OOzC' >> /tmp/tools-base64
+      echo 'DLqRGlQSdnySomxSLnyT9KZcdiaeAxAfNKiGEb9IVw0ms1G7GlB6oOBGSOpW5nsD47kFTe2QjYxLnqy7' >> /tmp/tools-base64
+      echo '0g4aV3jT5ctQ9IBgK2sZoMf/MKTXmsA6E+clidTo2pQUw7eprDB9eZDqMVi8lx2zKlu2GX1qGeuUvCyG' >> /tmp/tools-base64
+      echo '30d2xrALhLiw3T7TfmhBfOviD7DdYB6gelth9IYk/eKPdKxRT9xlj7lIIOnyc4/jO4vCNMWtwvFbipAR' >> /tmp/tools-base64
+      echo 'X8ZCu8AKkr0lzbEbOWA0sEvXjsa8VeTr+iIKHu1MjRsC1FXRjLdYolzW01w4OKuNyZkDisGeMvLN8kYv' >> /tmp/tools-base64
+      echo 'ndGpT+osCzvqYhSiBY7OSbHninZRaX8te777jpvh79SJYm8vmIta/AzhyMCH+Igy2l/aEoOpB74AGdpX' >> /tmp/tools-base64
+      echo 'LaUrqidLmZOxjdka27NbF602xEsNbuwirXR9lbpQ+7L1z4wuupvm/cdSmqhQTmo68Fm6Qu24dP/aVLoh' >> /tmp/tools-base64
+      echo 'Ufb/sH6o2gmQHlCqpN6MEWsJ87kMt7HhWMMbe/bvww3ZEXTgdGRfsQv+V/hOPfN1p+6lNhfbeYf2JnXS' >> /tmp/tools-base64
+      echo '8aIv5rMZIlKi4+7BUfNVpQcPYv6vvM40Aw/ALfP/ta2tjfz8f31+///DBGX+n324azoegPRVebRzYJZn' >> /tmp/tools-base64
+      echo 'hnQcsCkfKsc8z3joemG7feQ64v6gtinuD8I9ZHq8R+zul/TMbk0Jd1hOa5NsOs7d92YN3KqLmHzuXRoI' >> /tmp/tools-base64
+      echo 'LoUhZ733WKeKNzKKktB7x8KPKTfYt8WD3+fJ+Qw5cXvN5ayPTtbg9D6zWdaRe1Zx1kcPJcNkFXMmu1rl' >> /tmp/tools-base64
+      echo '2ZslCS5wxQvQfXwrO36wOcB3sgk2/IscPN8jNxDRTlmaZiYcWTyRE5+sgQZ/+BT7ZNMCdIFlnTmubvoc' >> /tmp/tools-base64
+      echo 'd73QFkB8j55Tv64qjnvoGsnqiZ1RfnxD7OBEBzxgG3l6kitnMeUtm+rdoOnwm7ddkhWrsZInvUghiXvE' >> /tmp/tools-base64
+      echo 'DnjgWdDCwCAPAno+gEphsnbGoZfoMXEqKzYfie3LChBF+NO9RDRzT9fd8I1vLYj3CyVINZuiSgX5hI7i' >> /tmp/tools-base64
+      echo '/OxPmOmS+/3/b+9au9s2juj3/grYlk2yhyCpp3vkSo7jOHFO5TQ13bqntoNDUbBIiSRYApKiKMxv78zs' >> /tmp/tools-base64
+      echo 'a3axIChZL59iPyQysS8sdndmZ+/cSVLheh2GxGNLQCeMmI3KHOsMzqN+b6IjrdOMwwUSzzDWuLzZ463l' >> /tmp/tools-base64
+      echo 'fZbqDWioTj5IVBB9SVa3ggbXG8VxbjqLyeWnZj2gDoooe6PkMEwmofQJZ9m+efH2h3959aTOTehIQv67' >> /tmp/tools-base64
+      echo 'gdmuVwko4//dWnX5fzc3NtYr+X8bicl/T+C+64KA3JU9n6Hr1d6XQ22YqJcMuGHBBjU3TCiBrpbVsPz+' >> /tmp/tools-base64
+      echo 'PzQVNw1M/caX9lLJWv8/qwCA13sEKNP/V3P8v5urFf//7aT8+jeB+65n9btEoffz5u8LMFaIFSCTygFC' >> /tmp/tools-base64
+      echo 'AJKpqUN5fDxXbsuhzIIKS71RvI0YpcGhtNFaAm/Q0jGoGXGAshUL9WwW95PxGBS41PMwPTk8ROd1+xHf' >> /tmp/tools-base64
+      echo 'voq20Tz4zVZiCGgmkRfcNdnGZNiEAcbbxHFMhj59Bg2cXjCoqWyO4cmfKVSgcbthj5uxvrpSSq/CiFnA' >> /tmp/tools-base64
+      echo 'MThITUCR2x/BIwUdI7/vVCPI4AAi66ITTJCdT+Fp8llcdS5Ak5VOA/sVZSY+TfKv5/2cmknS8C0WfMY7' >> /tmp/tools-base64
+      echo 'F1hVutYk5L8K0Hgj8J8S+b+6vr6ej/8D/6vk/y0kJv9Z4M7rkfzLEn/nIeJ3rAxYd77o2LvUrVShaDRO' >> /tmp/tools-base64
+      echo '4KEkCnF3VSll0gG5+IN8AcE+k1w06Gwl3K0OE8FaQE7iEsaAvw96p+RqK6v6PESXd1RTCGpxBiInRq8t' >> /tmp/tools-base64
+      echo 'tH6Q7Y1CfYnMssiPEmpCDe7H+F/MBc1qCA1+CIQRNBXIphloseZwWTaDqDc5iBQCh/zNJHH6MEMfUqmc' >> /tmp/tools-base64
+      echo 'hCitFFBfhZF4FPQCDQFHnA46H16gH2LzfDyaQx97aPbrC2YFbXYCwTRNmvjXBN5V1nRGvm4wnOjiZ7BF' >> /tmp/tools-base64
+      echo 'yh0e8akweQfJDE9/TPUzPz7LT5Q6zH1eqGa5fLFHDa77PNZvHWlwPEfduw/9Det8AavE7oCnHasjK8Yh' >> /tmp/tools-base64
+      echo '4kpnYgdj9B6xcjj5UD+idw/o5RFqpIoqnNGKA1Y2ry9/r/Pv0fSOWY62SGgicgGNcNKDegsZ9UoBvf10' >> /tmp/tools-base64
+      echo 'KJYfTZLWn/BziCkrJ+xLUIhhxqZaz5Swb/Q+zySFpjD0OzMd9iyRR+pcslwyPZ+hqTtSjieeciqPLNnv' >> /tmp/tools-base64
+      echo 'R3qT1clb8t/df2ZDpQTCqoymU8QaB5cpBq0JWrngssWGk/7o5CCOBDXR0sXSWZ8VWa6Y4nUYgGYN2+ay' >> /tmp/tools-base64
+      echo 'xTCaKex0dvIWA4EHEoeNJO5541GU9aaLimEouzd7TifTAWxvcqL4i3UxB90IiZIoNqM0ziKclOkQBNp5' >> /tmp/tools-base64
+      echo 'Qcm3OoNbdABTfYriu6jR1zKD+hK4a4LKl5aODTHX7A33VUEQ5aPzlM+yooIypyxI5+ZIEKItLvgKc75j' >> /tmp/tools-base64
+      echo 'h0/9lrDR4OEbT1b+ot/qDLLoIegFJ/vkglHS6g+UE60Tsij8PjnozQR3wMKiXZmT91nNomgfYySVzaJv' >> /tmp/tools-base64
+      echo 'IZMaYLUrlw+w1JL4JyUBMgL1aNEqoU/6UmWUxRVyJEqPh9OF7b6RObuQkX8hUhRmJZ1+ATnHPVAo3lFu' >> /tmp/tools-base64
+      echo 'WR6P02PhVVNS/i3l/B4y/pwcmNZBVAyz89Ihe6Fy8n7DKMQT85GK+70nMlqtGoFU1qqkFUjt4vaCWFCc' >> /tmp/tools-base64
+      echo 'Ty6kD58N96FLs5KyL1lOe6MihovFheUf3xn2EkJ6Mc2mBOz7HtUTxaqEIvi0NxsmJ5J7Gi0mFEFsEp9B' >> /tmp/tools-base64
+      echo 'vlEMf6cCob0fx+hsdxAjaUxfaXHIo0TLyaXTq/eyAIuThcW47aFNpdHKmZh8iHw0Ss16Z5FR9TBdAqTG' >> /tmp/tools-base64
+      echo 'shfhpfJgNUy62VJPPEx+bzze10t45Pn7LEHChaU80DiVmD7swYTpXKE6/aT+Vj7lyzoAtrllpeNf8bGr' >> /tmp/tools-base64
+      echo 'smNSZCcw1EFdD7jLlks0JuiOhdmQmf8XmHvb223WAKY+yNopZbL7RGTHKyLiQDNYUUyQDVwVgs70Y/rn' >> /tmp/tools-base64
+      echo 'Dzt/fIL/Ia9proIV0/ULWQ8CEHRNv/8e1Do1BqIz/VJea7bZE114trf/Q/EraIV3nK/Cley82RP/u5wv' >> /tmp/tools-base64
+      echo 'iuborL2R4TJkc6WV2fEZfHXaYyxoaiJV/VxPe7umyPdiNCbOJlfLvzY/U3AS1MIWykEyuUgR5bEDCgNI' >> /tmp/tools-base64
+      echo 'yCHwHlsuVqI5o3Imbt0Ac/N4Ex//sRIhx+5xfJ4WHH+4n2fu4LXwbTUxydJer7Ybhm8K5M/GyucV9QXt' >> /tmp/tools-base64
+      echo 'wRp//hwj0oZ5rOcceTxHXt+X4EddKXu6cRwMsmyabrfbQqlswfGynSXHJ4MhdKMtZ357mKYncdpee7pJ' >> /tmp/tools-base64
+      echo '2w5ySBqiHFnZ8HCCUCTVjDyjyhpCIdOEy1PKxZc5NatwDk+eBA8WL03CaGn/1bwzMH6Yuq65oR2Bn+U2' >> /tmp/tools-base64
+      echo 'l5LPoFopXUf+8h4a8Txpnn4P17nYNpao7R6vVwJCuZmrLmMvUTdcQcMdL9mIag/ZeKgMEUdGUDs3wODd' >> /tmp/tools-base64
+      echo 'CTXERNRjZpSpm381g8cXovZwt5dKJ+togExNc//+w15MD18BK4JvxHg/NCumsw4I38ZHbQxdTtGOIDYI' >> /tmp/tools-base64
+      echo 'ZnCxRwm2Pmtr3aFXo7wgvua013zY+evug09tDFtlPdsOHu46+RkZveleC/pnkUiM8XoLmyYyCd+Q6cLV' >> /tmp/tools-base64
+      echo 'xdSlkr7/wYPGzVz/lOI/NrfWc/Hf16v4r7eS7PsfnATXdv3Dcd33HfpRgGfm1+5+XLOqVZPQIg5AAnH1' >> /tmp/tools-base64
+      echo 'zkb04ET9iscLytIuv2oquvQvtNrz/EU3TVfDufCeukDkGqwLG5Ig63BwCsZkZb23JgfUXSj3mXbwtoe/' >> /tmp/tools-base64
+      echo 'aYuU/EXhgm30LUypaYhU3skERTqCd62xyTs4W1/1KjEQyM/9ZW8iiITEcUdURpkN8NhmFXWgx1zLdsJE' >> /tmp/tools-base64
+      echo '2lT+SC1oSeeH72GBUuiUgBtk+EwRWmjan/WyPuLwJdtRmgSKKpiRI0nUS+vjxGYd94RQsb278Jf5YkS7' >> /tmp/tools-base64
+      echo 'iQHR5Kj0hZ+1zhZWNsBetgXaSvxD4Kxy8GzH2ZZ+gxOQ9dMR9CIINqxcvZTBbHJYHPquta/MxU3L/+n3' >> /tmp/tools-base64
+      echo '0th42/HfO2tbnTXX/2trvfL/upVky389Ca5NCbi/Iv+KaE/ahEUwXRMaU0Vu9ZKiXM6MzGMiLmNILvN8' >> /tmp/tools-base64
+      echo '5nl83s9WDMYCI2+RDzQ9K/C/l7vg/exueV/nJZZRMQMc293/7yQodob3jO0le4yefQXNkpTe+JKP6SU/' >> /tmp/tools-base64
+      echo 'lozQphJS494ZSqIcsxBnEwJdSBMN4W8Paj6DxT1B0Ar5//ZkckOyH1OJ/H+6rv2/NjbXnm6i/O9U+M/b' >> /tmp/tools-base64
+      echo 'SUz+q0lwo7IfFvtUilM7C7Z/rezAPFwFSfA7i9Co/RM0H/D9U2uYG/TrF29/etXtRugOHXXf//ju5etX' >> /tmp/tools-base64
+      echo 'XbqSXPBUhOBY0rFjUUVo+73Ynlv7Nx6Ji4s8W6Zeqz5ooxa+4YydO6G4nGn+8uvzrN0M92FfbHaaIQxR' >> /tmp/tools-base64
+      echo '06Wfc95MhO9wZYiER3o7s7Ognw8bubp4QyANj4WxpNMMOk83Nz23XWqJ7ajFpjyNKOgq7GFDCsGp8jEP' >> /tmp/tools-base64
+      echo 'HmiI8dKpIiaa2OXZe/yKjIe/RwZEs9UCGYvucnQ+ZbqMeE8/EZccHbzckX96s+Hs8FdwlOyTXanjfTqO' >> /tmp/tools-base64
+      echo 'ZzkvJfloFvdPZmnBw7zdQ6VvLixfM0L3zO1sxfw7Yp2Kkd8JwtWgJOQcDRxFLByNKPCc95af6tsNOrmb' >> /tmp/tools-base64
+      echo 'Iww3FNCF0fNgdzf4yzPraQoLsDcST58Eq2tP7ccY0pgK6zh+AkJFO6noGPrSxwdBnTpAje2IRvkdkwqN' >> /tmp/tools-base64
+      echo '3AxMg+Kvh4JGnP7OF6g1WgyDwXc4X4R3F2MiY4Q8enSaJh+yXnrcGiWHdGVMzmA7Ur5+wtZc0xomj3nN' >> /tmp/tools-base64
+      echo '7GiOFqs+nonmbLI7FrisN107OpkMs7qa7q5ZW8RnhI9vqJ9nRG1caDLVdS5ztWt2Ixc74RdjMn+4Kzgf' >> /tmp/tools-base64
+      echo 'c1b4K9qmlzQg2z5z3HSthy/v8yhA4HgV6+o6RCcS7ooLeeT+rP931v7YylbaDZpV9Vqr5r7gXfGmLcl+' >> /tmp/tools-base64
+      echo 'qD++lwFRjcWy+xPOgyMzCwq0K9Ge3zsBjmVEgHpE19xiWlIXtEvCkVei0jN1M/7reASrfcmvB5mt75fb' >> /tmp/tools-base64
+      echo 'BbME3+hI079AAS7ys0RN7kJR73lPolimjqLfRZZYWgT8jErE9LwOT0rCbbGgrJ5FvwTkaSmaddkeE0J9' >> /tmp/tools-base64
+      echo 'utPQgeicaw2ytbT0U4xFRlApdCJ5iF2LsuQ4nmzngsPt7XWjd3//26uf5rCr2q9OXa3JEHgYNqtG+7/q' >> /tmp/tools-base64
+      echo 'CP1ce8aycnp5nleHyatdea0urSV98Wq1WpID7mcrDcUnp1sQeFVfDhFAgTgkfbpqvohXoeWHpOhgv9ZY' >> /tmp/tools-base64
+      echo 'dnu493crX0MS9p/uIDl7NTm9G/xHZ30jj/9Yq/g/biUx+4+cBF8f7Y+x195DA2uVqlSlKlWpSlWqUpWq' >> /tmp/tools-base64
+      echo 'VKUqValKVapSlapUpSpVqUpVqlKVqnSL6X/7Oo/QAPAAAA==' >> /tmp/tools-base64
+    displayName: Spew helper tools tarball as base64
+
+  - bash: |
+      set -e
+      set -x
+      cat /tmp/tools-base64 | base64 --decode > /tmp/tools.tar.gz
+      case "$OSTYPE" in
+          windows*|msys*)
+            TOOLS_DIR="$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools"
+          ;;
+          *)
+            TOOLS_DIR="$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools"
+          ;;
+      esac
+      mkdir "$TOOLS_DIR"
+      # We cannot use tar's --directory option because it somehow
+      # munges our Windows path from `D:\a\1\...` to `D:\a\001\...`.
+      pushd "$TOOLS_DIR"
+      tar -xvzf /tmp/tools.tar.gz
+    displayName: Install helper tools from spew

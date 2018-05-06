@@ -1,0 +1,35 @@
+parameters:
+  cache_key: 'cache'
+  debug: 0
+
+stages:
+  - stage: BuildDist
+    displayName: Build distro
+    variables:
+      - template: variables.yml
+        parameters:
+          debug: ${{ parameters.debug }}
+    jobs:
+      - job: BuildDist
+        displayName: Build a tarball for the dist and publish it as a pipeline artifact
+        container: houseabsolute/ci-perl-helpers-ubuntu:5.30.1
+        steps:
+          - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl
+            displayName: Show environment
+          - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-build.pl
+            displayName: Pre build
+          - task: CacheBeta@1
+            displayName: Define build dependencies cache
+            inputs:
+              key: '"v1" | "build-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/tools-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/build-deps-cpanfile'
+              # We can only reference pre-defined variables here.
+              path: $(Pipeline.Workspace)/local-lib/tools-perl
+          - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-build-deps.pl
+            displayName: Install build-time dependencies
+          - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-dist.pl
+            displayName: Build distro tarball
+          - task: PublishPipelineArtifact@1
+            displayName: Publish distro tarball as pipeline artifact
+            inputs:
+              targetPath: '$(CI_ARTIFACT_STAGING_DIRECTORY)/dist.tar.gz'
+              artifactName: dist-tarball

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+perl=$1
+shift
+script=$1
+shift
+
+case "$OSTYPE" in
+    windows*|msys*)
+        brew=berrybrew
+        tools="$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin"
+        ;;
+    darwin*)
+        brew="$PERLBREW_ROOT/bin/perlbrew"
+        tools="$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin"
+        ;;
+    *)
+        brew=/usr/local/perl5/perlbrew/bin/perlbrew
+        tools=/usr/local/ci-perl-helpers-tools/bin
+        ;;
+esac
+
+set -x
+"$brew" exec --with $perl \
+    perl $tools/$script $@

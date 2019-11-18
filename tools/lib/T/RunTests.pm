@@ -130,10 +130,11 @@ sub _maybe_run_coverage_report {
         or return undef;
 
     if ( $c eq 'coveralls' ) {
-        path('.coveralls.yml')->spew("repo_token: $ENV{CIPH_COVERALLS_TOKEN}\n");
+        path('.coveralls.yml')
+            ->spew("repo_token: $ENV{CIPH_COVERALLS_TOKEN}\n");
     }
 
-    $c = 'codecovbash' if $c eq 'codecov';
+    $c = 'codecovbash'  if $c eq 'codecov';
     $c = 'SonarGeneric' if $c eq 'sonarqube';
 
     $self->_with_brewed_perl_perl5lib(

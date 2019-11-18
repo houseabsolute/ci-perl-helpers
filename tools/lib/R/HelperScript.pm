@@ -458,10 +458,10 @@ before run => sub {
 
     return unless $self->test_xt;
     ## no critic (Variables::RequireLocalizedPunctuationVars)
-    $ENV{AUTOMATED_TESTING}  = 1;
-    $ENV{AUTHOR_TESTING}  = 1;
+    $ENV{AUTOMATED_TESTING} = 1;
+    $ENV{AUTHOR_TESTING}    = 1;
     $ENV{EXTENDED_TESTING}  = 1;
-    $ENV{RELEASE_TESTING} = 1;
+    $ENV{RELEASE_TESTING}   = 1;
 
     return;
 };
@@ -480,7 +480,7 @@ sub _posix_path {
 sub _show_env {
     my $self = shift;
 
-    print "\$^O = $^O\n";
+    print "\$^O = $^O\n" or die $!;
     print "Env:\n" . Dumper( \%ENV ) or die $!;
     print 'Cwd = ', path(q{.})->realpath . "\n" or die $!;
     if ( my $tree = which('tree') ) {

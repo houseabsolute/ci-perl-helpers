@@ -171,7 +171,7 @@ EOF
         my $self = shift;
         my $from = shift;
 
-        my $from_tag = $from eq 'build' ? 'tools-perl' : $self->perl;
+        my $from_tag  = $from eq 'build' ? 'tools-perl' : $self->perl;
         my $with_perl = $from eq 'build' ? 'tools-perl' : 'runtime-perl';
 
         my $cpm = $from eq 'build'

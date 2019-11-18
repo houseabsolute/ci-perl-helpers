@@ -116,7 +116,7 @@ sub _tools_base64_step ( $self, $leading_ws ) {
     my $tarball = $tempdir->child('tools.tar.gz');
 
     {
-        my $dir = pushd( $self->_tools_dir );
+        my $pushed = pushd( $self->_tools_dir );
         _system(
             'tar',
             '--create',

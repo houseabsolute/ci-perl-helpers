@@ -4,6 +4,12 @@ This repo contains a set of tools and CI templates designed to make it easy to
 test Perl projects with multiple versions of Perl across Linux, macOS, and
 Windows.
 
+## Alpha Warning
+
+**Warning. This stuff is all still pretty new and I may break it while working
+on it, I may break compatibility with any given commit, and I may brake for
+squirrels in the road. You have been warned.**
+
 ## Creating a Service Connection
 
 In order to use these templates in your pipelines you must create a "Service

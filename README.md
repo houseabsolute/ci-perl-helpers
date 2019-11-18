@@ -66,6 +66,22 @@ This will test your Perl project in the following scenarios:
   when `prove` is run then your pipeline will still pass, but a failure to
   compile your code will cause the pipeline to fail.
 
+## Pinning a Helpers Version
+
+If you do not specify a `ref` when referring to this repo, your build will
+always pull the latest version of this project's templates. To pin your
+project to a specific verson of these templates, add a `ref` key:
+
+```yaml
+resources:
+  repositories:
+    - repository: ci-perl-helpers
+      type: github
+      name: houseabsolute/ci-perl-helpers
+      ref: refs/tags/v0.0.1
+      endpoint: houseabsolute/ci-perl-helpers
+```
+
 ## Customizing Your Build
 
 There are a number of knobs you can turn to tweak exactly what builds happen.

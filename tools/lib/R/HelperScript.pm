@@ -434,14 +434,20 @@ has coverage => (
 sub _build_test_dirs {
     my $self = shift;
 
-    my @test_dirs = $self->extracted_dist_dir->child('t');
+    my %test_dirs = ( t => $self->extracted_dist_dir->child('t') );
     if ( $self->test_xt ) {
         my $xt = $self->extracted_dist_dir->child('xt');
-        push @test_dirs, $xt
+        $test_dirs{xt} = $xt
             if $xt->is_dir;
     }
 
-    return \@test_dirs;
+    # When running coverage testing we need to pass an absolute path to prove
+    # because of https://github.com/pjcj/Devel--Cover/issues/247.
+    return [ values %test_dirs ] if $self->coverage;
+
+    # But absolute paths cause issues on Windows, so by default we won't use
+    # them.
+    return [ map { path($_) } keys %test_dirs ];
 }
 
 sub _load_cpan_meta_in {

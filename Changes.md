@@ -6,6 +6,9 @@
   the tools as a base64 blob required a manual step to ensure that the tools
   were up to date. Fixes #7.
 
+* Only pass absolute paths to `prove` when running coverage tests (which are
+  only done on Linux). Passing absolute paths causes issues on Windows.
+
 
 ## 0.0.4 2019-11-19
 

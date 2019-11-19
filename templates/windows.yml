@@ -115,6 +115,11 @@ jobs:
       - bash: |
           set -e
           set -x
+          "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 install-dynamic-prereqs.pl
+        displayName: Install dynamic dependencies added by running Makefile.PL or  Build.PL
+      - bash: |
+          set -e
+          set -x
           "$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin\\with-perl" 5.30.0_64 run-tests.pl
         displayName: Run tests
       - task: PublishTestResults@2

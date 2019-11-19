@@ -37,6 +37,14 @@ use warnings;
         doc => 'The repo to clone and test - defaults to using DateTime.pm',
     );
 
+    option branch => (
+        is      => 'ro',
+        isa     => t('NonEmptyStr'),
+        format  => 's',
+        default => 'master',
+        doc => 'The branch of the repo to use. Defaults to master.',
+    );
+
     option coverage => (
         is     => 'ro',
         isa    => t('NonEmptyStr'),
@@ -162,6 +170,7 @@ pushd $CI_WORKSPACE_DIRECTORY
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl ) || \
     bash
 EOF
@@ -204,7 +213,7 @@ perlbrew exec --with runtime-perl \
             --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 EOF
 
-        return sprintf( <<'EOF', $from_tag, $self->repo, $cpm );
+        return sprintf( <<'EOF', $from_tag, $self->repo, $self->branch, $cpm );
 FROM houseabsolute/ci-perl-helpers-ubuntu:%s
 
 RUN useradd -m -u 1001 vsts_azpcontainer
@@ -213,7 +222,7 @@ RUN mkdir /__w
 
 COPY ./tools/cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 
-RUN git clone %s /__w/project
+RUN git clone %s /__w/project && cd /__w/project && git checkout %s
 
 RUN chown -R 1001:1001 /__w
 

@@ -72,6 +72,8 @@ jobs:
         displayName: Install test & runtime dependencies
       - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl
         displayName: Prep distro for tests (make or ./Build)
+      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl
+        displayName: Install dynamic dependencies added by running Makefile.PL or  Build.PL
       - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl
         displayName: Run tests
         env:

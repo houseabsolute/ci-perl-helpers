@@ -11,6 +11,7 @@ use File::Which qw( which );
 use File::pushd qw( pushd );
 use FindBin qw( $Bin );
 use IPC::Run3 qw( run3 );
+use Module::CPANfile;
 use Path::Tiny qw( path );
 use Specio::Declare qw( enum );
 use Specio::Library::Builtins;
@@ -444,13 +445,28 @@ sub _build_test_dirs {
 sub _load_cpan_meta_in {
     my $self = shift;
     my $dir  = shift;
+    my $name = shift || 'META';
 
-    for my $file ( map { $dir->child($_) } qw( META.json META.yml ) ) {
+    for my $file (
+        map { $dir->child($_) }
+        map { "$name" . $_ } qw( .json .yml )
+    ) {
         next unless $file->is_file;
         return CPAN::Meta->load_file($file);
     }
 
     return undef;
+}
+
+sub _write_cpanfile_from_meta {
+    my $self     = shift;
+    my $cpanfile = shift;
+    my $meta     = shift;
+
+    $cpanfile->spew(
+        Module::CPANfile->from_prereqs( $meta->prereqs )->to_string );
+
+    return 1;
 }
 
 before run => sub {

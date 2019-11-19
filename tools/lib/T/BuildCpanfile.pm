@@ -4,7 +4,6 @@ use strict;
 use warnings FATAL => 'all';
 use autodie qw( :all );
 
-use Module::CPANfile;
 use Specio::Library::Path::Tiny;
 
 use Moo;
@@ -36,7 +35,10 @@ sub run {
 sub _write_cpanfile {
     my $self = shift;
 
-    return undef if $self->_write_cpanfile_from_meta;
+    if ( my $meta = $self->_load_cpan_meta_in( $self->extracted_dist_dir ) ) {
+        $self->_write_cpanfile_from_meta( $self->prereqs_cpanfile, $meta );
+        return undef;
+    }
 
     # This will be installed already in Docker but not in macOS or Windows.
     $self->cpan_install( $self->tools_perl, 'App::scan_prereqs_cpanfile' );
@@ -58,18 +60,6 @@ sub _write_cpanfile {
     $self->prereqs_cpanfile->spew(@output);
 
     return undef;
-}
-
-sub _write_cpanfile_from_meta {
-    my $self = shift;
-
-    my $meta = $self->_load_cpan_meta_in( $self->extracted_dist_dir )
-        or return 0;
-
-    $self->prereqs_cpanfile->spew(
-        Module::CPANfile->from_prereqs( $meta->prereqs )->to_string );
-
-    return 1;
 }
 
 sub _coverage_prereqs {

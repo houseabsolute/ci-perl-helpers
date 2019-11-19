@@ -67,14 +67,17 @@ jobs:
           artifactName: dist-tarball
           targetPath: '$(CI_ARTIFACT_STAGING_DIRECTORY)'
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl show-env.pl
         displayName: Show environment
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl pre-test.pl --runtime-perl ${{ parameters.perl }}
         displayName: Pre test
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl build-cpanfile.pl
         displayName: Create cpanfile for test & runtime dependencies
@@ -84,18 +87,22 @@ jobs:
           key: '"v1" | "runtime-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/runtime-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/prereqs-cpanfile'
           path: $(Pipeline.Workspace)/local-lib/runtime-perl
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl install-prereqs.pl
         displayName: Install test & runtime dependencies
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl prep-for-tests.pl
         displayName: Prep distro for tests (make or ./Build)
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl install-dynamic-prereqs.pl
         displayName: Install dynamic dependencies added by running Makefile.PL or  Build.PL
       - bash: |
+          set -e
           set -x
           "$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin/with-perl" tools-perl run-tests.pl
         displayName: Run tests

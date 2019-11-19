@@ -19,6 +19,8 @@ jobs:
         parameters:
           perl: ${{ parameters.perl }}
       - bash: |
+          set -e
+          set -x
           if [ "$CIPH_COVERAGE" == "" ]; then
               exit 0
           fi
@@ -50,31 +52,55 @@ jobs:
       # config files from the repo for things like coverage. For example,
       # codecov.io uses a AML config file that goes in the repo.
 
-      - bash: 'mkdir -p $(CI_ARTIFACT_STAGING_DIRECTORY)'
+      - bash: |
+          set -e
+          set -x
+          mkdir -p $(CI_ARTIFACT_STAGING_DIRECTORY)
         displayName: Make artifacts directory
       - task: DownloadPipelineArtifact@2
         displayName: Download distro tarball pipeline artifact
         inputs:
           artifactName: dist-tarball
           targetPath: '$(CI_ARTIFACT_STAGING_DIRECTORY)'
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl
         displayName: Show environment
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-test.pl --runtime-perl ${{ parameters.perl }}
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-test.pl --runtime-perl ${{ parameters.perl }}
         displayName: Pre test
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl
         displayName: Create cpanfile for test & runtime dependencies
       - task: CacheBeta@1
         displayName: Define runtime dependencies cache
         inputs:
           key: '"v1" | "runtime-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/runtime-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/prereqs-cpanfile'
           path: $(Pipeline.Workspace)/local-lib/runtime-perl
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl
         displayName: Install test & runtime dependencies
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl
         displayName: Prep distro for tests (make or ./Build)
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl
         displayName: Install dynamic dependencies added by running Makefile.PL or  Build.PL
-      - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl
         displayName: Run tests
         env:
           CIPH_COVERALLS_TOKEN: $(COVERALLS_TOKEN)

@@ -10,6 +10,7 @@ use warnings;
     use autodie qw( :all );
 
     use FindBin qw( $Bin );
+    use File::Copy::Recursive qw( rcopy );
     use IPC::Run3 qw( run3 );
     use Path::Tiny qw( path tempdir );
     use Specio::Library::Builtins;
@@ -43,6 +44,13 @@ use warnings;
         format  => 's',
         default => 'master',
         doc => 'The branch of the repo to use. Defaults to master.',
+    );
+
+    option code => (
+        is      => 'ro',
+        isa     => t('NonEmptyStr'),
+        format  => 's',
+        doc => 'A local directory containing the code to use for testing. This should be a git checkout of a Perl project.',
     );
 
     option coverage => (
@@ -213,7 +221,19 @@ perlbrew exec --with runtime-perl \
             --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 EOF
 
-        return sprintf( <<'EOF', $from_tag, $self->repo, $self->branch, $cpm );
+        my $distro;
+        if ( $self->code ) {
+            rcopy( $self->code, "$Bin/tmp/project" );
+            $distro = 'COPY ./dev/tmp/project /__w/project';
+        }
+        else {
+            $distro = sprintf(
+                'RUN git clone %s /__w/project && cd /__w/project && git checkout %s',
+                $self->repo, $self->branch
+            );
+        }
+
+        return sprintf( <<'EOF', $from_tag, $distro, $cpm );
 FROM houseabsolute/ci-perl-helpers-ubuntu:%s
 
 RUN useradd -m -u 1001 vsts_azpcontainer
@@ -222,7 +242,7 @@ RUN mkdir /__w
 
 COPY ./tools/cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 
-RUN git clone %s /__w/project && cd /__w/project && git checkout %s
+%s
 
 RUN chown -R 1001:1001 /__w
 

@@ -410,7 +410,7 @@ sub _perl_v_to {
 
 has test_dirs => (
     is      => 'ro',
-    isa     => t( 'ArrayRef', of => t('Str') ),
+    isa     => t( 'ArrayRef', of => t('Dir') ),
     lazy    => 1,
     builder => '_build_test_dirs',
 );
@@ -434,10 +434,12 @@ has coverage => (
 sub _build_test_dirs {
     my $self = shift;
 
-    my @test_dirs = 't';
-    push @test_dirs, 'xt'
-        if $self->test_xt
-        && $self->extracted_dist_dir->child('xt')->is_dir;
+    my @test_dirs = $self->extracted_dist_dir->child('t');
+    if ( $self->test_xt ) {
+        my $xt = $self->extracted_dist_dir->child('xt');
+        push @test_dirs, $xt
+            if $xt->is_dir;
+    }
 
     return \@test_dirs;
 }

@@ -1,3 +1,9 @@
+## 0.0.4 2019-11-19
+
+* Updated the base64 version of the tools (used on macOS and Windows) with
+  changes in the last version.
+
+
 ## 0.0.3 2019-11-19
 
 * When running `prove` we now pass the test dirs as absolute paths. This

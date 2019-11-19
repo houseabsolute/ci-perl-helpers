@@ -90,65 +90,10 @@ my $BaseImage    = join q{:}, $TagRoot, $BaseImageTag;
 my $M = MetaCPAN::Client->new;
 
 sub run ($self) {
-    $self->_update_template;
     $self->_create_tools_perl_image;
     $self->_create_runtime_perl_images;
     $self->_create_blead_perl_images;
     return 0;
-}
-
-sub _update_template ($self) {
-    say 'Updating template with tools tarball content as base64' or die $!;
-
-    my $template = path( $Bin, qw( templates install-helper-tools.yml ) );
-    my $content  = $template->slurp_utf8;
-    $content
-        =~ s/( +)(# Install the helper tools step\n) +- bash: \|\n.+?\n\n/
-        $1 . $2 . $self->_tools_base64_step($1) . "\n"/mse
-        or die 'Cannot replace base64 tools content';
-    $template->spew_utf8($content);
-
-    return undef;
-}
-
-sub _tools_base64_step ( $self, $leading_ws ) {
-    my $tempdir = tempdir();
-    my $tarball = $tempdir->child('tools.tar.gz');
-
-    {
-        my $pushed = pushd( $self->_tools_dir );
-        _system(
-            'tar',
-            '--create',
-            '--file', $tarball,
-            '--gzip',
-            Path::Tiny::Rule->new->file->all('.'),
-        );
-    }
-
-    $tarball = $tempdir->child('tools.tar.gz');
-
-    my $base64 = _run3(
-        'base64',
-        $tarball,
-    );
-
-    $base64 =~ s/\s+//g;
-
-    my $chunks = q{};
-    while ( length $base64 ) {
-        my $chunk = substr( $base64, 0, 80, q{} );
-        $chunks .= qq{    echo '$chunk' >> /tmp/tools-base64\n};
-    }
-    chomp $chunks;
-
-    my $step = sprintf( <<'EOF', $chunks );
-- bash: |
-%s
-  displayName: Spew helper tools tarball as base64
-EOF
-
-    return $step =~ s/^/$leading_ws/gsmr;
 }
 
 sub _create_tools_perl_image ($self) {

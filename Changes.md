@@ -1,3 +1,12 @@
+## 0.0.5 2019-11-20
+
+* On macOS and Windows the tools are now installed by referencing the
+  repository resource. This guarantees that you get the version of the tools
+  that corresponds to that commit in this repo. The previous method of packing
+  the tools as a base64 blob required a manual step to ensure that the tools
+  were up to date. Fixes #7.
+
+
 ## 0.0.4 2019-11-19
 
 * Updated the base64 version of the tools (used on macOS and Windows) with

@@ -12,7 +12,6 @@ jobs:
       - template: check-perl-parameter.yml
         parameters:
           perl: ${{ parameters.perl }}
-      - checkout: none
       - template: install-helper-tools.yml
       - bash: |
           set -e

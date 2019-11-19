@@ -139,8 +139,9 @@ use warnings;
             my $tag = 'ci-perl-helpers-local-' . $type;
             system(
                 'docker', 'build',
-                '-f',     $df,
-                '-t',     $tag,
+                '--no-cache',
+                '-f', $df,
+                '-t', $tag,
                 $self->root,
             );
         }

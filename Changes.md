@@ -9,6 +9,9 @@
 * Only pass absolute paths to `prove` when running coverage tests (which are
   only done on Linux). Passing absolute paths causes issues on Windows.
 
+* Fixed breakage introduced in 0.0.4 for Windows builds. The step to run tests
+  would always fail to execute prove. Reported by xenu. Fixes #8.
+
 
 ## 0.0.4 2019-11-19
 

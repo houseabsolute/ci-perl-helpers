@@ -46,7 +46,9 @@ jobs:
       - bash: |
           set -e
           set -x
-          berrybrew install ${{ parameters.perl }}_64
+          if [ ! -d C:\\berrybrew\\${{ parameters.perl }}_64 ]; then
+              berrybrew install ${{ parameters.perl }}_64
+          fi
         displayName: Berrybrew install Perl ${{ parameters.perl }} (for use as runtime-perl)
       - task: CacheBeta@1
         displayName: Define runtime-perl cache

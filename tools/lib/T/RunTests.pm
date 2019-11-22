@@ -99,15 +99,27 @@ sub _tap2junit {
 
     my @t_files = Path::Tiny::Rule->new->file->name(qr/\.t$/)->all('.');
 
-    $self->_with_brewed_perl_perl5lib(
-        $self->tools_perl,
-        sub {
-            $self->_system(
-                $self->_perl_local_script( $self->tools_perl, 'tap2junit' ),
-                @t_files,
-            );
-        },
-    );
+    # Windows max claims to be 32,000 (per running `getconf ARG_MAX) but
+    # experimentation shows that anything close to that doesn't work, but
+    # 5,000 does.
+    my $command_limit = $^O eq 'MSWin32' ? 5_000 : 100_000;
+    while (@t_files) {
+        my @command
+            = $self->_perl_local_script( $self->tools_perl, 'tap2junit' );
+        my $length = length $command[0];
+
+        while ( $length <= $command_limit && @t_files ) {
+            push @command, shift @t_files;
+            $length += length $command[-1];
+        }
+
+        $self->_with_brewed_perl_perl5lib(
+            $self->tools_perl,
+            sub {
+                $self->_system(@command);
+            },
+        );
+    }
 
     my $j = $self->workspace_root->child('junit');
     $self->_debug("Making $j for junit files");

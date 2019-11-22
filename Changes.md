@@ -1,3 +1,12 @@
+## 0.0.6
+
+* When calling `tap2junit` we make sure not to exceed a command length of
+  5,000 characters. On Windows very long commands fail. Despite `getconf
+  ARG_MAX` in bash on Windows saying that the limit is 32,000, experimentation
+  showed me that the limit is somewhere around 5,000. This fixes testing when
+  you have a very large number of test files.
+
+
 ## 0.0.5 2019-11-20
 
 * On macOS and Windows the tools are now installed by referencing the

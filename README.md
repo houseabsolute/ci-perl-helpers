@@ -154,6 +154,10 @@ The Test stage template, `test.yml`, takes the following parameters:
     limitations in Azure, you must set this parameter to **an array**
     containing the list of partition numbers. So for four partitions you would
     write `coverage_partitions: [1, 2, 3, 4]`.
+  * `publish_coverage_artifact` - If this is a true value then the raw output
+    from `Devel::Cover` will be published as a build artifact. This is
+    disabled by default because some test suites generate incredibly enormous
+    numbers of coverage files, which take a very long time to publish.
   * `include_*` - There are a number of parameters to control exactly what
     Perls and what platforms are tested. All of these are `true` by default.
     * `include_5_30`

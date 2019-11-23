@@ -4,6 +4,7 @@ parameters:
   coverage: ''
   coverage_partition: ''
   all_coverage_partitions: []
+  publish_coverage_artifact: ''
   name: ''
   perl: ''
   test_xt: ''
@@ -47,11 +48,11 @@ jobs:
           fi
           if [ -n "${{ parameters.coverage_partition }}" ]; then
               # There is no default stringification for arrays, so we need to
-              # make a string to use the all_partitions parameter.
+              # make a string to use the all_coverage_partitions parameter.
               export total_coverage_partitions=$( \
                   /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl print-total-partitions.pl \
                       --this-partition "${{ parameters.coverage_partition }}" \
-                      --partitions "${{ join( ',', parameters.all_partitions ) }}" \
+                      --partitions "${{ join( ',', parameters.all_coverage_partitions ) }}" \
               )
               echo "##vso[task.setvariable variable=CIPH_TOTAL_COVERAGE_PARTITIONS]$total_coverage_partitions"
               export coverage_partition=${{ parameters.coverage_partition }}
@@ -126,14 +127,25 @@ jobs:
           bash <(curl -s https://codecov.io/bash) -f $(CI_WORKSPACE_DIRECTORY)/coverage/codecov.json -R $(CI_SOURCE_DIRECTORY)
         env:
           CIPH_CODECOV_TOKEN: $(CODECOV_TOKEN)
-        condition: eq( '${{ parameters.coverage }}', 'codecov' )
+        condition: |
+          and(
+              in( variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues' ),
+              eq( '${{ parameters.coverage }}', 'codecov' )
+          )
         displayName: Upload coverage results to codecov.io
       - task: PublishBuildArtifacts@1
         inputs:
           pathToPublish: $(CI_WORKSPACE_DIRECTORY)/coverage
           artifactName: coverage-results
         displayName: Publish coverage results as a build artifact
-        condition: and( in( variables.AGENT_JOBSTATUS, 'Succeeded', 'SucceededWithIssues' ), ne( '${{ parameters.coverage }}', '' ) )
+        condition: |
+          and(
+              ne( '${{ parameters.publish_coverage_artifact }}', '' ),
+              and(
+                  in( variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues' ),
+                  ne( '${{ parameters.coverage }}', '' )
+              )
+          )
       - task: PublishTestResults@2
         displayName: Publish test results
         inputs:

@@ -2,6 +2,7 @@ parameters:
   cache_key: 'cache'
   coverage: ''
   coverage_partitions: []
+  publish_coverage_artifact: ''
   debug: 0
   include_5_30: 'true'
   include_5_28: 'true'
@@ -49,16 +50,18 @@ stages:
         - template: linux.yml
           parameters:
             coverage: ${{ parameters.coverage }}
+            publish_coverage_artifact: ${{ parameters.publish_coverage_artifact }}
+            coverage_partition: ${{ part }}
+            all_coverage_partitions: ${{ parameters.coverage_partitions }}
             cache_key: ${{ parameters.cache_key }}
             name: "5_30_coverage_${{ parameters.coverage }}_part_${{ part }}"
             perl: "5.30"
-            coverage_partition: ${{ part }}
-            all_coverage_partitions: ${{ parameters.coverage_partitions }}
 
     - ${{ if and( ne( parameters.coverage, '' ), not( containsValue( parameters.coverage_partitions, 1 ) ) ) }}:
       - template: linux.yml
         parameters:
           coverage: ${{ parameters.coverage }}
+          publish_coverage_artifact: ${{ parameters.publish_coverage_artifact }}
           cache_key: ${{ parameters.cache_key }}
           name: "5_30_coverage_${{ parameters.coverage }}"
           perl: "5.30"

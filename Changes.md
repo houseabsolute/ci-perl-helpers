@@ -1,4 +1,4 @@
-## 0.0.6
+## 0.0.6 2019-11-23
 
 * When calling `tap2junit` we make sure not to exceed a command length of
   5,000 characters. On Windows very long commands fail. Despite `getconf

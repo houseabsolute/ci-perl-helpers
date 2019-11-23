@@ -129,6 +129,7 @@ sub _build_makefile_pl {
             $self->_with_perl5lib(
                 $self->tools_perl,
                 'make',
+                '--jobs', 10,
                 'dist',
             );
         },

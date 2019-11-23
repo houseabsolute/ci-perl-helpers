@@ -46,7 +46,7 @@ sub run {
                 );
                 $self->_system(
                     $self->make,
-                    '-j', 4,
+                    '--jobs', 10,
                 );
             },
         );

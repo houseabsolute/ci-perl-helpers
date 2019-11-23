@@ -133,7 +133,7 @@ jobs:
           pathToPublish: $(CI_WORKSPACE_DIRECTORY)/coverage
           artifactName: coverage-results
         displayName: Publish coverage results as a build artifact
-        condition: ne( '${{ parameters.coverage }}', '' )
+        condition: and( in( variables.AGENT_JOBSTATUS, 'Succeeded', 'SucceededWithIssues' ), ne( '${{ parameters.coverage }}', '' ) )
       - task: PublishTestResults@2
         displayName: Publish test results
         inputs:

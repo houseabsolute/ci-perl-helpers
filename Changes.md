@@ -6,6 +6,12 @@
   showed me that the limit is somewhere around 5,000. This fixes testing when
   you have a very large number of test files.
 
+* Ignore the checksum when installing berrybrew on Windows using
+  chocolatey. This is necessary because of an issue with the install script
+  for berrybrew. See https://github.com/camilohe/berrybrew.install/issues/1
+  for details. Once that is fixed we will go back to respecting the checksum,
+  but for now this is necessary to keep Windows builds working.
+
 
 ## 0.0.5 2019-11-20
 

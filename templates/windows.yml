@@ -16,7 +16,9 @@ jobs:
       - bash: |
           set -e
           set -x
-          choco upgrade berrybrew --yes
+          # We can remove ` --ignore-checksum` once
+          # https://github.com/camilohe/berrybrew.install/issues/1 is fixed.
+          choco upgrade berrybrew --yes --ignore-checksum
         displayName: Install berrybrew
       - task: CacheBeta@1
         displayName: Define tools-perl cache

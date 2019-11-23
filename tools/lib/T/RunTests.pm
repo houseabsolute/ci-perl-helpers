@@ -53,7 +53,7 @@ sub run {
                 '--merge',
                 '--recurse',
                 '--verbose',
-                @{ $self->test_dirs },
+                @{ $self->test_paths },
             );
         },
     );

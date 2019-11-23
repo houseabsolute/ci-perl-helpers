@@ -13,6 +13,7 @@ use FindBin qw( $Bin );
 use IPC::Run3 qw( run3 );
 use Module::CPANfile;
 use Path::Tiny qw( path );
+use Path::Tiny::Rule;
 use Specio::Declare qw( enum );
 use Specio::Library::Builtins;
 use Specio::Library::Path::Tiny;
@@ -408,11 +409,25 @@ sub _perl_v_to {
     $self->_system( $v . ' > ' . $file );
 }
 
-has test_dirs => (
+has test_paths => (
     is      => 'ro',
-    isa     => t( 'ArrayRef', of => t('Dir') ),
+    isa     => t( 'ArrayRef', of => t('Path') ),
     lazy    => 1,
-    builder => '_build_test_dirs',
+    builder => '_build_test_paths',
+);
+
+has coverage_partition => (
+    is      => 'ro',
+    isa     => t('Int'),
+    lazy    => 1,
+    default => sub { $ENV{CIPH_COVERAGE_PARTITION} || 0 },
+);
+
+has total_coverage_partitions => (
+    is      => 'ro',
+    isa     => t('Int'),
+    lazy    => 1,
+    default => sub { $ENV{CIPH_TOTAL_COVERAGE_PARTITIONS} || 0 },
 );
 
 has test_xt => (
@@ -431,7 +446,49 @@ has coverage => (
     default => sub { $ENV{CIPH_COVERAGE} || q{} },
 );
 
-sub _build_test_dirs {
+sub _build_test_paths {
+    my $self = shift;
+
+    return $self->_partition_tests
+        ? $self->_this_coverage_partition
+        : $self->_test_dirs;
+}
+
+sub _partition_tests {
+    my $self = shift;
+    return $self->coverage_partition && $self->total_coverage_partitions;
+}
+
+sub _this_coverage_partition {
+    my $self = shift;
+
+    my @dirs = $self->extracted_dist_dir->child('t');
+    push @dirs, $self->extracted_dist_dir->child('xt')
+        if $self->test_xt;
+
+    # These are returned already sorted.
+    my @files = Path::Tiny::Rule->new->file->name(qr/\.t$/)->all(@dirs);
+
+    my $partition_size
+        = int( ( scalar @files + $self->total_coverage_partitions - 1 )
+        / $self->total_coverage_partitions );
+    my $start = ( $self->coverage_partition - 1 ) * $partition_size;
+    my $end   = $start + $partition_size;
+    $end = $#files
+        if $end > $#files;
+
+    $self->_debug(
+        sprintf(
+            "Partitioning test files into %d groups of %d each and running group #%d",
+            $self->total_coverage_partitions, $partition_size,
+            $self->coverage_partition,
+        ),
+    );
+
+    return [ @files[ $start .. $end ] ];
+}
+
+sub _test_dirs {
     my $self = shift;
 
     my %test_dirs = ( t => $self->extracted_dist_dir->child('t') );

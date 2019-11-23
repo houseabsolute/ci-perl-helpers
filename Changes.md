@@ -12,6 +12,12 @@
   for details. Once that is fixed we will go back to respecting the checksum,
   but for now this is necessary to keep Windows builds working.
 
+* Add support for partitioning tests when running coverage tests. Running
+  tests under Devel::Cover can be _much_ slower than normal, and large test
+  suites (for example Moose's) can easily take more than the 1 hour limit per
+  job imposed by Azure. See the `README.md` file for documentation on this
+  feature.
+
 
 ## 0.0.5 2019-11-20
 

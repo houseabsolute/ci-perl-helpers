@@ -148,6 +148,12 @@ The Test stage template, `test.yml`, takes the following parameters:
     `Devel::Cover::Report::SonarGeneric`
     docs](https://metacpan.org/pod/Devel::Cover::Report::SonarGeneric) for
     details on how to have this automatically uploaded to SonarQube.
+  * `coverage_partitions` - Running tests under `Devel::Cover` can be _much_
+    slower than running them normally. You can partition coverage testing into
+    an arbitrary number of partitions to make this faster. Because of
+    limitations in Azure, you must set this parameter to **an array**
+    containing the list of partition numbers. So for four partitions you would
+    write `coverage_partitions: [1, 2, 3, 4]`.
   * `include_*` - There are a number of parameters to control exactly what
     Perls and what platforms are tested. All of these are `true` by default.
     * `include_5_30`

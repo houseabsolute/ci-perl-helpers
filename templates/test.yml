@@ -1,6 +1,7 @@
 parameters:
   cache_key: 'cache'
   coverage: ''
+  coverage_partitions: []
   debug: 0
   include_5_30: 'true'
   include_5_28: 'true'
@@ -29,7 +30,6 @@ stages:
         parameters:
           debug: ${{ parameters.debug }}
     jobs:
-
     - ${{ if eq( parameters.include_windows, 'true' ) }}:
       - template: windows.yml
         parameters:
@@ -44,7 +44,18 @@ stages:
           name: "5_30_1"
           perl: "5.30.1"
 
-    - ${{ if ne( parameters.coverage, '' ) }}:
+    - ${{ if and( ne( parameters.coverage, '' ), containsValue( parameters.coverage_partitions, 1 ) ) }}:
+      - ${{ each part in parameters.coverage_partitions }}:
+        - template: linux.yml
+          parameters:
+            coverage: ${{ parameters.coverage }}
+            cache_key: ${{ parameters.cache_key }}
+            name: "5_30_coverage_${{ parameters.coverage }}_part_${{ part }}"
+            perl: "5.30"
+            coverage_partition: ${{ part }}
+            all_coverage_partitions: ${{ parameters.coverage_partitions }}
+
+    - ${{ if and( ne( parameters.coverage, '' ), not( containsValue( parameters.coverage_partitions, 1 ) ) ) }}:
       - template: linux.yml
         parameters:
           coverage: ${{ parameters.coverage }}

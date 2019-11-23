@@ -2,13 +2,16 @@ parameters:
   allow_failure: ''
   cache_key: 'cache'
   coverage: ''
+  coverage_partition: ''
+  all_coverage_partitions: []
   name: ''
   perl: ''
   test_xt: ''
 
+
 jobs:
   - job: Test_Linux_${{ parameters.name }}
-    displayName: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }})
+    displayName: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }}, partition = ${{ coalesce( parameters.coverage_partition, 'all' ) }})
     container: houseabsolute/ci-perl-helpers-ubuntu:${{ parameters.perl }}
     variables:
       CIPH_ALLOW_FAILURE: ${{ parameters.allow_failure }}
@@ -38,9 +41,21 @@ jobs:
           fi
           if [ "$CIPH_COVERAGE" == "kritika" ]; then
               if [ -z "$CIPH_KRITIKA_TOKEN" ]; then
-                  echo "##vso[task.logissue type=error;]You must set the KRITIKA_TOKEN secret for this pipeline if you want to submit coverage data to kritika.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines"
+                  echo "##vso[task.logissue type=error;]You must set the KRITIKA_TOKEN secret for this pipeline if you want to submit coverage data to kritika.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
                   echo "##vso[task.complete result=Failed;]"
               fi
+          fi
+          if [ -n "${{ parameters.coverage_partition }}" ]; then
+              # There is no default stringification for arrays, so we need to
+              # make a string to use the all_partitions parameter.
+              export total_coverage_partitions=$( \
+                  /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl print-total-partitions.pl \
+                      --this-partition "${{ parameters.coverage_partition }}" \
+                      --partitions "${{ join( ',', parameters.all_partitions ) }}" \
+              )
+              echo "##vso[task.setvariable variable=CIPH_TOTAL_COVERAGE_PARTITIONS]$total_coverage_partitions"
+              export coverage_partition=${{ parameters.coverage_partition }}
+              echo "##vso[task.setvariable variable=CIPH_COVERAGE_PARTITION]$coverage_partition"
           fi
         env:
           CIPH_CODECOV_TOKEN: $(CODECOV_TOKEN)

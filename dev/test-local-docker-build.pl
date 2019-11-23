@@ -43,28 +43,37 @@ use warnings;
         isa     => t('NonEmptyStr'),
         format  => 's',
         default => 'master',
-        doc => 'The branch of the repo to use. Defaults to master.',
+        doc     => 'The branch of the repo to use. Defaults to master.',
     );
 
     option code => (
-        is      => 'ro',
-        isa     => t('NonEmptyStr'),
-        format  => 's',
-        doc => 'A local directory containing the code to use for testing. This should be a git checkout of a Perl project.',
+        is     => 'ro',
+        isa    => t('NonEmptyStr'),
+        format => 's',
+        doc =>
+            'A local directory containing the code to use for testing. This should be a git checkout of a Perl project.',
     );
 
     option coverage => (
         is     => 'ro',
         isa    => t('NonEmptyStr'),
         format => 's',
-        doc    => 'The value to set for CIPH_COVERAGE, if any',
+        doc    => 'The value to set for CIPH_COVERAGE, if any.',
     );
 
     option xt => (
         is      => 'ro',
         isa     => t('Bool'),
         default => 0,
-        doc     => 'Set CIPH_TEST_XT to a true value',
+        doc     => 'Set CIPH_TEST_XT to a true value.',
+    );
+
+    option partitions => (
+        is     => 'ro',
+        isa    => t('NonEmptyStr'),
+        format => 's',
+        doc => q{Test partition settings in the form $x:$y, where $x is the}
+            . q{ current partition and $y is the total number of partitions.},
     );
 
     option perl => (
@@ -93,6 +102,14 @@ use warnings;
         # that'd require root privs.
         $tempdir->chmod(0777);
 
+        if ( $self->code ) {
+
+            # Path::Tiny->remove_tree seems to not remove .git dirs for some
+            # reason.
+            system("rm -fr $Bin/tmp/project");
+            rcopy( $self->code, "$Bin/tmp/project" );
+        }
+
         my @env;
         push @env, ( '--env', 'CIPH_COVERAGE=' . $self->coverage )
             if $self->coverage;
@@ -100,6 +117,8 @@ use warnings;
             if $self->xt;
         push @env, ( '--env', 'CIPH_DEBUG=1' )
             if $self->debug;
+
+        print "\n** BUILD **\n\n";
         system(
             'docker', 'run',
             '--interactive',
@@ -113,6 +132,8 @@ use warnings;
             '-c',
             $self->_bash_build_command,
         );
+
+        print "\n** TEST **\n\n";
         system(
             'docker', 'run',
             '--interactive',
@@ -153,7 +174,8 @@ use warnings;
         my $self = shift;
 
         return <<'EOF';
-cd ~/project
+set -e
+set -x
 export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
 export CI_SOURCE_DIRECTORY=/__w/project
 export CI_WORKSPACE_DIRECTORY=/__w
@@ -169,11 +191,33 @@ EOF
     sub _bash_test_command {
         my $self = shift;
 
-        return sprintf( <<'EOF', $self->perl );
+        my $this_partition = q{};
+        my $partitions     = q{};
+        if ( $self->partitions ) {
+            ( $this_partition, my $total_partitions ) = split /:/,
+                $self->partitions;
+            $partitions = join ',', 1 .. $total_partitions;
+        }
+
+        return
+            sprintf(
+            <<'EOF', $this_partition, $this_partition, $partitions, $this_partition, $self->perl );
+set -e
+set -x
 export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
 export CI_SOURCE_DIRECTORY=/__w/project
 export CI_WORKSPACE_DIRECTORY=/__w
 pushd $CI_WORKSPACE_DIRECTORY
+if [ -n "%d" ]; then
+    # There is no default stringification for arrays, so we need to
+    # make a string to use the all_partitions parameter.
+    export CIPH_TOTAL_COVERAGE_PARTITIONS=$( \
+        /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl print-total-partitions.pl \
+            --this-partition "%d" \
+            --partitions "%s" \
+    )
+    export CIPH_COVERAGE_PARTITION=%d
+fi
 ( /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-test.pl --runtime-perl %s && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl && \
@@ -224,7 +268,6 @@ EOF
 
         my $distro;
         if ( $self->code ) {
-            rcopy( $self->code, "$Bin/tmp/project" );
             $distro = 'COPY ./dev/tmp/project /__w/project';
         }
         else {

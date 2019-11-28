@@ -10,7 +10,6 @@ use warnings;
     use autodie qw( :all );
 
     use FindBin qw( $Bin );
-    use File::Copy::Recursive qw( rcopy );
     use IPC::Run3 qw( run3 );
     use Path::Tiny qw( path tempdir );
     use Specio::Library::Builtins;
@@ -93,6 +92,14 @@ use warnings;
     sub run {
         my $self = shift;
 
+        if ( $self->code ) {
+
+            # Path::Tiny->remove_tree seems to not remove .git dirs for some
+            # reason.
+            system("rm -fr $Bin/tmp/project");
+            system( 'cp', '-r', $self->code, "$Bin/tmp/project" );
+        }
+
         $self->_build_images;
 
         my $tempdir = tempdir();
@@ -101,14 +108,6 @@ use warnings;
         # 1001 in the Docker container. It'd be nicer to just chown it but
         # that'd require root privs.
         $tempdir->chmod(0777);
-
-        if ( $self->code ) {
-
-            # Path::Tiny->remove_tree seems to not remove .git dirs for some
-            # reason.
-            system("rm -fr $Bin/tmp/project");
-            rcopy( $self->code, "$Bin/tmp/project" );
-        }
 
         my @env;
         push @env, ( '--env', 'CIPH_COVERAGE=' . $self->coverage )

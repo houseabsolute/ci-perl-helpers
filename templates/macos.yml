@@ -111,3 +111,4 @@ jobs:
           testResultsFormat: JUnit
           testResultsFiles: $(CI_WORKSPACE_DIRECTORY)/junit/**/*.xml
           mergeTestResults: true
+          testRunTitle: MacOS - ${{ parameters.perl }}

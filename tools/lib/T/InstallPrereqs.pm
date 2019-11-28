@@ -41,7 +41,7 @@ sub run {
     # other types of builds.
     $self->cpan_install(
         'runtime-perl',
-        '--feature', 'runtime',
+        '--feature', ( $self->runtime_is_5_8 ? 'runtime_5_8' : 'runtime' ),
         @coverage,
         '--cpanfile', $self->tools_dir->child('cpanfile'),
     );

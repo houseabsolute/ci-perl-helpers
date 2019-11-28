@@ -151,6 +151,6 @@ jobs:
         displayName: Publish test results
         inputs:
           testResultsFormat: JUnit
-          testResultsFiles: $(CI_WORKSPACE_DIRECTORY)/junit/**/*.xml
+          testResultsFiles: $(CI_WORKSPACE_DIRECTORY)/junit.xml
           mergeTestResults: true
           testRunTitle: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }}, partition = ${{ coalesce( parameters.coverage_partition, 'all' ) }})

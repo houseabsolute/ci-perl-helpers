@@ -187,35 +187,45 @@ use warnings;
 
         my $with_perl = $from eq 'build' ? 'tools-perl' : 'runtime-perl';
 
-        my $cpm = $from eq 'build'
-            ? <<'EOF'
-perlbrew exec --with tools-perl \
+        my @features;
+        if ( $from eq 'build' ) {
+            @features = qw(
+                docker
+                tools-perl
+            );
+        }
+        else {
+            if ( $self->perl =~ /5\.8/ ) {
+                @features = 'runtime_5_8';
+            }
+            else {
+                @features = qw(
+                    coverage
+                    coverage-codecov
+                    coverage-clover
+                    coverage-coveralls
+                    coverage-html
+                    coverage-kritika
+                    coverage-sonarqube
+                    runtime
+                );
+            }
+        }
+
+        my $features = join "\n",
+            map { '            --feature ' . $_ . ' \\' } @features;
+
+        my $cpm = sprintf( <<'EOF', $with_perl, $features );
+perlbrew exec --with %s \
         /usr/local/bin/cpm install \
             --global \
             --show-build-log-on-failure \
             --verbose \
             --workers 16 \
-            --feature docker \
-            --feature tools-perl \
+%s
             --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 EOF
-            : <<'EOF';
-perlbrew exec --with runtime-perl \
-        /usr/local/bin/cpm install \
-            --global \
-            --show-build-log-on-failure \
-            --verbose \
-            --workers 16 \
-            --feature coverage \
-            --feature 'coverage-codecov' \
-            --feature 'coverage-clover' \
-            --feature 'coverage-coveralls' \
-            --feature 'coverage-html' \
-            --feature 'coverage-kritika' \
-            --feature 'coverage-sonarqube' \
-            --feature runtime \
-            --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
-EOF
+
 
         my $distro;
         if ( $self->code ) {
@@ -314,6 +324,10 @@ fi
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl ) || \
     bash
+
+if [ -f "$CI_WORKSPACE_DIRECTORY/junit.xml" ]; then
+    cat "$CI_WORKSPACE_DIRECTORY/junit.xml"
+fi
 EOF
     }
 }

@@ -179,6 +179,39 @@ has runtime_perl => (
     default => 'runtime-perl',
 );
 
+has runtime_is_5_8 => (
+    is      => 'ro',
+    isa     => t('Bool'),
+    lazy    => 1,
+    default => sub { $_[0]->runtime_perl_version->[0] == 8 },
+);
+
+has runtime_perl_version => (
+    is      => 'ro',
+    isa     => t( 'ArrayRef', of => t('Int') ),
+    lazy    => 1,
+    builder => '_build_runtime_perl_version',
+);
+
+sub _build_runtime_perl_version {
+    my $self = shift;
+
+    my $version = join q{}, $self->_run3(
+        [
+            $self->_brewed_perl( $self->runtime_perl ),
+            'perl',
+            '-e',
+            'print $]',
+        ],
+    );
+
+    my ( $min, $patch ) = $version =~ /5\.(\d\d\d)(\d\d\d)/;
+    $min   += 0;
+    $patch += 0;
+
+    return [ $min, $patch ];
+}
+
 has make => (
     is      => 'ro',
     isa     => t('Str'),

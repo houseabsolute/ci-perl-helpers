@@ -38,22 +38,16 @@ sub run {
         $self->coverage_dir->mkpath( 0, 0755 );
     }
 
-    my $tempdir = tempdir();
-    my $archive = $tempdir->child('prove.tar.gz');
     my $exit;
     $self->_with_brewed_perl_perl5lib(
         $self->runtime_perl,
         sub {
+            local $ENV{JUNIT_TEST_FILE}
+                = $self->workspace_root->child('junit.xml');
+
             $exit = $self->_system_no_die(
                 $self->_brewed_perl( $self->runtime_perl ),
-                'prove',
-                '--archive', $archive,
-                '--blib',
-                '--jobs', 10,
-                '--merge',
-                '--recurse',
-                '--verbose',
-                @{ $self->test_paths },
+                $self->_run_tests_command,
             );
         },
     );
@@ -76,63 +70,43 @@ sub run {
         }
     }
 
-    $self->_tap2junit($archive);
-
     $self->_maybe_run_coverage_report;
 
     return 0;
 }
 
-sub _tap2junit {
-    my $self    = shift;
-    my $archive = shift;
+sub _run_tests_command {
+    my $self = shift;
 
-    my $dir = $self->_pushd( $archive->parent );
-
-    $self->_system(
-        'tar',
-        '--extract',
-        '--gzip',
-        '--verbose',
-        '--file', $self->_posix_path($archive),
-    );
-
-    my @t_files = Path::Tiny::Rule->new->file->name(qr/\.t$/)->all('.');
-
-    # Windows max claims to be 32,000 (per running `getconf ARG_MAX) but
-    # experimentation shows that anything close to that doesn't work, but
-    # 5,000 does.
-    my $command_limit = $^O eq 'MSWin32' ? 5_000 : 100_000;
-    while (@t_files) {
-        my @command
-            = $self->_perl_local_script( $self->tools_perl, 'tap2junit' );
-        my $length = length $command[0];
-
-        while ( $length <= $command_limit && @t_files ) {
-            push @command, shift @t_files;
-            $length += length $command[-1];
-        }
-
-        $self->_with_brewed_perl_perl5lib(
-            $self->tools_perl,
-            sub {
-                $self->_system(@command);
-            },
+    # Test2::Harness doesn't support Perl 5.8.
+    if ( $self->runtime_is_5_8 ) {
+        return (
+            'prove',
+            '--blib',
+            '--jobs', 10,
+            '--merge',
+            '--recurse',
+            '--verbose',
+            @{ $self->test_paths },
         );
     }
 
-    my $j = $self->workspace_root->child('junit');
-    $self->_debug("Making $j for junit files");
-    $j->mkpath( 0, 0755 );
+    # We don't run yath with the --verbose flag because that produces a _huge_
+    # amount of output. Just printing it to the console ends up taking enough
+    # time to slow down the test run.
+    return (
+        'yath',
+        'test',
+        '--blib',
+        '--jobs', 10,
 
-    for my $xml ( Path::Tiny::Rule->new->file->name(qr/\.xml$/)->all('.') ) {
-        my $to = $j->child($xml);
-        $to->parent->mkpath( 0, 0755 );
-        $self->_debug("Copy $xml to $to");
-        $xml->copy($to);
-    }
+        # This renderer will print to the console.
+        '--renderer', 'Formatter',
 
-    return undef;
+        # This renderer will print to the JUNIT_TEST_FILE.
+        '--renderer', 'JUnit',
+        @{ $self->test_paths },
+    );
 }
 
 sub _maybe_run_coverage_report {

@@ -197,6 +197,9 @@ sub _create_runtime_perl_images ($self) {
 }
 
 sub _released_perl_template ( $self, $image ) {
+    my $as = 'perl-' . $image->{version};
+    $as .= '-thread' if $image->{thread};
+
     my $thread_arg = $image->{thread} ? '--thread' : q{};
     my $file       = sprintf(
         <<'EOF', $self->_base_image, $thread_arg, $image->{version}, $self->_runtime_tools_commands( $image->{version} ) );
@@ -228,12 +231,16 @@ perlbrew exec --with runtime-perl \
             --show-build-log-on-failure \
             --verbose \
             --workers 16 \
-            --feature runtime \
             --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile \
 EOF
 
-    # The Devel::Cover::Report::SonarGeneric distro needs 5.10+
-    if ( !$is_58 ) {
+    if ($is_58) {
+        $cpm .= <<'EOF';
+            --feature runtime_5_8 \
+EOF
+    }
+    else {
+        # The Devel::Cover::Report::SonarGeneric distro needs 5.10+
         $cpm .= <<'EOF';
             --feature coverage \
             --feature 'coverage-codecov' \
@@ -242,6 +249,7 @@ EOF
             --feature 'coverage-html' \
             --feature 'coverage-kritika' \
             --feature 'coverage-sonarqube' \
+            --feature runtime \
 EOF
     }
 
@@ -279,6 +287,12 @@ RUN %s
 # It would make sense to put this in the root image but then every time a
 # script changes we have to rebuild every Perl.
 COPY ./tools /usr/local/ci-perl-helpers-tools
+
+RUN cd /tmp && \
+    git clone https://github.com/CpanelInc/Test2-Harness-Renderer-JUnit.git && \
+    cd Test2-Harness-Renderer-JUnit && \
+    git checkout autarch/fix && \
+    /usr/local/perl5/perlbrew/bin/perlbrew exec --with runtime-perl /usr/local/bin/cpm install --global --verbose --no-prebuilt --show-build-log-on-failure .
 
 RUN set -e; \
     for tool in /usr/local/ci-perl-helpers-tools/bin/*.pl; do \

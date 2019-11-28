@@ -88,19 +88,13 @@ feature 'coverage-sonarqube' => sub {
 };
 
 # These are only used for test running.
+feature runtime_5_8 => sub {
+    # We need a newer Test::Harness than ships with 5.8 core for the --jobs
+    # and --merge flags.
+    requires 'Test::Harness', '3.42';
+};
+
 feature runtime => sub {
-
-    # For some reason TAP::Harness::Archive blows up in weird ways with older
-    # versions of base that ship with Perl 5.10 and earlier.
-    requires 'base', '>= 2.23';
-
-    # For some reason this doesn't get installed on Perl < 5.12 even though
-    # it's a dep for TAP::Harness::Archive.
-    requires 'YAML::Tiny';
-
-    # This one is needed to make prove's --archive option work.
-    requires 'TAP::Harness::Archive';
-
-    # We want a recent version of prove.
-    requires 'Test::Harness';
+    requires 'Test2::Harness';
+    requires 'Test2::Harness::Renderer::JUnit';
 };

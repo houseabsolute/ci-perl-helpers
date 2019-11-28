@@ -49,9 +49,11 @@ feature 'tools-perl' => sub {
 };
 
 feature docker => sub {
+    # Speeds up dzil build.
+    requires 'Archive::Tar::Wrapper';
 
     # Pre-installing these two gets us quite a few common dzil plugins.
-    requires 'Dist::Zilla::PluginBundle::DROLSKY';
+    requires 'Dist::Zilla::PluginBundle::DROLSKY' => '1.04';
     requires 'Dist::Zilla::PluginBundle::Author::ETHER';
 };
 

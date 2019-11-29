@@ -307,8 +307,6 @@ sub _released_perl_template ( $self, $image ) {
         <<'EOF', $BaseImage, $thread_arg, $image->{version}, $self->_runtime_tools_commands( $image->{version} ) );
 FROM %s
 
-COPY ./eg/patchperl /usr/local/perl5/perlbrew/bin/patchperl
-
 RUN perlbrew install --verbose %s --notest --noman -j $(nproc) --as runtime-perl %s && \
     perlbrew clean
 

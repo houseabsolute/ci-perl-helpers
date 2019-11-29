@@ -147,6 +147,12 @@ jobs:
                   ne( '${{ parameters.coverage }}', '' )
               )
           )
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathToPublish: $(CI_WORKSPACE_DIRECTORY)/junit.xml
+          artifactName: junit.xml
+        displayName: Publish JUnit XML test results
+        condition: and( ne( '${{ parameters.perl }}', '5.8' ), ne( '${{ parameters.perl }}', '5.8-thread' ) )
       - task: PublishTestResults@2
         displayName: Publish test results
         inputs:
@@ -154,3 +160,4 @@ jobs:
           testResultsFiles: $(CI_WORKSPACE_DIRECTORY)/junit.xml
           mergeTestResults: true
           testRunTitle: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }}, partition = ${{ coalesce( parameters.coverage_partition, 'all' ) }})
+        condition: and( ne( '${{ parameters.perl }}', '5.8' ), ne( '${{ parameters.perl }}', '5.8-thread' ) )

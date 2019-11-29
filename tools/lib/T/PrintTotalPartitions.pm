@@ -52,15 +52,19 @@ sub run {
         }
     }
 
-    print scalar @partitions;
+    print scalar @partitions
+        or die $!;
 
     return 0;
 }
 
 sub _error {
     my $msg = shift;
-    print qq{##vso[task.logissue type=error;]$msg\n};
-    print "##vso[task.complete result=Failed;]\n";
+    print qq{##vso[task.logissue type=error;]$msg\n}
+        or die $!;
+    print "##vso[task.complete result=Failed;]\n"
+        or die $!;
+
     # When running under Azure the vso messages above will trigger the end of
     # the build, but for local testing we need a non-zero exit code.
     exit( $ENV{BUILD_BUILDID} ? 0 : 1 );

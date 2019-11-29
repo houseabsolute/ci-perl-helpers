@@ -479,7 +479,7 @@ sub _this_coverage_partition {
 
     $self->_debug(
         sprintf(
-            "Partitioning test files into %d groups of %d each and running group #%d",
+            'Partitioning test files into %d groups of %d each and running group #%d',
             $self->total_coverage_partitions, $partition_size,
             $self->coverage_partition,
         ),

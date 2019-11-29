@@ -197,9 +197,6 @@ sub _create_runtime_perl_images ($self) {
 }
 
 sub _released_perl_template ( $self, $image ) {
-    my $as = 'perl-' . $image->{version};
-    $as .= '-thread' if $image->{thread};
-
     my $thread_arg = $image->{thread} ? '--thread' : q{};
     my $file       = sprintf(
         <<'EOF', $self->_base_image, $thread_arg, $image->{version}, $self->_runtime_tools_commands( $image->{version} ) );
@@ -413,6 +410,7 @@ sub _push ( $self, @tags ) {
     _system( 'docker', 'push', $_ ) for @tags;
 }
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _run3 (@c) {
     print "\n"   or die $!;
     say ">>> @c" or die $!;
@@ -431,6 +429,7 @@ sub _run3 (@c) {
 
     return $stdout;
 }
+## use critic
 
 sub _system (@c) {
     print "\n"   or die $!;

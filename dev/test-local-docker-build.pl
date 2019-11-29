@@ -117,7 +117,8 @@ use warnings;
         push @env, ( '--env', 'CIPH_DEBUG=1' )
             if $self->debug;
 
-        print "\n** BUILD **\n\n";
+        print "\n** BUILD **\n\n"
+            or die $!;
         system(
             'docker', 'run',
             '--interactive',
@@ -132,7 +133,8 @@ use warnings;
             $self->_bash_build_command,
         );
 
-        print "\n** TEST **\n\n";
+        print "\n** TEST **\n\n"
+            or die $!;
         system(
             'docker', 'run',
             '--interactive',

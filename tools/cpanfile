@@ -49,11 +49,12 @@ feature 'tools-perl' => sub {
 };
 
 feature docker => sub {
+
     # Speeds up dzil build.
     requires 'Archive::Tar::Wrapper';
 
     # Pre-installing these two gets us quite a few common dzil plugins.
-    requires 'Dist::Zilla::PluginBundle::DROLSKY' => '1.04';
+    requires 'Dist::Zilla::PluginBundle::DROLSKY' => '1.05';
     requires 'Dist::Zilla::PluginBundle::Author::ETHER';
 };
 
@@ -88,6 +89,7 @@ feature 'coverage-sonarqube' => sub {
 
 # These are only used for test running.
 feature runtime => sub {
+
     # For some reason TAP::Harness::Archive blows up in weird ways with older
     # versions of base that ship with Perl 5.10 and earlier.
     requires 'base', '>= 2.23';

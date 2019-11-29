@@ -1,3 +1,9 @@
+## 0.0.7 2019-11-23
+
+* Add a title to the published test results. The title is the same as the
+  job's title.
+
+
 ## 0.0.6 2019-11-23
 
 * When calling `tap2junit` we make sure not to exceed a command length of

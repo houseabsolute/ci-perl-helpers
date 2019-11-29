@@ -4,7 +4,7 @@ parameters:
   coverage_partitions: []
   publish_coverage_artifact: ''
   debug: 0
-  image_version: 'v0.0.8'
+  image_version: 'better-junit'
   include_5_30: 'true'
   include_5_28: 'true'
   include_5_26: 'true'

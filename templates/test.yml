@@ -4,6 +4,7 @@ parameters:
   coverage_partitions: []
   publish_coverage_artifact: ''
   debug: 0
+  image_version: 'v0.0.8'
   include_5_30: 'true'
   include_5_28: 'true'
   include_5_26: 'true'
@@ -37,6 +38,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_30_0"
           perl: "5.30.0"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_macos, 'true' ) }}:
       - template: macos.yml
@@ -44,6 +46,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_30_1"
           perl: "5.30.1"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( ne( parameters.coverage, '' ), containsValue( parameters.coverage_partitions, 1 ) ) }}:
       - ${{ each part in parameters.coverage_partitions }}:
@@ -56,6 +59,7 @@ stages:
             cache_key: ${{ parameters.cache_key }}
             name: "5_30_coverage_${{ parameters.coverage }}_part_${{ part }}"
             perl: "5.30"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( ne( parameters.coverage, '' ), not( containsValue( parameters.coverage_partitions, 1 ) ) ) }}:
       - template: linux.yml
@@ -65,6 +69,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_30_coverage_${{ parameters.coverage }}"
           perl: "5.30"
+          image_version: ${{ parameters.image_version }}
     
     - ${{ if eq( parameters.include_5_30, 'true' ) }}:
       - template: linux.yml
@@ -72,6 +77,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_30_test_xt"
           perl: "5.30"
+          image_version: ${{ parameters.image_version }}
           test_xt: 1
       
     - ${{ if and( eq( parameters.include_5_30, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
@@ -80,6 +86,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_30_thread"
           perl: "5.30-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_28, 'true' ) }}:
       - template: linux.yml
@@ -87,6 +94,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_28"
           perl: "5.28"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_28, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -94,6 +102,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_28_thread"
           perl: "5.28-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_26, 'true' ) }}:
       - template: linux.yml
@@ -101,6 +110,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_26"
           perl: "5.26"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_26, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -108,6 +118,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_26_thread"
           perl: "5.26-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_24, 'true' ) }}:
       - template: linux.yml
@@ -115,6 +126,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_24"
           perl: "5.24"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_24, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -122,6 +134,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_24_thread"
           perl: "5.24-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_22, 'true' ) }}:
       - template: linux.yml
@@ -129,6 +142,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_22"
           perl: "5.22"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_22, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -136,6 +150,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_22_thread"
           perl: "5.22-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_20, 'true' ) }}:
       - template: linux.yml
@@ -143,6 +158,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_20"
           perl: "5.20"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_20, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -150,6 +166,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_20_thread"
           perl: "5.20-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_18, 'true' ) }}:
       - template: linux.yml
@@ -157,6 +174,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_18"
           perl: "5.18"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_18, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -164,6 +182,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_18_thread"
           perl: "5.18-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_16, 'true' ) }}:
       - template: linux.yml
@@ -171,6 +190,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_16"
           perl: "5.16"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_16, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -178,6 +198,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_16_thread"
           perl: "5.16-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_14, 'true' ) }}:
       - template: linux.yml
@@ -185,6 +206,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_14"
           perl: "5.14"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_14, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -192,6 +214,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_14_thread"
           perl: "5.14-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_12, 'true' ) }}:
       - template: linux.yml
@@ -199,6 +222,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_12"
           perl: "5.12"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_12, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -206,6 +230,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_12_thread"
           perl: "5.12-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_10, 'true' ) }}:
       - template: linux.yml
@@ -213,6 +238,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_10"
           perl: "5.10"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_10, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -220,6 +246,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_10_thread"
           perl: "5.10-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_5_8, 'true' ) }}:
       - template: linux.yml
@@ -227,6 +254,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_8"
           perl: "5.8"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if and( eq( parameters.include_5_8, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
       - template: linux.yml
@@ -234,6 +262,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "5_8_thread"
           perl: "5.8-thread"
+          image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_dev, 'true' ) }}:
       - template: linux.yml
@@ -241,6 +270,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "dev"
           perl: "dev"
+          image_version: ${{ parameters.image_version }}
           allow_failure: 1
 
     - ${{ if and( eq( parameters.include_dev, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
@@ -249,6 +279,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "dev_thread"
           perl: "dev-thread"
+          image_version: ${{ parameters.image_version }}
           allow_failure: 1
 
     - ${{ if eq( parameters.include_blead, 'true' ) }}:
@@ -257,6 +288,7 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "blead"
           perl: "blead"
+          image_version: ${{ parameters.image_version }}
           allow_failure: 1
 
     - ${{ if and( eq( parameters.include_blead, 'true' ), eq( parameters.include_threaded_perls, 'true' ) ) }}:
@@ -265,4 +297,5 @@ stages:
           cache_key: ${{ parameters.cache_key }}
           name: "blead_thread"
           perl: "blead-thread"
+          image_version: ${{ parameters.image_version }}
           allow_failure: 1

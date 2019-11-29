@@ -1,3 +1,9 @@
+## 0.0.8 2019-11-29
+
+* All of the Docker images now include a tag from this repo, so I can push new
+  images without risk of breaking existing builds.
+
+
 ## 0.0.7 2019-11-29
 
 * Add a title to the published test results. The title is the same as the

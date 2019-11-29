@@ -49,6 +49,12 @@ has force_runtime => (
     default => 0,
 );
 
+has image_version => (
+    is      => 'ro',
+    isa     => t('Str'),
+    default => 'next',
+);
+
 has _perls => (
     is      => 'ro',
     isa     => t( 'ArrayRef', of => t( 'HashRef', of => t('Str') ) ),
@@ -190,121 +196,13 @@ sub _create_runtime_perl_images ($self) {
     }
 }
 
-sub _create_blead_perl_images ($self) {
-    my $content = sprintf(
-        <<'EOF', $BaseImage, $self->_runtime_tools_commands('blead') );
-FROM %s
-
-# It would make sense to put this in the root image but then every time a
-# script changes we have to rebuild every Perl.
-COPY ./tools /usr/local/ci-perl-helpers-tools
-
-%s
-
-# We'll need to download and install a new blead at CI time, so this directory
-# needs to be owned by the user Azure Pipelines uses for runtime operations.
-RUN chown -R 1001:1001 /usr/local/perl5
-
-LABEL maintainer="Dave Rolsky <autarch@urth.org>"
-EOF
-
-    $self->_run_docker_build(
-        $content,
-        [ 'blead', 'blead-thread' ],
-        $self->force_runtime,
-    );
-}
-
-sub _run_docker_build ( $self, $content, $tags, $force_rebuild ) {
-    my $tempdir = tempdir();
-    my $df      = $tempdir->child( 'Dockerfile.' . $tags->[0] );
-    $df->spew($content);
-
-    say "Building $tags->[0] image" or die $!;
-    print "\n$content" or die $!;
-
-    my @full_tags = map { $TagRoot . ':' . $_ } $tags->@*;
-
-    _system(
-        'docker',
-        'build',
-        ( $force_rebuild ? '--no-cache' : () ),
-        '--file', $df,
-        ( map { ( '--tag', $_ ) } @full_tags ),
-        q{.},
-    );
-    $self->_push(@full_tags);
-}
-
-sub _images ($self) {
-    my %images;
-    for my $perl ( $self->_perls->@* ) {
-        next
-            if $self->versions->@* && !grep { $perl->{version} eq $_ }
-            $self->versions->@*;
-
-        my $name = $perl->{minor} % 2 ? 'dev' : $perl->{version};
-        for my $thread ( 0, 1 ) {
-            my @tags = ($name);
-            push @tags, $perl->{version} =~ s/\.\d+$//r
-                unless $name eq 'dev';
-
-            if ($thread) {
-                $name .= '-thread';
-                $_    .= '-thread' for @tags;
-            }
-
-            $images{$name} = {
-                $perl->%*,
-                thread => $thread,
-                tags   => \@tags,
-            };
-        }
-    }
-
-    return %images;
-}
-
-sub _build_perls ($self) {
-    my $releases = $M->release( { distribution => 'perl' } );
-    die 'No releases for perl?' unless $releases->total;
-
-    my %perls;
-    while ( my $r = $releases->next ) {
-        next unless $r->name =~ /^perl-5/;
-        next if $r->name    =~ /RC/;
-        next if $r->version =~ /^v/;
-        my ( $minor, $patch ) = $r->version =~ /5\.(0\d\d)(\d\d\d)/
-            or next;
-
-        $_ += 0 for $minor, $patch;
-        push $perls{$minor}->@*, "5.$minor.$patch";
-    }
-
-    my @lasts;
-    for my $minor ( sort { $a <=> $b } keys %perls ) {
-        my @v = sort $perls{$minor}->@*;
-        push @lasts, {
-            minor   => $minor,
-            version => $v[-1],
-        };
-    }
-
-    my @last_dev;
-    if ( $lasts[-1]{minor} % 2 ) {
-        @last_dev = $lasts[-1];
-    }
-
-    return [ ( grep { !( $_->{minor} % 2 ) } @lasts ), @last_dev ];
-}
-
 sub _released_perl_template ( $self, $image ) {
     my $as = 'perl-' . $image->{version};
     $as .= '-thread' if $image->{thread};
 
     my $thread_arg = $image->{thread} ? '--thread' : q{};
     my $file       = sprintf(
-        <<'EOF', $BaseImage, $thread_arg, $image->{version}, $self->_runtime_tools_commands( $image->{version} ) );
+        <<'EOF', $self->_base_image, $thread_arg, $image->{version}, $self->_runtime_tools_commands( $image->{version} ) );
 FROM %s
 
 RUN perlbrew install --verbose %s --notest --noman -j $(nproc) --as runtime-perl %s && \
@@ -394,6 +292,119 @@ RUN set -e; \
 ENV TZ=UTC
 
 EOF
+}
+
+sub _create_blead_perl_images ($self) {
+    my $content = sprintf(
+        <<'EOF', $self->_base_image, $self->_runtime_tools_commands('blead') );
+FROM %s
+
+# It would make sense to put this in the root image but then every time a
+# script changes we have to rebuild every Perl.
+COPY ./tools /usr/local/ci-perl-helpers-tools
+
+%s
+
+# We'll need to download and install a new blead at CI time, so this directory
+# needs to be owned by the user Azure Pipelines uses for runtime operations.
+RUN chown -R 1001:1001 /usr/local/perl5
+
+LABEL maintainer="Dave Rolsky <autarch@urth.org>"
+EOF
+
+    $self->_run_docker_build(
+        $content,
+        [ 'blead', 'blead-thread' ],
+        $self->force_runtime,
+    );
+}
+
+sub _base_image ($self) {
+    return $BaseImage . q{-} . $self->image_version;
+}
+
+sub _run_docker_build ( $self, $content, $tags, $force_rebuild ) {
+    my $tempdir = tempdir();
+    my $df      = $tempdir->child( 'Dockerfile.' . $tags->[0] );
+    $df->spew($content);
+
+    say "Building $tags->[0] image" or die $!;
+    print "\n$content" or die $!;
+
+    my @full_tags
+        = map { $TagRoot . ':' . $_ . q{-} . $self->image_version } $tags->@*;
+
+    _system(
+        'docker',
+        'build',
+        ( $force_rebuild ? '--no-cache' : () ),
+        '--file', $df,
+        ( map { ( '--tag', $_ ) } @full_tags ),
+        q{.},
+    );
+    $self->_push(@full_tags);
+}
+
+sub _images ($self) {
+    my %images;
+    for my $perl ( $self->_perls->@* ) {
+        next
+            if $self->versions->@* && !grep { $perl->{version} eq $_ }
+            $self->versions->@*;
+
+        my $name = $perl->{minor} % 2 ? 'dev' : $perl->{version};
+        for my $thread ( 0, 1 ) {
+            my @tags = ($name);
+            push @tags, $perl->{version} =~ s/\.\d+$//r
+                unless $name eq 'dev';
+
+            if ($thread) {
+                $name .= '-thread';
+                $_    .= '-thread' for @tags;
+            }
+
+            $images{$name} = {
+                $perl->%*,
+                thread => $thread,
+                tags   => \@tags,
+            };
+        }
+    }
+
+    return %images;
+}
+
+sub _build_perls ($self) {
+    my $releases = $M->release( { distribution => 'perl' } );
+    die 'No releases for perl?' unless $releases->total;
+
+    my %perls;
+    while ( my $r = $releases->next ) {
+        next unless $r->name =~ /^perl-5/;
+        next if $r->name    =~ /RC/;
+        next if $r->version =~ /^v/;
+        my ( $minor, $patch ) = $r->version =~ /5\.(0\d\d)(\d\d\d)/
+            or next;
+
+        $_ += 0 for $minor, $patch;
+        push $perls{$minor}->@*, "5.$minor.$patch";
+    }
+
+    my @lasts;
+    for my $minor ( sort { $a <=> $b } keys %perls ) {
+        my @v = sort $perls{$minor}->@*;
+        push @lasts, {
+            minor   => $minor,
+            version => $v[-1],
+        };
+    }
+
+    my @last_dev;
+    if ( $lasts[-1]{minor} % 2 ) {
+        @last_dev = $lasts[-1];
+    }
+
+    return [ ( grep { !( $_->{minor} % 2 ) } @lasts ), @last_dev ];
 }
 
 sub _push ( $self, @tags ) {

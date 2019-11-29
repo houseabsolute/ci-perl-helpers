@@ -8,12 +8,13 @@ parameters:
   name: ''
   perl: ''
   test_xt: ''
+  image_version: ''
 
 
 jobs:
   - job: Test_Linux_${{ parameters.name }}
     displayName: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }}, partition = ${{ coalesce( parameters.coverage_partition, 'all' ) }})
-    container: houseabsolute/ci-perl-helpers-ubuntu:${{ parameters.perl }}
+    container: houseabsolute/ci-perl-helpers-ubuntu:${{ parameters.perl }}-${{ parameters.image_version }}
     variables:
       CIPH_ALLOW_FAILURE: ${{ parameters.allow_failure }}
       CIPH_COVERAGE: ${{ parameters.coverage }}

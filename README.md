@@ -199,10 +199,12 @@ The Docker images contain two versions of Perl, one of which is used to run
 the tools and build the distribution, and one of which is used to execute your
 package's tests. This is useful for a few reasons. It lets the tools use
 modern Perl idioms. It means you can test on older Perls even if your tooling
-requires a newer Perl (for example, [`Dist::Zilla`] requires Perl 5.14.0). It
-also means that dependencies needed for building, for example [`Dist::Zilla`]
-and its dependencies, are not present when running tests. This means there's a
-better chance of discovering missing prereqs.
+requires a newer Perl (for example,
+[`Dist::Zilla`](https://metacpan.org/pod/Dist::Zilla) requires Perl
+5.14.0). It also means that dependencies needed for building, for example
+[`Dist::Zilla`](https://metacpan.org/pod/Dist::Zilla) and its dependencies,
+are not present when running tests. This means there's a better chance of
+discovering missing prereqs.
 
 The Pipeline itself has two stages. The Build stage contains a single
 job. This job checks out your source and generates a tarball from it using

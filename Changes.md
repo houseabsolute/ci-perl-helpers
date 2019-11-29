@@ -1,4 +1,4 @@
-## 0.0.7 2019-11-23
+## 0.0.7 2019-11-29
 
 * Add a title to the published test results. The title is the same as the
   job's title.

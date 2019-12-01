@@ -1,0 +1,9 @@
+parameters:
+  perlbrew_root: $(Pipeline.Workspace)/perl5/perlbrew
+
+steps:
+  - bash: |
+      set -x
+      export PERLBREW_ROOT="${{ parameters.perlbrew_root }}"
+      curl -L https://install.perlbrew.pl | sh
+    displayName: Install perlbrew

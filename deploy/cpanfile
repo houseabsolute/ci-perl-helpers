@@ -1,0 +1,15 @@
+requires 'Git::Helpers';
+requires 'JSON::MaybeXS';
+requires 'List::AllUtils';
+requires 'MetaCPAN::Client';
+requires 'Moose';
+requires 'Moose::Role';
+requires 'MooseX::Getopt::Dashes';
+requires 'Path::Tiny';
+requires 'Specio::Declare';
+requires 'Specio::Library::Builtins';
+requires 'autodie';
+requires 'namespace::autoclean';
+
+# for autodie qw( :all )
+requires 'IPC::System::Simple'

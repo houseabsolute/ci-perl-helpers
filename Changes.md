@@ -1,3 +1,11 @@
+## 0.0.9 2019-12-14
+
+* Docker images are now created in Azure after each push and tagged
+  appropriately. In addition, images are created for every patch release of
+  Perl starting with 5.12, instead of just the last patch release of the
+  series.
+
+
 ## 0.0.8 2019-11-29
 
 * All of the Docker images now include a tag from this repo, so I can push new

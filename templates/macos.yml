@@ -15,10 +15,7 @@ jobs:
         parameters:
           perl: ${{ parameters.perl }}
       - template: install-helper-tools.yml
-      - bash: |
-          set -x
-          curl -L https://install.perlbrew.pl | sh
-        displayName: Install perlbrew
+      - template: install-perlbrew.yml
       - task: CacheBeta@1
         displayName: Define tools-perls cache
         inputs:

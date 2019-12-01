@@ -178,68 +178,6 @@ use warnings;
         return undef;
     }
 
-    sub _bash_build_command {
-        my $self = shift;
-
-        return <<'EOF';
-set -e
-set -x
-export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
-export CI_SOURCE_DIRECTORY=/__w/project
-export CI_WORKSPACE_DIRECTORY=/__w
-export AGENT_ID='local-dev'
-cd $CI_WORKSPACE_DIRECTORY/project
-( /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-build.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-build-deps.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-dist.pl ) || \
-    bash
-EOF
-    }
-
-    sub _bash_test_command {
-        my $self = shift;
-
-        my $this_partition = 0;
-        my $partitions     = q{};
-        if ( $self->partitions ) {
-            ( $this_partition, my $total_partitions ) = split /:/,
-                $self->partitions;
-            $partitions = join ',', 1 .. $total_partitions;
-        }
-
-        return
-            sprintf(
-            <<'EOF', $this_partition, $this_partition, $partitions, $this_partition, $self->perl );
-set -e
-set -x
-export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
-export CI_SOURCE_DIRECTORY=/__w/project
-export CI_WORKSPACE_DIRECTORY=/__w
-export AGENT_ID='local-dev'
-
-cd $CI_WORKSPACE_DIRECTORY
-if [ %d -gt 0 ]; then
-    # There is no default stringification for arrays, so we need to
-    # make a string to use the all_partitions parameter.
-    export CIPH_TOTAL_COVERAGE_PARTITIONS=$( \
-        /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl print-total-partitions.pl \
-            --this-partition "%d" \
-            --partitions "%s" \
-    )
-    export CIPH_COVERAGE_PARTITION=%d
-fi
-( /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-test.pl --runtime-perl %s && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl ) || \
-    bash
-EOF
-    }
-
     sub _dockerfile {
         my $self = shift;
         my $from = shift;
@@ -314,6 +252,68 @@ RUN set -e; \
     done
 
 ENV TZ=UTC
+EOF
+    }
+
+    sub _bash_build_command {
+        my $self = shift;
+
+        return <<'EOF';
+set -e
+set -x
+export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
+export CI_SOURCE_DIRECTORY=/__w/project
+export CI_WORKSPACE_DIRECTORY=/__w
+export AGENT_ID='local-dev'
+cd $CI_WORKSPACE_DIRECTORY/project
+( /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-build.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-build-deps.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-dist.pl ) || \
+    bash
+EOF
+    }
+
+    sub _bash_test_command {
+        my $self = shift;
+
+        my $this_partition = 0;
+        my $partitions     = q{};
+        if ( $self->partitions ) {
+            ( $this_partition, my $total_partitions ) = split /:/,
+                $self->partitions;
+            $partitions = join ',', 1 .. $total_partitions;
+        }
+
+        return
+            sprintf(
+            <<'EOF', $this_partition, $this_partition, $partitions, $this_partition, $self->perl );
+set -e
+set -x
+export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
+export CI_SOURCE_DIRECTORY=/__w/project
+export CI_WORKSPACE_DIRECTORY=/__w
+export AGENT_ID='local-dev'
+
+cd $CI_WORKSPACE_DIRECTORY
+if [ %d -gt 0 ]; then
+    # There is no default stringification for arrays, so we need to
+    # make a string to use the all_partitions parameter.
+    export CIPH_TOTAL_COVERAGE_PARTITIONS=$( \
+        /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl print-total-partitions.pl \
+            --this-partition "%d" \
+            --partitions "%s" \
+    )
+    export CIPH_COVERAGE_PARTITION=%d
+fi
+( /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-test.pl --runtime-perl %s && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl build-cpanfile.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl ) || \
+    bash
 EOF
     }
 }

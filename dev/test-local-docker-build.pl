@@ -83,6 +83,14 @@ use warnings;
         doc      => 'The perl version to use for testing',
     );
 
+    option image_version => (
+        is       => 'ro',
+        isa      => t('NonEmptyStr'),
+        format   => 's',
+        required => 1,
+        doc      => 'The image version to use.',
+    );
+
     has root => (
         is      => 'ro',
         isa     => t('Dir'),
@@ -233,7 +241,9 @@ EOF
         my $self = shift;
         my $from = shift;
 
-        my $from_tag  = $from eq 'build' ? 'tools-perl' : $self->perl;
+        my $from_tag = $from eq 'build' ? 'tools-perl' : $self->perl;
+        $from_tag .= q{-} . $self->image_version;
+
         my $with_perl = $from eq 'build' ? 'tools-perl' : 'runtime-perl';
 
         my $cpm = $from eq 'build'

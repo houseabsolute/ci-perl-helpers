@@ -59,7 +59,7 @@ stages:
             cache_key: ${{ parameters.cache_key }}
             name: "5_30_coverage_${{ parameters.coverage }}_part_${{ part }}"
             perl: "5.30"
-          image_version: ${{ parameters.image_version }}
+            image_version: ${{ parameters.image_version }}
 
     - ${{ if and( ne( parameters.coverage, '' ), not( containsValue( parameters.coverage_partitions, 1 ) ) ) }}:
       - template: linux.yml

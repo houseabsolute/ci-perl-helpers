@@ -187,7 +187,8 @@ set -x
 export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
 export CI_SOURCE_DIRECTORY=/__w/project
 export CI_WORKSPACE_DIRECTORY=/__w
-pushd $CI_WORKSPACE_DIRECTORY/project
+export AGENT_ID='local-dev'
+cd $CI_WORKSPACE_DIRECTORY/project
 ( /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-build.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-build-deps.pl && \
@@ -215,6 +216,7 @@ set -x
 export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
 export CI_SOURCE_DIRECTORY=/__w/project
 export CI_WORKSPACE_DIRECTORY=/__w
+export AGENT_ID='local-dev'
 
 cd $CI_WORKSPACE_DIRECTORY
 if [ %d -gt 0 ]; then

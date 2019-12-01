@@ -199,7 +199,7 @@ EOF
     sub _bash_test_command {
         my $self = shift;
 
-        my $this_partition = q{};
+        my $this_partition = 0;
         my $partitions     = q{};
         if ( $self->partitions ) {
             ( $this_partition, my $total_partitions ) = split /:/,
@@ -215,8 +215,9 @@ set -x
 export CI_ARTIFACT_STAGING_DIRECTORY=/__w/artifacts
 export CI_SOURCE_DIRECTORY=/__w/project
 export CI_WORKSPACE_DIRECTORY=/__w
-pushd $CI_WORKSPACE_DIRECTORY
-if [ -n "%d" ]; then
+
+cd $CI_WORKSPACE_DIRECTORY
+if [ %d -gt 0 ]; then
     # There is no default stringification for arrays, so we need to
     # make a string to use the all_partitions parameter.
     export CIPH_TOTAL_COVERAGE_PARTITIONS=$( \

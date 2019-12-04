@@ -25,6 +25,7 @@ jobs:
           key: '"v1" | "tools-perl" | "${{ parameters.cache_key }}" | "5.30.1" | "macOS"'
           path: $(Pipeline.Workspace)/perl5/perlbrew/perls/tools-perl
       - bash: |
+          set -e
           set -x
           if [ ! -d "$PERLBREW_ROOT/perls/tools-perl" ]; then
               "$PERLBREW_ROOT/bin/perlbrew" install --verbose --notest --noman -j $( sysctl -n hw.ncpu ) --as tools-perl 5.30.1
@@ -36,18 +37,21 @@ jobs:
           key: '"v1" | "runtime-perl" | "${{ parameters.cache_key }}" | "${{ parameters.perl }}" | "macOS"'
           path: $(Pipeline.Workspace)/perl5/perlbrew/perls/tools-perl
       - bash: |
+          set -e
           set -x
           if [ ! -d "$PERLBREW_ROOT/perls/runtime-perl" ]; then
               "$PERLBREW_ROOT/bin/perlbrew" install --verbose --notest --noman -j $( sysctl -n hw.ncpu ) --as runtime-perl ${{ parameters.perl }}
           fi
         displayName: Perlbrew install Perl ${{ parameters.perl }} as runtime-perl
       - bash: |
+          set -e
           set -x
           mkdir "$CI_WORKSPACE_DIRECTORY/bin" && \
           curl -fsSL --compressed https://git.io/cpm > "$CI_WORKSPACE_DIRECTORY/bin/cpm" && \
           chmod 0755 "$CI_WORKSPACE_DIRECTORY/bin/cpm"
         displayName: Install cpm
       - bash: |
+          set -e
           set -x
           "$PERLBREW_ROOT/bin/perlbrew" exec --with tools-perl \
           "$CI_WORKSPACE_DIRECTORY/bin/cpm" install \

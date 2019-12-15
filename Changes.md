@@ -43,7 +43,7 @@
   `publish_coverage_artifact` parameter. This was done because some test
   suites output enormous number of files which take a very long time to
   publish. In addition, coverage artifacts will only be published when the job
-  succceeds (meaning all tests passed).
+  succeeds (meaning all tests passed).
 
 * The step to publish coverage to codecov.io will now only be run when tests
   pass.

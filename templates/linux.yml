@@ -67,7 +67,7 @@ jobs:
 
       # It'd be nice to skip the checkout step, but we may need access to
       # config files from the repo for things like coverage. For example,
-      # codecov.io uses a AML config file that goes in the repo.
+      # codecov.io uses a YAML config file that goes in the repo.
 
       - bash: |
           set -e

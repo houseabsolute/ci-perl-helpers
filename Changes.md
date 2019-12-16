@@ -1,3 +1,9 @@
+## 0.0.15
+
+* Separated the creation of the coverage report from running tests in the
+  Azure Pipeline steps.
+
+
 ## 0.0.14 2019-12-26
 
 * Pin our berrybrew install to 1.29. The new 1.30 seems to have some issues

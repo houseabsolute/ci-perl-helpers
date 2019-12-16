@@ -451,6 +451,13 @@ has coverage => (
     default => sub { $ENV{CIPH_COVERAGE} || q{} },
 );
 
+has coverage_dir => (
+    is      => 'ro',
+    isa     => t('Path'),
+    lazy    => 1,
+    default => sub { $_[0]->workspace_root->child('coverage') },
+);
+
 sub _build_test_paths {
     my $self = shift;
 

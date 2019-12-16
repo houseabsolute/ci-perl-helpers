@@ -312,7 +312,8 @@ fi
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-prereqs.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl prep-for-tests.pl && \
       /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl install-dynamic-prereqs.pl && \
-      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl ) || \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl && \
+      /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-coverage-report.pl ) || \
     bash
 EOF
     }

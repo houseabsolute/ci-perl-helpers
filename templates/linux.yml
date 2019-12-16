@@ -123,9 +123,19 @@ jobs:
           set -x
           /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-tests.pl
         displayName: Run tests
+      - bash: |
+          set -e
+          set -x
+          /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl run-coverage-report.pl
+        displayName: Run coverage report
         env:
           CIPH_COVERALLS_TOKEN: $(COVERALLS_TOKEN)
           CIPH_KRITIKA_TOKEN: $(KRITIKA_TOKEN)
+        condition: |
+          and(
+              ne( '${{ parameters.coverage }}', '' ),
+              in( variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues' )
+          )
       - bash: |
           set -e
           set -x

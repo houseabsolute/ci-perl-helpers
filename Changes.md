@@ -1,3 +1,11 @@
+## 0.0.10 2019-12-21
+
+* Fixed Windows builds. These were broken by a change in a recent berrybrew
+  release, but hard-coding a version of Perl to use is pretty sloppy. We now
+  pick the latest available version from berrybrew (which still makes some
+  assumptions about berrybrew that may break in the future).
+
+
 ## 0.0.9 2019-12-14
 
 * Docker images are now created in Azure after each push and tagged

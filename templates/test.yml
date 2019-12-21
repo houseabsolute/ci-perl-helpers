@@ -36,8 +36,6 @@ stages:
       - template: windows.yml
         parameters:
           cache_key: ${{ parameters.cache_key }}
-          name: "5_30_0"
-          perl: "5.30.0"
           image_version: ${{ parameters.image_version }}
 
     - ${{ if eq( parameters.include_macos, 'true' ) }}:

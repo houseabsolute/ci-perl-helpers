@@ -170,7 +170,7 @@ has has_makefile_pl => (
 has tools_perl => (
     is      => 'ro',
     isa     => t('Str'),
-    default => sub { $^O eq 'MSWin32' ? '5.30.0_64' : 'tools-perl' },
+    default => sub { $^O eq 'MSWin32' ? $ENV{BERRYBREW_PERL} : 'tools-perl' },
 );
 
 has runtime_perl => (

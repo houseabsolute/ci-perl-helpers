@@ -1,7 +1,7 @@
-## 0.0.11 2019-12-21
+## 0.0.11 2019-12-22
 
-* Fix some breakage from v0.0.8. I changed the naming of the Docker containers
-  and forgot to change it in the templates.
+* In v0.0.8, I changed the naming of the Docker containers and forgot to
+  change it in the templates.
 
 
 ## 0.0.10 2019-12-21

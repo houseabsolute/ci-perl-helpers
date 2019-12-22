@@ -1,7 +1,7 @@
 parameters:
   cache_key: 'cache'
   debug: 0
-  image_version: 'v0.0.8'
+  image_version: 'v0.0.10'
 
 stages:
   - stage: BuildDist

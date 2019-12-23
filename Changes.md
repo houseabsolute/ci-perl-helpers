@@ -1,8 +1,13 @@
-## 0.0.12
+## 0.0.12 2019-12-23
 
 * Docker images are now tagged with multiple tags at once. If we push a new
   commit to master and it's tagged with a version number, we end up with both
   a "-master" and "-vX.Y.Z" tag.
+
+* The `image_version` parameters is now optional for all stage templates. If
+  it is not passed then the version will be picked based on the commit that is
+  used for the `ci-perl-helpers` repo. If the commit matches a version tag,
+  then that is used as the `image_version`. Otherwise the branch name is used.
 
 
 ## 0.0.11 2019-12-22

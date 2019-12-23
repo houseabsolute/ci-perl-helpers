@@ -1,7 +1,7 @@
 parameters:
   cache_key: 'cache'
   debug: 0
-  image_version: 'v0.0.10'
+  image_version: ''
 
 stages:
   - stage: Build
@@ -11,9 +11,15 @@ stages:
         parameters:
           debug: ${{ parameters.debug }}
     jobs:
+      - template: set-image-version.yml
+        parameters:
+          image_version: ${{ parameters.image_version }}
       - job: BuildDist
         displayName: Build a tarball for the dist and publish it as a pipeline artifact
-        container: houseabsolute/ci-perl-helpers-ubuntu:5.30.1-${{ parameters.image_version }}
+        dependsOn: SetImageVersion
+        variables:
+          image_version: $[ dependencies.SetImageVersion.outputs['ImageVersionProducer.image_version'] ]
+        container: houseabsolute/ci-perl-helpers-ubuntu:5.30.1-$(image_version)
         steps:
           - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl
             displayName: Show environment

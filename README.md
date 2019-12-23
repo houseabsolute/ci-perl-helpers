@@ -105,6 +105,12 @@ The Build stage template, `build.yml`, takes the following parameters:
   out a lot more debugging information. Please set this to true and do a build
   before reporting issues with these tools. That way I can look at your failed
   build and have a better sense of what went wrong.
+* `image_version` - This is the suffix used as part of the Docker tag for
+  image that the build job runs on. You should not set this manually unless
+  you have a very good reason. By default, this suffix is determined by
+  looking at the version of the `ci-perl-helpers` repo that you
+  referenced. This will be checked out and the appropriate tag or branch name
+  will be chosen based on that checkout.
 
 The Test stage template, `test.yml`, takes the following parameters:
 
@@ -148,37 +154,43 @@ The Test stage template, `test.yml`, takes the following parameters:
     `Devel::Cover::Report::SonarGeneric`
     docs](https://metacpan.org/pod/Devel::Cover::Report::SonarGeneric) for
     details on how to have this automatically uploaded to SonarQube.
-  * `coverage_partitions` - Running tests under `Devel::Cover` can be _much_
-    slower than running them normally. You can partition coverage testing into
-    an arbitrary number of partitions to make this faster. Because of
-    limitations in Azure, you must set this parameter to **an array**
-    containing the list of partition numbers. So for four partitions you would
-    write `coverage_partitions: [1, 2, 3, 4]`.
-  * `publish_coverage_artifact` - If this is a true value then the raw output
-    from `Devel::Cover` will be published as a build artifact. This is
-    disabled by default because some test suites generate incredibly enormous
-    numbers of coverage files, which take a very long time to publish.
-  * `include_*` - There are a number of parameters to control exactly what
-    Perls and what platforms are tested. All of these are `true` by default.
-    * `include_5_30`
-    * `include_5_28`
-    * `include_5_26`
-    * `include_5_24`
-    * `include_5_22`
-    * `include_5_20`
-    * `include_5_18`
-    * `include_5_16`
-    * `include_5_14`
-    * `include_5_12`
-    * `include_5_10`
-    * `include_5_8`
-    * `include_dev`
-    * `include_blead`
-    * `include_macos`
-    * `include_windows`
-  * `include_threaded_perls` - By default, tests are only run with an
-    unthreaded `perl`. If your code uses threads directly _or_ if your code
-    contains XS, you should enable testing with threaded perls as well.
+* `coverage_partitions` - Running tests under `Devel::Cover` can be _much_
+  slower than running them normally. You can partition coverage testing into
+  an arbitrary number of partitions to make this faster. Because of
+  limitations in Azure, you must set this parameter to **an array**
+  containing the list of partition numbers. So for four partitions you would
+  write `coverage_partitions: [1, 2, 3, 4]`.
+* `publish_coverage_artifact` - If this is a true value then the raw output
+  from `Devel::Cover` will be published as a build artifact. This is
+  disabled by default because some test suites generate incredibly enormous
+  numbers of coverage files, which take a very long time to publish.
+* `include_*` - There are a number of parameters to control exactly what
+  Perls and what platforms are tested. All of these are `true` by default.
+  * `include_5_30`
+  * `include_5_28`
+  * `include_5_26`
+  * `include_5_24`
+  * `include_5_22`
+  * `include_5_20`
+  * `include_5_18`
+  * `include_5_16`
+  * `include_5_14`
+  * `include_5_12`
+  * `include_5_10`
+  * `include_5_8`
+  * `include_dev`
+  * `include_blead`
+  * `include_macos`
+  * `include_windows`
+* `include_threaded_perls` - By default, tests are only run with an
+  unthreaded `perl`. If your code uses threads directly _or_ if your code
+  contains XS, you should enable testing with threaded perls as well.
+* `image_version` - This is the suffix used as part of the Docker tag for
+  image that the Linux test jobs run on. You should not set this manually
+  unless you have a very good reason. By default, this suffix is determined by
+  looking at the version of the `ci-perl-helpers` repo that you
+  referenced. This will be checked out and the appropriate tag or branch name
+  will be chosen based on that checkout.
 
 **Note that because of how Azure Pipelines handles parameters, you need to
 pass `true` and `false` as strings, not booleans!** For example:

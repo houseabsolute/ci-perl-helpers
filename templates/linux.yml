@@ -8,17 +8,17 @@ parameters:
   name: ''
   perl: ''
   test_xt: ''
-  image_version: ''
-
 
 jobs:
   - job: Test_Linux_${{ parameters.name }}
     displayName: Linux - ${{ parameters.perl }} (coverage = "${{ coalesce( parameters.coverage, 'none' ) }}", test_xt = ${{ coalesce( parameters.test_xt, '0' ) }}, allow_failure = ${{ coalesce( parameters.allow_failure, '0' ) }}, partition = ${{ coalesce( parameters.coverage_partition, 'all' ) }})
-    container: houseabsolute/ci-perl-helpers-ubuntu:${{ parameters.perl }}-${{ parameters.image_version }}
+    dependsOn: SetImageVersion
     variables:
       CIPH_ALLOW_FAILURE: ${{ parameters.allow_failure }}
       CIPH_COVERAGE: ${{ parameters.coverage }}
       CIPH_TEST_XT: ${{ parameters.test_xt }}
+      image_version: $[ dependencies.SetImageVersion.outputs['ImageVersionProducer.image_version'] ]
+    container: houseabsolute/ci-perl-helpers-ubuntu:${{ parameters.perl }}-$(image_version)
     steps:
       - template: check-perl-parameter.yml
         parameters:

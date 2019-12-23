@@ -1,0 +1,30 @@
+parameters:
+  image_version: ''
+
+jobs:
+  - job: SetImageVersion
+    displayName: Set the image_version if none was set explicitly
+    pool:
+      vmImage: ubuntu-18.04
+    steps:
+      - checkout: ci-perl-helpers
+        condition: eq( '${{ parameters.image_version }}', '' )
+      - bash: |
+          set -e
+          set -o
+          if [ -z "${{ parameters.image_version }}" ]; then
+              tag=$( git describe --tags )
+              if [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                  echo "Setting image version from tag - $tag"
+                  image_version=$tag
+              else
+                  echo "Setting image version from branch name - $BUILD_SOURCEBRANCHNAME"
+                  image_version=$BUILD_SOURCEBRANCHNAME
+              fi
+          else
+              echo "Image version was set as template parameter - ${{ parameters.image_version }}"
+              image_version="${{ parameters.image_version }}"
+          fi
+          echo "##vso[task.setVariable variable=image_version;isOutput=true]$image_version"
+        name: ImageVersionProducer
+        displayName: Get image from template parameters or from git checkout

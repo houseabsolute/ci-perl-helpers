@@ -1,113 +1,120 @@
+use v5.30.1;
 use strict;
 use warnings;
 
-my @tags = (
- "perl-5.10.1-automated-deploy\nperl-5.10-automated-deploy\n",
- "perl-5.10.1-threads-automated-deploy\nperl-5.10-threads-automated-deploy\n",
- "perl-5.12.0-automated-deploy\n",
- "perl-5.12.0-threads-automated-deploy\n",
- "perl-5.12.1-automated-deploy\n",
- "perl-5.12.1-threads-automated-deploy\n",
- "perl-5.12.2-automated-deploy\n",
- "perl-5.12.2-threads-automated-deploy\n",
- "perl-5.12.3-automated-deploy\n",
- "perl-5.12.3-threads-automated-deploy\n",
- "perl-5.12.4-automated-deploy\n",
- "perl-5.12.4-threads-automated-deploy\n",
- "perl-5.12.5-automated-deploy\nperl-5.12-automated-deploy\n",
- "perl-5.12.5-threads-automated-deploy\nperl-5.12-threads-automated-deploy\n",
- "perl-5.14.0-automated-deploy\n",
- "perl-5.14.0-threads-automated-deploy\n",
- "perl-5.14.1-automated-deploy\n",
- "perl-5.14.1-threads-automated-deploy\n",
- "perl-5.14.2-automated-deploy\n",
- "perl-5.14.2-threads-automated-deploy\n",
- "perl-5.14.3-automated-deploy\n",
- "perl-5.14.3-threads-automated-deploy\n",
- "perl-5.14.4-automated-deploy\nperl-5.14-automated-deploy\n",
- "perl-5.14.4-threads-automated-deploy\nperl-5.14-threads-automated-deploy\n",
- "perl-5.16.0-automated-deploy\n",
- "perl-5.16.0-threads-automated-deploy\n",
- "perl-5.16.1-automated-deploy\n",
- "perl-5.16.1-threads-automated-deploy\n",
- "perl-5.16.2-automated-deploy\n",
- "perl-5.16.2-threads-automated-deploy\n",
- "perl-5.16.3-automated-deploy\nperl-5.16-automated-deploy\n",
- "perl-5.16.3-threads-automated-deploy\nperl-5.16-threads-automated-deploy\n",
- "perl-5.18.0-automated-deploy\n",
- "perl-5.18.0-threads-automated-deploy\n",
- "perl-5.18.1-automated-deploy\n",
- "perl-5.18.1-threads-automated-deploy\n",
- "perl-5.18.2-automated-deploy\n",
- "perl-5.18.2-threads-automated-deploy\n",
- "perl-5.18.3-automated-deploy\n",
- "perl-5.18.3-threads-automated-deploy\n",
- "perl-5.18.4-automated-deploy\nperl-5.18-automated-deploy\n",
- "perl-5.18.4-threads-automated-deploy\nperl-5.18-threads-automated-deploy\n",
- "perl-5.20.0-automated-deploy\n",
- "perl-5.20.0-threads-automated-deploy\n",
- "perl-5.20.1-automated-deploy\n",
- "perl-5.20.1-threads-automated-deploy\n",
- "perl-5.20.2-automated-deploy\n",
- "perl-5.20.2-threads-automated-deploy\n",
- "perl-5.20.3-automated-deploy\nperl-5.20-automated-deploy\n",
- "perl-5.20.3-threads-automated-deploy\nperl-5.20-threads-automated-deploy\n",
- "perl-5.22.0-automated-deploy\n",
- "perl-5.22.0-threads-automated-deploy\n",
- "perl-5.22.1-automated-deploy\n",
- "perl-5.22.1-threads-automated-deploy\n",
- "perl-5.22.2-automated-deploy\n",
- "perl-5.22.2-threads-automated-deploy\n",
- "perl-5.22.3-automated-deploy\n",
- "perl-5.22.3-threads-automated-deploy\n",
- "perl-5.22.4-automated-deploy\nperl-5.22-automated-deploy\n",
- "perl-5.22.4-threads-automated-deploy\nperl-5.22-threads-automated-deploy\n",
- "perl-5.24.0-automated-deploy\n",
- "perl-5.24.0-threads-automated-deploy\n",
- "perl-5.24.1-automated-deploy\n",
- "perl-5.24.1-threads-automated-deploy\n",
- "perl-5.24.2-automated-deploy\n",
- "perl-5.24.2-threads-automated-deploy\n",
- "perl-5.24.3-automated-deploy\n",
- "perl-5.24.3-threads-automated-deploy\n",
- "perl-5.24.4-automated-deploy\nperl-5.24-automated-deploy\n",
- "perl-5.24.4-threads-automated-deploy\nperl-5.24-threads-automated-deploy\n",
- "perl-5.26.0-automated-deploy\n",
- "perl-5.26.0-threads-automated-deploy\n",
- "perl-5.26.1-automated-deploy\n",
- "perl-5.26.1-threads-automated-deploy\n",
- "perl-5.26.2-automated-deploy\n",
- "perl-5.26.2-threads-automated-deploy\n",
- "perl-5.26.3-automated-deploy\nperl-5.26-automated-deploy\n",
- "perl-5.26.3-threads-automated-deploy\nperl-5.26-threads-automated-deploy\n",
- "perl-5.28.0-automated-deploy\n",
- "perl-5.28.0-threads-automated-deploy\n",
- "perl-5.28.1-automated-deploy\n",
- "perl-5.28.1-threads-automated-deploy\n",
- "perl-5.28.2-automated-deploy\nperl-5.28-automated-deploy\n",
- "perl-5.28.2-threads-automated-deploy\nperl-5.28-threads-automated-deploy\n",
- "perl-5.30.0-automated-deploy\n",
- "perl-5.30.0-threads-automated-deploy\n",
- "perl-5.30.1-automated-deploy\nperl-5.30-automated-deploy\n",
- "perl-5.30.1-threads-automated-deploy\nperl-5.30-threads-automated-deploy\n",
- "perl-dev-automated-deploy",
- "perl-dev-threads-automated-deploy",
- "perl-5.8.9-automated-deploy\nperl-5.8-automated-deploy\n",
- "perl-5.8.9-threads-automated-deploy\nperl-5.8-threads-automated-deploy\n",
- "perl-blead-automated-deploy",
-);
+use warnings 'FATAL' => 'all';
+use feature 'postderef', 'signatures';
+use autodie qw( :all );
 
-# curl -s -H "Content-Type: application/json" -X POST -d '{"username": "autarch", "password": "..."}' https://hub.docker.com/v2/users/login/ | jq -r .token
+use FindBin qw( $Bin );
+use lib "$Bin/../deploy/lib";
 
-for my $t ( map { chomp; $_ } map { split /\n/ } @tags ) {
-    my $auth
-        = "Authorization: JWT ...";
-    my @c = (
-        'curl',
-        "https://hub.docker.com/v2/repositories/houseabsolute/ci-perl-helpers-ubuntu/tags/$t/",
-        '-X', 'DELETE',
-        '-H', $auth,
+{
+    package C;
+
+    use namespace::autoclean;
+
+    use HTTP::Request;
+    use JSON::MaybeXS qw( decode_json encode_json );
+    use List::AllUtils qw( max uniq );
+    use LWP::UserAgent;
+
+    use Moose;
+    ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+    no warnings 'experimental::postderef', 'experimental::signatures';
+    ## use critic
+
+    with 'MooseX::Getopt', 'R::PerlReleaseFetcher';
+
+    has suffixes => (
+        is       => 'ro',
+        isa      => 'ArrayRef[Str]',
+        required => 1,
     );
 
-    system(@c) and die $!;
+    has password => (
+        is       => 'ro',
+        isa      => 'Str',
+        required => 1,
+    );
+
+    has _jwt => (
+        is      => 'ro',
+        isa     => 'Str',
+        lazy    => 1,
+        builder => '_build_jwt',
+    );
+
+    has _ua => (
+        is      => 'ro',
+        isa     => 'LWP::UserAgent',
+        lazy    => 1,
+        default => sub { LWP::UserAgent->new },
+    );
+
+    sub run ($self) {
+        my %perls;
+        for my $r ( $self->_perl_releases->@* ) {
+            push $perls{ $r->minor }->@*, $r;
+        }
+
+        my @minors   = sort     { $a <=> $b } keys %perls;
+        my $last_dev = max grep { $_ % 2 } @minors;
+
+        my @tags;
+        for my $s ( $self->suffixes->@* ) {
+            for my $minor ( sort { $a <=> $b } @minors ) {
+                next if $minor % 2 && $minor != $last_dev;
+                for my $r ( $perls{$minor}->@* ) {
+                    push @tags, $r->version . '-' . $s,
+                        $r->version . '-threads-' . $s;
+                    push @tags, $r->maj_min . '-' . $s,
+                        $r->maj_min . '-threads-' . $s;
+                }
+            }
+            push @tags, 'tools-perl-' . $s;
+        }
+
+        for my $t ( sort ( uniq(@tags) ) ) {
+            my $uri
+                = "https://hub.docker.com/v2/repositories/houseabsolute/ci-perl-helpers-ubuntu/tags/$t/";
+            $self->_request(
+                'DELETE',
+                $uri,
+                [ 'Authorization', 'JWT ' . $self->_jwt ],
+            );
+        }
+
+        return 0;
+    }
+
+    sub _build_jwt ($self) {
+        my $data = { username => 'autarch', password => $self->password };
+        my $body = $self->_request(
+            'POST',
+            'https://hub.docker.com/v2/users/login/',
+            [ 'Content-Type', 'application/json' ],
+            encode_json($data),
+        );
+        return $body->{token};
+    }
+
+    sub _request ( $self, @req ) {
+        my $req = HTTP::Request->new(@req);
+        say "$req[0] $req[1]";
+        my $resp = $self->_ua->request($req);
+        if ( $resp->is_success ) {
+            my $content = $resp->decoded_content;
+            return unless length $content;
+            return decode_json($content);
+        }
+        if ( $resp->code == 404 ) {
+            say 'Not found';
+            return;
+        }
+
+        die $resp->as_string;
+    }
 }
+
+exit C->new_with_options->run;

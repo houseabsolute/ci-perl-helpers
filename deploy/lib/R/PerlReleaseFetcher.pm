@@ -2,9 +2,8 @@ package R::PerlReleaseFetcher;
 
 use v5.30.1;
 use strict;
-use warnings;
-use feature 'postderef', 'signatures';
 use warnings 'FATAL' => 'all';
+use feature 'postderef', 'signatures';
 use autodie qw( :all );
 use namespace::autoclean;
 

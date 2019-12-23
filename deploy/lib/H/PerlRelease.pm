@@ -50,6 +50,13 @@ has numeric_version => (
     },
 );
 
+has maj_min => (
+    is      => 'ro',
+    isa     => t('Str'),
+    lazy    => 1,
+    default => sub ($self) { join q{.}, $self->major, $self->minor },
+);
+
 has is_stable => (
     is      => 'ro',
     isa     => t('Bool'),

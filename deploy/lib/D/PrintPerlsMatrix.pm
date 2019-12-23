@@ -31,6 +31,9 @@ sub run ($self) {
 
     my %perls;
     for my $r ( $self->_perl_releases->@* ) {
+
+        # XXX - temp do just one for testing
+        next unless $r->version eq '5.30.1';
         push $perls{ $r->minor }->@*, $r;
     }
 
@@ -60,18 +63,21 @@ sub run ($self) {
         $matrix{$key} = {
             perl    => $r->version,
             threads => JSON()->false,
-            tags    => $self->_tags( $r, 0 ),
+            tags    => $self->_tags_string($self->_tags_for_release( $r, 0 )),
         };
         $matrix{ $key . '_threads' } = {
             perl    => $r->version,
             threads => JSON()->true,
-            tags    => $self->_tags( $r, 1 ),
+            tags    => $self->_tags_string($self->_tags_for_release( $r, 1 )),
         };
     }
 
     $matrix{perl_blead} = {
-        perl    => 'blead',
-        tags    => $self->_tag( 'blead', 0 ),
+        perl => 'blead',
+        tags => $self->_tags_string(
+            $self->_tags_for_prefix( 'blead', 0 ),
+            $self->_tags_for_prefix( 'blead', 1 ),
+        ),
         threads => JSON()->false,
     };
 
@@ -83,25 +89,29 @@ sub run ($self) {
     return 0;
 }
 
-sub _tags ( $self, $r, $threads ) {
-    if ( $r->minor % 2 ) {
-        return $self->_tag( 'dev', $threads );
-    }
-
-    my @tags = $self->_tag( $r->version, $threads );
-
-    if ( $r->is_latest_in_minor ) {
-        my $majmin = join q{.}, $r->major, $r->minor;
-        push @tags, $self->_tag( $majmin, $threads );
-    }
+sub _tags_string ( $self, @tags ) {
     return join q{}, map {"$_\n"} @tags;
 }
 
-sub _tag ( $self, $prefix, $threads ) {
+sub _tags_for_release ( $self, $r, $threads ) {
+    if ( $r->minor % 2 ) {
+        return $self->_tags_for_prefix( 'dev', $threads );
+    }
+
+    my @tags = $self->_tags_for_prefix( $r->version, $threads );
+
+    if ( $r->is_latest_in_minor ) {
+        my $majmin = join q{.}, $r->major, $r->minor;
+        push @tags, $self->_tags_for_prefix( $majmin, $threads );
+    }
+
+    return @tags;
+}
+
+sub _tags_for_prefix ( $self, $prefix, $threads ) {
     return
-          $prefix
-        . ( $threads ? q{-threads} : q{} ) . q{-}
-        . $self->image_version;
+        map { $prefix . ( $threads ? q{-threads} : q{} ) . q{-} . $_ }
+        $self->image_versions->@*;
 }
 
 __PACKAGE__->meta->make_immutable;

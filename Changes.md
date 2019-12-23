@@ -1,3 +1,10 @@
+## 0.0.12
+
+* Docker images are now tagged with multiple tags at once. If we push a new
+  commit to master and it's tagged with a version number, we end up with both
+  a "-master" and "-vX.Y.Z" tag.
+
+
 ## 0.0.11 2019-12-22
 
 * In v0.0.8, I changed the naming of the Docker containers and forgot to

@@ -23,8 +23,10 @@ has '+perl' => (
 
 sub run ($self) {
     $self->_write_dockerfile;
-    say $self->_base_image_tag
-        or die $!;
+    for my $tag ( $self->_base_image_tags ) {
+        say 'tag:' . $tag
+            or die $!;
+    }
     return 0;
 }
 

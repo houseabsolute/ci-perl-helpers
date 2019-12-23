@@ -17,23 +17,26 @@ use Moose::Role;
 no warnings 'experimental::postderef', 'experimental::signatures';
 ## use critic
 
-has image_version => (
+has image_versions => (
     is      => 'ro',
-    isa     => t('Str'),
+    isa     => t( 'ArrayRef', of => t('Str') ),
     lazy    => 1,
-    builder => '_build_image_version',
+    builder => '_build_image_versions',
     documentation =>
         'A version to append to the image tag. This will default to the name of the current branch.',
 );
 
-sub _build_image_version {
-    my $tag = git::describe('--tags');
-    return $tag
-        if $tag =~ /\Av\d+\.\d+\.\d+\z/;
-
-    return $ENV{BUILD_SOURCEBRANCHNAME}
+sub _build_image_versions {
+    my @versions
+        = $ENV{BUILD_SOURCEBRANCHNAME}
         ? $ENV{BUILD_SOURCEBRANCHNAME}
         : current_branch_name();
+
+    my $tag = git::describe('--tags');
+    unshift @versions, $tag
+        if $tag =~ /\Av\d+\.\d+\.\d+\z/;
+
+    return \@versions;
 }
 
 my $TagRoot = 'houseabsolute/ci-perl-helpers-ubuntu';
@@ -42,11 +45,11 @@ my $TagRoot = 'houseabsolute/ci-perl-helpers-ubuntu';
 sub _tag_root {$TagRoot}
 
 sub _base_image ($self) {
-    $self->_tag_root . q{:} . $self->_base_image_tag;
+    $self->_tag_root . q{:} . ( $self->_base_image_tags )[0];
 }
 
-sub _base_image_tag ($self) {
-    return 'tools-perl-' . $self->image_version;
+sub _base_image_tags ($self) {
+    return map {  'tools-perl-' . $_ } $self->image_versions->@*;
 }
 ## use critic
 

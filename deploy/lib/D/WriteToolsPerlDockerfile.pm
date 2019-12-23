@@ -23,10 +23,22 @@ has '+perl' => (
 
 sub run ($self) {
     $self->_write_dockerfile;
-    for my $tag ( $self->_base_image_tags ) {
-        say 'tag:' . $tag
+
+    my @tags = $self->_base_image_tags;
+    for my $i ( 0 .. $#tags ) {
+        say
+            "##vso[task.setVariable variable=base_image_tag${i};isOutput=true]$tags[$i]"
             or die $!;
     }
+    if ( @tags == 1 ) {
+
+        # We need to make sure that this variable is set. Otherwise when we
+        # try to use it later and it's unset, then we end up with the literal
+        # string "$(WriteToolsPerlDockerfile.base_image_tags1)" as the tag.
+        say "##vso[task.setVariable variable=base_image_tag1;isOutput=true]"
+            or die $!;
+    }
+
     return 0;
 }
 

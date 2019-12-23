@@ -16,9 +16,7 @@ stages:
           - bash: |
               set -eo pipefail
               set -x
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 perl ./deploy/bin/write-tools-perl-dockerfile.pl | tee ./image
-              BASE_IMAGE_TAGS=$( grep '^tag:' ./image | sed -e 's/tag://' )
-              echo "##vso[task.setVariable variable=base_image_tags;isOutput=true]$BASE_IMAGE_TAGS"
+              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 perl ./deploy/bin/write-tools-perl-dockerfile.pl
             name: WriteToolsPerlDockerfile
             displayName: Write tools-perl dockerfile
           - task: Docker@2
@@ -32,7 +30,9 @@ stages:
               command: buildAndPush
               containerRegistry: DockerHubHouseabsolute
               repository: houseabsolute/ci-perl-helpers-ubuntu
-              tags: $(WriteToolsPerlDockerfile.base_image_tags)
+              tags: |
+                $(WriteToolsPerlDockerfile.base_image_tag0)
+                $(WriteToolsPerlDockerfile.base_image_tag1)
 
   - stage: DeployRuntimePerlImages
     displayName: Deploy the runtime-perl images

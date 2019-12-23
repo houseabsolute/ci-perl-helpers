@@ -31,9 +31,6 @@ sub run ($self) {
 
     my %perls;
     for my $r ( $self->_perl_releases->@* ) {
-
-        # XXX - temp do just one for testing
-        next unless $r->version eq '5.30.1';
         push $perls{ $r->minor }->@*, $r;
     }
 

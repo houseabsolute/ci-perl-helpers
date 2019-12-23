@@ -4,7 +4,7 @@ parameters:
   image_version: 'v0.0.10'
 
 stages:
-  - stage: BuildDist
+  - stage: Build
     displayName: Build distro
     variables:
       - template: variables.yml

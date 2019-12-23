@@ -26,7 +26,7 @@ parameters:
 stages:
   - stage: Test
     displayName: Test distro on various perls
-    dependsOn: BuildDist
+    dependsOn: Build
     variables:
       - template: variables.yml
         parameters:

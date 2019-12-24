@@ -60,6 +60,12 @@ jobs:
           berrybrew install "$BERRYBREW_PERL"
           berrybrew exec --with "$BERRYBREW_PERL" perl -e 'use strict;use warnings;my $file = shift;open my $fh, $file or die $!;my $content = do { local $/; <$fh> };close $fh or die $!;my $q = chr(34); $content =~ s/(${q}custom_exec${q}\s*:\s*)${q}false${q}/$1${q}true${q}/;open $fh, q{>}, $file or die $!;print {$fh} $content or die $!;close $fh or die $!;' C:\\ProgramData\\chocolatey\\lib\\berrybrew\\tools\\data\\config.json
           cat C:\\ProgramData\\chocolatey\\lib\\berrybrew\\tools\\data\\config.json
+
+          # berrybrew appears to exit 0 no matter what happens, so this bit is
+          # here to make sure we actually installed the Perl we wanted.
+          echo 1 > exit-code
+          berrybrew exec --with "$BERRYBREW_PERL" perl -e 'use autodie; open my $fh, q{>}, q{exit-code}; print {$fh} q{0}; close $fh'
+          exit $( cat exit-code )
         displayName: Berrybrew install tools-perl
       - task: CacheBeta@1
         displayName: Define runtime-perl base cache

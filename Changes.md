@@ -4,8 +4,8 @@
   commit to master and it's tagged with a version number, we end up with both
   a "-master" and "-vX.Y.Z" tag.
 
-* The `image_version` parameters is now optional for all stage templates. If
-  it is not passed then the version will be picked based on the commit that is
+* The `image_version` parameter is now optional for all stage templates. If it
+  is not passed then the version will be picked based on the commit that is
   used for the `ci-perl-helpers` repo. If the commit matches a version tag,
   then that is used as the `image_version`. Otherwise the branch name is used.
 

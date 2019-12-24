@@ -12,14 +12,18 @@ jobs:
       - bash: |
           set -e
           set -o
+          env|sort
           if [ -z "${{ parameters.image_version }}" ]; then
               tag=$( git describe --tags )
               if [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                   echo "Setting image version from tag - $tag"
                   image_version=$tag
               else
-                  echo "Setting image version from branch name - $BUILD_SOURCEBRANCHNAME"
-                  image_version=$BUILD_SOURCEBRANCHNAME
+                  # Our checkout is in a detached head state, and this is the
+                  # only way I've found to get the branch name in that case.
+                  branch=$( git describe --all | sed 's/^remotes\/origin\///' )
+                  echo "Setting image version from branch name - $branch"
+                  image_version=$branch
               fi
           else
               echo "Image version was set as template parameter - ${{ parameters.image_version }}"

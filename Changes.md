@@ -1,3 +1,10 @@
+## 0.0.13
+
+* The `image_version` change in the last release was not done properly. It got
+  the branch name from the repo that was using the helpers, not from the
+  helpers themselves. But it did work for _tags_.
+
+
 ## 0.0.12 2019-12-23
 
 * Docker images are now tagged with multiple tags at once. If we push a new

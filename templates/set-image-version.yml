@@ -12,7 +12,6 @@ jobs:
       - bash: |
           set -e
           set -x
-          env|sort
           if [ -z "${{ parameters.image_version }}" ]; then
               tag=$( git describe --tags )
               if [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then

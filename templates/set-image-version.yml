@@ -11,7 +11,7 @@ jobs:
         condition: eq( '${{ parameters.image_version }}', '' )
       - bash: |
           set -e
-          set -o
+          set -x
           env|sort
           if [ -z "${{ parameters.image_version }}" ]; then
               tag=$( git describe --tags )

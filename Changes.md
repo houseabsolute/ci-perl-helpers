@@ -1,4 +1,4 @@
-## 0.0.13
+## 0.0.13 2019-12-25
 
 * The `image_version` change in the last release was not done properly. It got
   the branch name from the repo that was using the helpers, not from the

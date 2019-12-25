@@ -28,13 +28,16 @@ jobs:
                   fi
               done
               if [ -z "$latest" ]; then
+                  set +x
                   echo "##vso[task.logissue type=error;]Could not determine latest version of Perl provided by berrybrew"
                   echo "##vso[task.complete result=Failed;]"
                   exit 0
               fi
+              set +x
               echo "##vso[task.setVariable variable=perl]${latest%'_64'}"
               echo "##vso[task.setVariable variable=berrybrew_perl]${latest}"
           else
+              set +x
               echo "##vso[task.setVariable variable=perl]${{ parameters.perl }}"
               echo "##vso[task.setVariable variable=berrybrew_perl]${{ parameters.perl }}_64"
           fi

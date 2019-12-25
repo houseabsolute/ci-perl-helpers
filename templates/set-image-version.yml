@@ -28,6 +28,7 @@ jobs:
               echo "Image version was set as template parameter - ${{ parameters.image_version }}"
               image_version="${{ parameters.image_version }}"
           fi
+          set +x
           echo "##vso[task.setVariable variable=image_version;isOutput=true]$image_version"
         name: ImageVersionProducer
         displayName: Get image from template parameters or from git checkout

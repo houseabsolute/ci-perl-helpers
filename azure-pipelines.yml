@@ -51,6 +51,7 @@ stages:
               set -x
               $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 perl ./deploy/bin/print-perls-matrix.pl | tee ./matrix
               perls=$( cat ./matrix )
+              set +x
               echo "##vso[task.setVariable variable=perls;isOutput=true]$perls"
             name: matrixGenerator
             displayName: Generate perl version matrix

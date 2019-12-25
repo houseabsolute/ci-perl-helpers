@@ -4,6 +4,10 @@
   the branch name from the repo that was using the helpers, not from the
   helpers themselves. But it did work for _tags_.
 
+* Fixed an issue where variables set using `##vso` log output would end up
+  being set twice. If the bash code in question did a `set -x`, then the log
+  output would come out twice, leading to much confusion.
+
 
 ## 0.0.12 2019-12-23
 

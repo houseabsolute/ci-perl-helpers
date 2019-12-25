@@ -31,18 +31,21 @@ jobs:
           fi
           if [ "$CIPH_COVERAGE" == "codecov" ]; then
               if [ -z "$CIPH_CODECOV_TOKEN" ]; then
+                  set +x
                   echo "##vso[task.logissue type=error;]You must set the CODECOV_TOKEN secret for this pipeline if you want to submit coverage data to codecov.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
                   echo "##vso[task.complete result=Failed;]"
               fi
           fi
           if [ "$CIPH_COVERAGE" == "coveralls" ]; then
               if [ -z "$CIPH_COVERALLS_TOKEN" ]; then
+                  set +x
                   echo "##vso[task.logissue type=error;]You must set the COVERALLS_TOKEN secret for this pipeline if you want to submit coverage data to coveralls.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
                   echo "##vso[task.complete result=Failed;]"
               fi
           fi
           if [ "$CIPH_COVERAGE" == "kritika" ]; then
               if [ -z "$CIPH_KRITIKA_TOKEN" ]; then
+                  set +x
                   echo "##vso[task.logissue type=error;]You must set the KRITIKA_TOKEN secret for this pipeline if you want to submit coverage data to kritika.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
                   echo "##vso[task.complete result=Failed;]"
               fi
@@ -55,8 +58,9 @@ jobs:
                       --this-partition "${{ parameters.coverage_partition }}" \
                       --partitions "${{ join( ',', parameters.all_coverage_partitions ) }}" \
               )
-              echo "##vso[task.setvariable variable=CIPH_TOTAL_COVERAGE_PARTITIONS]$total_coverage_partitions"
               export coverage_partition=${{ parameters.coverage_partition }}
+              set +x
+              echo "##vso[task.setvariable variable=CIPH_TOTAL_COVERAGE_PARTITIONS]$total_coverage_partitions"
               echo "##vso[task.setvariable variable=CIPH_COVERAGE_PARTITION]$coverage_partition"
           fi
         env:

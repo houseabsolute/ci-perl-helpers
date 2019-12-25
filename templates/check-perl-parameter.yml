@@ -6,6 +6,7 @@ steps:
       set -e
       set -x
       if [ -z "${{ parameters.perl }}" ]; then
+          set +x
           echo "##vso[task.logissue type=error;]Missing template parameter \"perl\""
           echo "##vso[task.complete result=Failed;]"
       fi

@@ -27,6 +27,7 @@ feature 'tools-perl' => sub {
     requires 'Specio::Library::Builtins';
     requires 'Specio::Library::Path::Tiny';
     requires 'Specio::Library::String';
+    requires 'Win32::ShellQuote';
     requires 'autodie';
     requires 'feature';
     requires 'local::lib';

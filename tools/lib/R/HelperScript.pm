@@ -17,6 +17,7 @@ use Path::Tiny::Rule;
 use Specio::Declare qw( enum );
 use Specio::Library::Builtins;
 use Specio::Library::Path::Tiny;
+use Win32::ShellQuote qw( quote_system_list );
 
 # For things using autodie qw( :all )
 use IPC::System::Simple;
@@ -302,7 +303,8 @@ sub _brewed_perl {
         ? 'C:\\Program Files (x86)\\berrybrew\\bin\\berrybrew.exe'
         : 'perlbrew';
 
-    return ( $brew, 'exec', '--with', $perl );
+    my @cmd = ( $brew, 'exec', '--with', $perl );
+    return $^O eq 'MSWin32' ? quote_system_list(@cmd) : @cmd;
 }
 
 sub _perl_local_script {

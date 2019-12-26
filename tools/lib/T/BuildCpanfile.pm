@@ -57,6 +57,10 @@ sub _write_cpanfile {
         },
     );
 
+    for (@output) {
+        print "$_\n" or die $!;
+    }
+
     $self->prereqs_cpanfile->spew(@output);
 
     return undef;

@@ -8,20 +8,36 @@ jobs:
     displayName: Windows - ${{ parameters.perl }}
     pool:
       vmImage: windows-latest
+    variables:
+      BERRYBREW_ROOT: '/c/Program Files (x86)/berrybrew'
+      BERRYBREW_EXE: '$(BERRYBREW_ROOT)/bin/berrybrew'
     steps:
+      # I'd really prefer to use chocolatey for this but the chocolatey
+      # package for berrybrew simply installs the HEAD of the berrybrew repo,
+      # so it's impossible to guarantee a working install, much less a
+      # specific version. See
+      # https://github.com/camilohe/berrybrew.install/issues/1.
       - bash: |
           set -e
           set -x
-          # We can remove ` --ignore-checksum` once
-          # https://github.com/camilohe/berrybrew.install/issues/1 is fixed.
-          choco upgrade berrybrew --yes --ignore-checksum
-        displayName: Install berrybrew
+          cd /tmp
+          curl --location --remote-name https://github.com/stevieb9/berrybrew/archive/v1.29.zip
+          unzip v1.29.zip
+          cd berrybrew-1.29/download
+          unzip berrybrew.zip
+          mkdir -p "$BERRYBREW_ROOT"
+          cp -r bin "$BERRYBREW_ROOT/"
+          cp -r data "$BERRYBREW_ROOT/"
+        displayName: Install berrybrew from zip file
+      - powershell: |
+          & 'C:\Program Files (x86)\berrybrew\bin\berrybrew-refresh.bat'
+        displayName: Run berrybrew-refresh.bat to finalize berrybrew install
       - bash: |
           set -e
           set -x
           if [ -z "${{ parameters.perl }}" ] || [ "${{ parameters.perl }}" = "stable" ]; then
               latest=""
-              for line in $( berrybrew available ); do
+              for line in $( "$BERRYBREW_EXE" available ); do
                   if [[ "$line" =~ 5.+_64$ ]]; then
                       latest="$line"
                       break
@@ -60,14 +76,15 @@ jobs:
           # this to work. But this reinstall does not wipe the installed
           # modules, so the later step to install deps is still much quicker
           # when we get this perl from the cache.
-          berrybrew install "$BERRYBREW_PERL"
-          berrybrew exec --with "$BERRYBREW_PERL" perl -e 'use strict;use warnings;my $file = shift;open my $fh, $file or die $!;my $content = do { local $/; <$fh> };close $fh or die $!;my $q = chr(34); $content =~ s/(${q}custom_exec${q}\s*:\s*)${q}false${q}/$1${q}true${q}/;open $fh, q{>}, $file or die $!;print {$fh} $content or die $!;close $fh or die $!;' C:\\ProgramData\\chocolatey\\lib\\berrybrew\\tools\\data\\config.json
-          cat C:\\ProgramData\\chocolatey\\lib\\berrybrew\\tools\\data\\config.json
+          "$BERRYBREW_EXE" install "$BERRYBREW_PERL"
+          export BERRYBREW_CONFIG="$BERRYBREW_ROOT/data/config.json"
+          "$BERRYBREW_EXE" exec --with "$BERRYBREW_PERL" perl -e 'use strict;use warnings;my $file = shift;open my $fh, $file or die $!;my $content = do { local $/; <$fh> };close $fh or die $!;my $q = chr(34); $content =~ s/(${q}custom_exec${q}\s*:\s*)${q}false${q}/$1${q}true${q}/;open $fh, q{>}, $file or die $!;print {$fh} $content or die $!;close $fh or die $!;' "$BERRYBREW_CONFIG"
+          cat "$BERRYBREW_CONFIG"
 
           # berrybrew appears to exit 0 no matter what happens, so this bit is
           # here to make sure we actually installed the Perl we wanted.
           echo 1 > exit-code
-          berrybrew exec --with "$BERRYBREW_PERL" perl -e 'use autodie; open my $fh, q{>}, q{exit-code}; print {$fh} q{0}; close $fh'
+          "$BERRYBREW_EXE" exec --with "$BERRYBREW_PERL" perl -e 'use autodie; open my $fh, q{>}, q{exit-code}; print {$fh} q{0}; close $fh'
           exit $( cat exit-code )
         displayName: Berrybrew install tools-perl
       - task: CacheBeta@1
@@ -78,7 +95,7 @@ jobs:
       - bash: |
           set -e
           set -x
-          berrybrew install "$BERRYBREW_PERL"
+          "$BERRYBREW_EXE" install "$BERRYBREW_PERL"
         displayName: Berrybrew install runtime-perl
       - task: CacheBeta@1
         displayName: Define runtime-perl clone cache
@@ -88,7 +105,7 @@ jobs:
       - bash: |
           set -e
           set -x
-          berrybrew clone "$BERRYBREW_PERL" runtime-perl
+          "$BERRYBREW_EXE" clone "$BERRYBREW_PERL" runtime-perl
         displayName: Berrybrew clone installed Perl as runtime-perl
       - bash: |
           set -e
@@ -100,7 +117,7 @@ jobs:
       - bash: |
           set -e
           set -x
-          berrybrew exec --with "$BERRYBREW_PERL" \
+          "$BERRYBREW_EXE" exec --with "$BERRYBREW_PERL" \
           perl "$CI_WORKSPACE_DIRECTORY\\bin\\cpm" install \
           --global \
           --show-build-log-on-failure \

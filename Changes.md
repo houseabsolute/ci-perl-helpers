@@ -1,3 +1,10 @@
+## 0.0.14 2019-12-26
+
+* Pin our berrybrew install to 1.29. The new 1.30 seems to have some issues
+  (see https://github.com/stevieb9/berrybrew/issues/237) and broke all my
+  pipeline builds on Windows. Pinning will let us upgrade on our own schedule.
+
+
 ## 0.0.13 2019-12-25
 
 * The `image_version` change in the last release was not done properly. It got

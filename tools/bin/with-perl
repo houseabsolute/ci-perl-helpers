@@ -9,7 +9,8 @@ shift
 
 case "$OSTYPE" in
     windows*|msys*)
-        brew=berrybrew
+        # This should be set in the Windows template's variables section
+        brew="$BERRYBREW_EXE"
         tools="$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin"
         ;;
     darwin*)

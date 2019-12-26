@@ -297,7 +297,10 @@ sub _brewed_perl {
     my $self = shift;
     my $perl = shift;
 
-    my $brew = $^O eq 'MSWin32' ? 'berrybrew' : 'perlbrew';
+    my $brew
+        = $^O eq 'MSWin32'
+        ? 'C:\\Program Files (x86)\\berrybrew\\bin\\berrybrew.exe'
+        : 'perlbrew';
 
     return ( $brew, 'exec', '--with', $perl );
 }

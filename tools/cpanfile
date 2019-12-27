@@ -3,7 +3,7 @@
 
 feature 'tools-perl' => sub {
 
-    # This list comes from running scan-prereqs-cpanfile ./tools
+    # This list comes from running scan-prereqs-cpanfile --dir ./tools
     requires 'CPAN::Meta';
     requires 'Data::Dumper::Concise';
     requires 'Devel::Confess';
@@ -13,25 +13,18 @@ feature 'tools-perl' => sub {
     requires 'IPC::Run3';
     requires 'IPC::System::Simple';
     requires 'List::AllUtils';
-    requires 'MetaCPAN::Client';
     requires 'Module::CPANfile';
     requires 'Moo';
     requires 'Moo::Role';
-    requires 'MooX::Options';
     requires 'MooX::StrictConstructor';
-    requires 'Moose';
-    requires 'MooseX::Getopt::Dashes';
     requires 'Path::Tiny';
     requires 'Path::Tiny::Rule';
     requires 'Specio::Declare';
     requires 'Specio::Library::Builtins';
     requires 'Specio::Library::Path::Tiny';
-    requires 'Specio::Library::String';
     requires 'Win32::ShellQuote';
     requires 'autodie';
-    requires 'feature';
     requires 'local::lib';
-    requires 'namespace::autoclean';
 
     # Our fallback if the built distro does not include a META.* or cpanfile.
     requires 'App::scan_prereqs_cpanfile';

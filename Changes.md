@@ -1,4 +1,4 @@
-## 0.0.15
+## 0.0.15 2019-12-27
 
 * Separated the creation of the coverage report from running tests in the
   Azure Pipeline steps.

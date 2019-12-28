@@ -73,6 +73,7 @@ RUN apt-get --yes update && \
         make \
         patch \
         perl \
+        sudo \
         # Needed in Azure CI where we don't run as root.
         # This is handy for debugging path issues.
         tree \

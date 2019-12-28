@@ -49,7 +49,7 @@ FROM ubuntu:bionic
 
 RUN apt-get --yes update && \
     apt-get --yes upgrade && \
-    apt-get --yes --no-install-recommends install \
+    DEBIAN_FRONTEND=noninteractive apt-get --yes --no-install-recommends install \
         # For spelling tests
         aspell \
         aspell-en \
@@ -73,10 +73,14 @@ RUN apt-get --yes update && \
         make \
         patch \
         perl \
+        # Needed in Azure CI where we don't run as root and the config asks
+        # for more install more packages.
         sudo \
-        # Needed in Azure CI where we don't run as root.
         # This is handy for debugging path issues.
         tree \
+        # I can't seem to make this non-interactive when installing in an
+        # Azure pipeline, so let's just install it now.
+        tzdata \
         zlib1g \
         zlib1g-dev
 

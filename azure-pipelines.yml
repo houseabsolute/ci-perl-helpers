@@ -1,6 +1,17 @@
 variables:
   PERLBREW_ROOT: "$(Pipeline.Workspace)/perl5/perlbrew"
 
+trigger:
+  branches:
+    exclude:
+      - no-ci-*
+  tags:
+    include:
+      - v*
+  paths:
+    exclude:
+      - dev/
+
 stages:
   - stage: DeployToolsPerlImage
     displayName: Deploy the tools-perl base image

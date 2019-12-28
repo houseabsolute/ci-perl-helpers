@@ -1,0 +1,199 @@
+parameters:
+  - name: use_default_perls
+    type: boolean
+    default: false
+  - name: perls
+    type: object
+    default: []
+  - name: from_perl
+    type: string
+    default: ''
+  - name: to_perl
+    type: string
+    default: ''
+  - name: include_threads
+    type: boolean
+    default: false
+  - name: allow_failure
+    type: object
+    default: [ 'blead' ]
+  - name: coverage
+    type: string
+    default: ''
+  - name: coverage_partitions
+    type: number
+    default: 1
+  - name: coverage_perl
+    type: string
+    default: ''
+  - name: publish_coverage_artifact
+    type: boolean
+    default: false
+  - name: cache_key
+    type: string
+    default: 'cache'
+  - name: test_xt
+    type: boolean
+    default: false
+  - name: debug
+    type: boolean
+    default: false
+  - name: brew
+    type: object
+    default: []
+  - name: pre_test_steps
+    type: stepList
+    default: []
+  - name: post_test_steps
+    type: stepList
+    default: []
+
+stages:
+  - stage: macOS
+    dependsOn: Build
+    jobs:
+      - job: GenerateMatrix
+        displayName: Generate macOS test matrix
+        pool:
+          vmImage: ubuntu-18.04
+        variables:
+          ${{ if parameters.use_default_perls }}:
+            perls: "--perls latest"
+            from_perl: ""
+            to_perl: ""
+          ${{ if and( not( parameters.use_default_perls ), ne( join( ',', parameters.perls ), '' ) ) }}:
+            perls: "--perls ${{ join( ',', parameters.perls ) }}"
+          ${{ if and( not( parameters.use_default_perls ), eq( join( ',', parameters.perls ), '' ) ) }}:
+            perls: ""
+          ${{ if and( not( parameters.use_default_perls ), ne( parameters.from_perl, '' ) ) }}:
+            from_perl: "--from-perl ${{ parameters.from_perl }}"
+          ${{ if and( not( parameters.use_default_perls ), eq( parameters.from_perl, '' ) ) }}:
+            from_perl: ""
+          ${{ if and( not( parameters.use_default_perls ), ne( parameters.to_perl, '' ) ) }}:
+            to_perl: "--to-perl ${{ parameters.to_perl }}"
+          ${{ if and( not( parameters.use_default_perls ), eq( parameters.to_perl, '' ) ) }}:
+            to_perl: ""
+          ${{ if parameters.include_threads }}:
+            include_threads: "--include-threads"
+          ${{ if not( parameters.include_threads ) }}:
+            include_threads: ""
+          ${{ if ne( join( ',', parameters.allow_failure ), '' ) }}:
+            allow_failure: "--allow-failure ${{ join( ',', parameters.allow_failure ) }}"
+          ${{ if eq( join( ',', parameters.allow_failure ), '' ) }}:
+            allow_failure: ""
+          ${{ if parameters.test_xt }}:
+            test_xt: "--test-xt"
+          ${{ if not( parameters.test_xt ) }}:
+            test_xt: ""
+          ${{ if ne( parameters.coverage, '' ) }}:
+            coverage: "--coverage ${{ parameters.coverage }} --coverage-partitions ${{ parameters.coverage_partitions }}"
+          ${{ if eq( parameters.coverage, '' ) }}:
+            coverage: ""
+          ${{ if ne( parameters.coverage_perl, '' ) }}:
+            coverage_perl: "--coverage-perl ${{ parameters.coverage_perl }}"
+          ${{ if eq( parameters.coverage_perl, '' ) }}:
+            coverage_perl: ""
+        steps:
+          - checkout: ci-perl-helpers
+          - bash: |
+              set -eo pipefail
+              set -x
+              perl ./matrix/bin/print-test-matrix.pl \
+                  --os macOS \
+                  $(perls) \
+                  $(from_perl) \
+                  $(to_perl) \
+                  $(include_threads) \
+                  $(test_xt) \
+                  $(coverage) \
+                  $(coverage_perl) \
+                  | tee ./test-matrix
+              matrix=$( cat ./test-matrix )
+              set +x
+              echo "##vso[task.setVariable variable=matrix;isOutput=true]$matrix"
+            name: matrixGenerator
+            displayName: Generate perl version matrix
+
+      - job: RunTests
+        # The matrix key will get appended to this display name
+        displayName: "Run tests with "
+        dependsOn: GenerateMatrix
+        strategy:
+          matrix: $[ dependencies.GenerateMatrix.outputs['matrixGenerator.matrix'] ]
+        variables:
+          - template: variables.yml
+            parameters:
+              debug: ${{ parameters.debug }}
+          - name: CIPH_ALLOW_FAILURE
+            value: $(allow_failure)
+          - name: CIPH_COVERAGE
+            value: $(coverage)
+          - name: CIPH_TEST_XT
+            value: $(test_xt)
+          - name: CIPH_TOOLS_BIN_DIR
+            value: $(CI_WORKSPACE_DIRECTORY)/ci-perl-helpers-tools/bin
+          - name: CIPH_TOOLS_CPANFILE
+            value: $(CI_WORKSPACE_DIRECTORY)/ci-perl-helpers-tools/cpanfile
+          - name: PERLBREW_ROOT
+            value: $(Pipeline.Workspace)/perl5/perlbrew
+        pool:
+          vmImage: macOS-latest
+        steps:
+          - ${{ if ne( join( '', parameters.brew ), '' ) }}:
+            - bash: |
+                set -e
+                set -x
+                for pkg in ${{ join( ' ', parameters.brew ) }}; do
+                    sudo brew install ${{ join( ' ', parameters.brew ) }}
+                done
+              displayName: Install extra packages with brew
+
+          - ${{ parameters.pre_test_steps }}
+
+          - template: steps/install-helper-tools.yml
+
+          - template: ../shared/install-perlbrew.yml
+
+          - task: CacheBeta@1
+            displayName: Define tools-perls cache
+            inputs:
+              key: '"v1" | "tools-perl" | "${{ parameters.cache_key }}" | "$(latest_stable_perl)" | "macOS" | $(CIPH_TOOLS_CPANFILE)'
+              path: $(Pipeline.Workspace)/perl5/perlbrew/perls/tools-perl
+
+          - bash: |
+              set -e
+              set -x
+              if [ ! -d "$PERLBREW_ROOT/perls/tools-perl" ]; then
+                  "$PERLBREW_ROOT/bin/perlbrew" install --verbose --notest --noman -j $( sysctl -n hw.ncpu ) --as tools-perl $(latest_stable_perl)
+              fi
+            displayName: Perlbrew install Perl $(latest_stable_perl) as tools-perl
+
+          - task: CacheBeta@1
+            displayName: Define runtime-perl base cache
+            inputs:
+              key: '"v1" | "runtime-perl" | "${{ parameters.cache_key }}" | "$(perl)" | "threads=$(threads)" | "macOS"'
+              path: $(Pipeline.Workspace)/perl5/perlbrew/perls/runtime-perl
+
+          - bash: |
+              set -e
+              set -x
+              if [ ! -d "$PERLBREW_ROOT/perls/runtime-perl" ]; then
+                  threads=""
+                  if [ -n "$(threads)" ]; then
+                      threads="--threads"
+                  fi
+                  "$PERLBREW_ROOT/bin/perlbrew" install --verbose --notest --noman -j $( sysctl -n hw.ncpu ) --as runtime-perl $threads $(perl)
+              fi
+            displayName: Perlbrew install Perl $(perl) as runtime-perl
+
+          - template: steps/install-cpm.yml
+
+          - template: steps/install-tools-prereqs.yml
+
+          - template: steps/test-core-steps.yml
+            parameters:
+              runtime_perl_path: ''
+              cache_key: ${{ parameters.cache_key }}
+              publish_coverage_artifact: ${{ parameters.publish_coverage_artifact }}
+
+          - ${{ parameters.post_test_steps }}

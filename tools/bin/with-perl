@@ -11,7 +11,7 @@ case "$OSTYPE" in
     windows*|msys*)
         # This should be set in the Windows template's variables section
         brew="$BERRYBREW_EXE"
-        tools="$CI_WORKSPACE_DIRECTORY/ci-perl-helpers-tools/bin"
+        tools="$CI_WORKSPACE_DIRECTORY\\ci-perl-helpers-tools\\bin"
         ;;
     darwin*)
         brew="$PERLBREW_ROOT/bin/perlbrew"
@@ -23,6 +23,24 @@ case "$OSTYPE" in
         ;;
 esac
 
+case "$OSTYPE" in
+    windows*|msys*)
+        if ! [[ "$script" =~ ^[a-zA-Z]:\\ ]]; then
+            script="$tools\\$script"
+        fi
+        ;;
+    *)
+        if ! [[ "$script" =~ ^/ ]]; then
+            script="$tools/$script"
+        fi
+        ;;
+esac
+
+if ! [ -f "$script" ]; then
+    echo "##vso[task.logissue type=error;]There is no file to execute at $script."
+    echo "##vso[task.complete result=Failed;]"
+fi
+
 set -x
 "$brew" exec --with $perl \
-    perl $tools/$script $@
+    perl "$script" $@

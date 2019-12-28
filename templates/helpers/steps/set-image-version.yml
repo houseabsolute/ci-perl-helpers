@@ -1,5 +1,7 @@
 parameters:
-  image_version: ''
+  - name: image_version
+    type: string
+    default: ''
 
 jobs:
   - job: SetImageVersion

@@ -1,0 +1,15 @@
+parameters:
+  - name: debug
+    type: boolean
+    default: false
+
+variables:
+  - name: CI_ARTIFACT_STAGING_DIRECTORY
+    value: $(Build.ArtifactStagingDirectory)
+  - name: CI_SOURCE_DIRECTORY
+    value: $(Build.SourcesDirectory)
+  - name: CI_WORKSPACE_DIRECTORY
+    value: $(Pipeline.Workspace)
+  - ${{ if parameters.debug }}:
+    - name: CIPH_DEBUG
+      value: 1

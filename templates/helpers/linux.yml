@@ -1,0 +1,166 @@
+parameters:
+  - name: use_default_perls
+    type: boolean
+    default: false
+  - name: perls
+    type: object
+    default: []
+  - name: from_perl
+    type: string
+    default: ''
+  - name: to_perl
+    type: string
+    default: ''
+  - name: include_threads
+    type: boolean
+    default: false
+  - name: allow_failure
+    type: object
+    default: [ 'blead' ]
+  - name: coverage
+    type: string
+    default: ''
+  - name: coverage_partitions
+    type: number
+    default: 1
+  - name: coverage_perl
+    type: string
+    default: ''
+  - name: publish_coverage_artifact
+    type: boolean
+    default: false
+  - name: image_version
+    type: string
+    default: ''
+  - name: cache_key
+    type: string
+    default: 'cache'
+  - name: test_xt
+    type: boolean
+    default: false
+  - name: debug
+    type: boolean
+    default: false
+  - name: apt
+    type: object
+    default: []
+  - name: pre_test_steps
+    type: stepList
+    default: []
+  - name: post_test_steps
+    type: stepList
+    default: []
+
+stages:
+  - stage: Linux
+    dependsOn: Build
+    jobs:
+      - template: steps/set-image-version.yml
+        parameters:
+          image_version: ${{ parameters.image_version }}
+
+      - job: GenerateMatrix
+        displayName: Generate Linux test matrix
+        pool:
+          vmImage: ubuntu-18.04
+        dependsOn: SetImageVersion
+        variables:
+          ${{ if parameters.use_default_perls }}:
+            perls: ""
+            from_perl: ""
+            to_perl: "--to-perl blead"
+          ${{ if and( not( parameters.use_default_perls ), ne( join( ',', parameters.perls ), '' ) ) }}:
+            perls: "--perls ${{ join( ',', parameters.perls ) }}"
+          ${{ if and( not( parameters.use_default_perls ), eq( join( ',', parameters.perls ), '' ) ) }}:
+            perls: ""
+          ${{ if and( not( parameters.use_default_perls ), ne( parameters.from_perl, '' ) ) }}:
+            from_perl: "--from-perl ${{ parameters.from_perl }}"
+          ${{ if and( not( parameters.use_default_perls ), eq( parameters.from_perl, '' ) ) }}:
+            from_perl: ""
+          ${{ if and( not( parameters.use_default_perls ), ne( parameters.to_perl, '' ) ) }}:
+            to_perl: "--to-perl ${{ parameters.to_perl }}"
+          ${{ if and( not( parameters.use_default_perls ), eq( parameters.to_perl, '' ) ) }}:
+            to_perl: ""
+          ${{ if parameters.include_threads }}:
+            include_threads: "--include-threads"
+          ${{ if not( parameters.include_threads ) }}:
+            include_threads: ""
+          ${{ if ne( join( ',', parameters.allow_failure ), '' ) }}:
+            allow_failure: "--allow-failure ${{ join( ',', parameters.allow_failure ) }}"
+          ${{ if eq( join( ',', parameters.allow_failure ), '' ) }}:
+            allow_failure: ""
+          ${{ if parameters.test_xt }}:
+            test_xt: "--test-xt"
+          ${{ if not( parameters.test_xt ) }}:
+            test_xt: ""
+          image_version: $[ dependencies.SetImageVersion.outputs['ImageVersionProducer.image_version'] ]
+          ${{ if ne( parameters.coverage, '' ) }}:
+            coverage: "--coverage ${{ parameters.coverage }} --coverage-partitions ${{ parameters.coverage_partitions }}"
+          ${{ if eq( parameters.coverage, '' ) }}:
+            coverage: ""
+          ${{ if ne( parameters.coverage_perl, '' ) }}:
+            coverage_perl: "--coverage-perl ${{ parameters.coverage_perl }}"
+          ${{ if eq( parameters.coverage_perl, '' ) }}:
+            coverage_perl: ""
+        steps:
+          - checkout: ci-perl-helpers
+          - bash: |
+              set -eo pipefail
+              set -x
+              perl ./matrix/bin/print-test-matrix.pl \
+                  --os Linux \
+                  $(perls) \
+                  $(from_perl) \
+                  $(to_perl) \
+                  $(include_threads) \
+                  $(test_xt) \
+                  --image-version $(image_version) \
+                  $(coverage) \
+                  $(coverage_perl) \
+                  | tee ./test-matrix
+              matrix=$( cat ./test-matrix )
+              set +x
+              echo "##vso[task.setVariable variable=matrix;isOutput=true]$matrix"
+            name: matrixGenerator
+            displayName: Generate perl version matrix
+
+      - job: RunTests
+        # The matrix key will get appended to this display name
+        displayName: "Run tests with "
+        dependsOn: GenerateMatrix
+        strategy:
+          matrix: $[ dependencies.GenerateMatrix.outputs['matrixGenerator.matrix'] ]
+        variables:
+          - template: variables.yml
+            parameters:
+              debug: ${{ parameters.debug }}
+          - name: CIPH_ALLOW_FAILURE
+            value: $(allow_failure)
+          - name: CIPH_COVERAGE
+            value: $(coverage)
+          - name: CIPH_TEST_XT
+            value: $(test_xt)
+          - name: CIPH_TOOLS_BIN_DIR
+            value: /usr/local/ci-perl-helpers-tools/bin
+        container: $[ variables['container'] ]
+        # It'd be nice to skip the checkout step, but we may need access to
+        # config files from the repo for things like coverage. For example,
+        # codecov.io uses a YAML config file that goes in the repo.
+        steps:
+
+          - ${{ if ne( join( '', parameters.apt ), '' ) }}:
+            - bash: |
+                set -e
+                set -x
+                sudo apt-get --yes install ${{ join( ' ', parameters.apt ) }}
+              displayName: Install extra packages with apt
+
+          - ${{ parameters.pre_test_steps }}
+
+          - template: steps/test-core-steps.yml
+            parameters:
+              runtime_perl_path: $(Pipeline.Workspace)/local-lib/runtime-perl
+              cache_key: ${{ parameters.cache_key }}
+              publish_coverage_artifact: ${{ parameters.publish_coverage_artifact }}
+
+          - ${{ parameters.post_test_steps }}

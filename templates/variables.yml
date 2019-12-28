@@ -1,8 +1,0 @@
-parameters:
-  debug: 0
-
-variables:
-  CI_ARTIFACT_STAGING_DIRECTORY: $(Build.ArtifactStagingDirectory)
-  CI_SOURCE_DIRECTORY: $(Build.SourcesDirectory)
-  CI_WORKSPACE_DIRECTORY: $(Pipeline.Workspace)
-  CIPH_DEBUG: ${{ parameters.debug }}

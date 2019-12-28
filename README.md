@@ -46,7 +46,15 @@ resources:
 
 stages:
   - template: templates/build.yml@ci-perl-helpers
-  - template: templates/test.yml@ci-perl-helpers
+  - template: templates/linux.yml@ci-perl-helpers
+    parameters:
+      use_default_perls: true
+  - template: templates/macos.yml@ci-perl-helpers
+    parameters:
+      use_default_perls: true
+  - template: templates/windows.yml@ci-perl-helpers
+    parameters:
+      use_default_perls: true
 ```
 
 This will test your Perl project in the following scenarios:
@@ -64,9 +72,7 @@ This will test your Perl project in the following scenarios:
       * `AUTHOR_TESTING`
       * `EXTENDED_TESTING`
       * `RELEASE_TESTING`
-* On Linux with the latest dev release of Perl (5.31.6 at the time this was
-  written). If tests fail when `prove` is run then your pipeline will still
-  pass, but a failure to compile your code will cause the pipeline to fail.
+* On Linux with the latest dev release of Perl.
 * On Linux with the current contents of the `blead` branch of the
   [github.com/Perl/perl5 repo](https://github.com/Perl/perl5). If tests fail
   when `prove` is run then your pipeline will still pass, but a failure to
@@ -84,123 +90,117 @@ resources:
     - repository: ci-perl-helpers
       type: github
       name: houseabsolute/ci-perl-helpers
-      ref: refs/tags/v0.0.1
+      ref: refs/tags/v0.1.0
       endpoint: houseabsolute/ci-perl-helpers
 ```
 
-## Customizing Your Build
+## Common Parameters
 
-There are a number of knobs you can turn to tweak exactly what builds happen.
+There is one template for the build stage, `build.yml`, and three test stage
+templates, `linux.yml`, `macos.yml`, and `windows.yml`.
 
-The Build stage template, `build.yml`, takes the following parameters:
+All of these take the following common parameters:
 
-* `cache_key` - If you set this to a string it will be used as part of the
-  cache key for the Perl installation used by this stage. Every time you
-  change this key you will invalidate the old cache. In most cases you should
-  not need to change this for the Build stage, but if your build fails in a
-  confusing way you can try setting this to see if that fixes the problem. If
-  it does, just leave the new key in place and the next build will use the new
-  cache.
-* `debug` - If you set this to a true value then the helper tools will spew
-  out a lot more debugging information. Please set this to true and do a build
-  before reporting issues with these tools. That way I can look at your failed
-  build and have a better sense of what went wrong.
-* `image_version` - This is the suffix used as part of the Docker tag for
-  image that the build job runs on. You should not set this manually unless
-  you have a very good reason. By default, this suffix is determined by
-  looking at the version of the `ci-perl-helpers` repo that you
-  referenced. This will be checked out and the appropriate tag or branch name
-  will be chosen based on that checkout.
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `cache_key` | string | `"cache"` | If you set this to a string it will be used as part of the cache key for the Perl installation used by this stage. Every time you change this key you will invalidate the old cache. In most cases you should not need to change this, but if your build fails in a confusing way you can try setting this to see if that fixes the problem. If it does, just leave the new key in place and the next build will use the new cache. |
+| `debug` | boolean | `false` | If you set this to a true value then the helper tools will spew out a lot more debugging information. Please set this to true and do a build before reporting issues with these tools. That way I can look at your failed build and have a better sense of what went wrong. |
+| `image_version` | string | tag or branch of the `ci-perl-helpers` repo | This is the suffix used as part of the Docker tag for image that the build job runs on. You should not set this manually unless you have a very good reason. By default, this suffix is determined by looking at the version of the `ci-perl-helpers` repo that you referenced. This will be checked out and the appropriate tag or branch name will be chosen based on that checkout. This is only used for the `build.yml` and `linux.yml` templates. |
 
-The Test stage template, `test.yml`, takes the following parameters:
+## Test Stages
 
-* `cache_key` - If you set this to a string it will be used as part of the
-  cache key for the Perl installation used by this stage. Every time you
-  change this key you will invalidate the old cache. Unlike with the Build
-  stage, you may find yourself wanting to change this regularly. In
-  particular, your installed dependencies are cached, so you may want to
-  change this key whenever your project's dependencies change. This will
-  ensure that your tests are run against a Perl that only includes the
-  dependencies you explicitly specified.
-* `debug` - If you set this to a true value then the helper tools will spew
-  out a lot more debugging information. Please set this to true and do a build
-  before reporting issues with these tools. That way I can look at your failed
-  build and have a better sense of what went wrong.
-* `coverage` - By default the Test stage does not do any coverage tests. You
-  can use this parameter to enable a coverage test with the latest stable
-  release of Perl. The following values are accepted:
-  * `html` - Generates a report as a set of HTMl files.
-  * `clover` - Generates a report in the format expected by the [Atlassian
-    Clover software](https://www.atlassian.com/software/clover).
-  * `codecov` - Uploads coverage data to
-    [codecov.io](https://codecov.io/). You must also set `CODECOV_TOKEN` as a
-    [pipeline
-    variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
-    almost certainly want to make this value secret. If your repository
-    contains a `.codecov.yml` file then this will be used when uploading the
-    report.
-  * `coveralls` - Uploads coverage data to
-    [coveralls.io](https://coveralls.io/). You must also set `COVERALLS_TOKEN` as a
-    [pipeline
-    variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
-    almost certainly want to make this value secret.
-  * `kritika` - Uploads coverage data to
-    [kritika.io](https://kritika.io/). You must also set `KRITIKA_TOKEN` as a
-    [pipeline
-    variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
-    almost certainly want to make this value secret.
-  * `sonarqube` - Generates a report in the format expected by
-    [SonarQube](https://www.sonarqube.org/). See [the
-    `Devel::Cover::Report::SonarGeneric`
-    docs](https://metacpan.org/pod/Devel::Cover::Report::SonarGeneric) for
-    details on how to have this automatically uploaded to SonarQube.
-* `coverage_partitions` - Running tests under `Devel::Cover` can be _much_
-  slower than running them normally. You can partition coverage testing into
-  an arbitrary number of partitions to make this faster. Because of
-  limitations in Azure, you must set this parameter to **an array**
-  containing the list of partition numbers. So for four partitions you would
-  write `coverage_partitions: [1, 2, 3, 4]`.
-* `publish_coverage_artifact` - If this is a true value then the raw output
-  from `Devel::Cover` will be published as a build artifact. This is
-  disabled by default because some test suites generate incredibly enormous
-  numbers of coverage files, which take a very long time to publish.
-* `include_*` - There are a number of parameters to control exactly what
-  Perls and what platforms are tested. All of these are `true` by default.
-  * `include_5_30`
-  * `include_5_28`
-  * `include_5_26`
-  * `include_5_24`
-  * `include_5_22`
-  * `include_5_20`
-  * `include_5_18`
-  * `include_5_16`
-  * `include_5_14`
-  * `include_5_12`
-  * `include_5_10`
-  * `include_5_8`
-  * `include_dev`
-  * `include_blead`
-  * `include_macos`
-  * `include_windows`
-* `include_threaded_perls` - By default, tests are only run with an
-  unthreaded `perl`. If your code uses threads directly _or_ if your code
-  contains XS, you should enable testing with threaded perls as well.
-* `image_version` - This is the suffix used as part of the Docker tag for
-  image that the Linux test jobs run on. You should not set this manually
-  unless you have a very good reason. By default, this suffix is determined by
-  looking at the version of the `ci-perl-helpers` repo that you
-  referenced. This will be checked out and the appropriate tag or branch name
-  will be chosen based on that checkout.
+The test stages share most of their parameters in common.
 
-**Note that because of how Azure Pipelines handles parameters, you need to
-pass `true` and `false` as strings, not booleans!** For example:
+### Choosing Perl Versions
 
-```yaml
-  - template: templates/test.yml@ci-perl-helpers
-    parameters:
-      include_threaded_perls: 'true'
-      include_5_8: 'false'
-```
+There are a number of options for choosing which versions of Perl you want to
+test with. When referring to Perl versions there are two different ways to do
+so. You can pass a full version like `"5.12.1"` or `"5.28.2"`, or you can pass
+just the major and minor version like `"5.12"` or `"5.28"`. If you just pass
+major and minor then the helpers will automatically pick the highest patch
+release for that series of releases.
+
+You can also use the following strings:
+
+* `latest` - the most recent stable Perl release
+* `dev` -  the most recent dev release
+* `blead` - a Perl will be built from the latest code in the perl5 git repository.
+
+The templates accept the following parameters to determine which Perls to test with.
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `use_default_perls` | boolean | `false` | If this is true, the stage will use whatever the default Perl versions are for that operating system. See the "Quick Start" section above for a description of each template's defaults. |
+| `perls` | array of strings | `[]` | You can use this to provide an explicit list of Perl versions to test with. |
+| `from_perl` and `to_perl` | string | `""` | You can set one or both of these to ask for a range of Perl versions. The range is *inclusive* of both the low and high ends. See below for more details. |
+| `include_threads` | boolean | false | If this is true then both unthreaded and threaded version of each Perl will be tested. This parameter is not supported by the `windows.yml` template since on Windows Perl is always built with threads. |
+| `allow_failure` | array of strings | `[ "blead" ]` | An array of Perl versions for which test failures are not treated as a failure of the CI job. You can refer to Perl versions in this array using the same options as you do elsewhere. |
+
+#### Ranges
+
+When selecting a range of Perls, the last patch release of a minor series will
+be selected. If you leave one end of the range unset, then it uses the default
+bounds for the range. The default lowest Perl is 5.8.9 and the default highest
+Perl is blead.
+
+#### Available Versions
+
+The following versions are available on Linux and macOS:
+
+* 5.8.9
+* 5.10.1
+* Every stable release thereafter.
+* `latest`, the most recent stable release.
+* `dev`, the most recent dev release, such as 5.31.7.
+* `blead`, the latest commit to the perl5 git repository.
+
+On Windows, the available versions are the same as those supported by
+[Berrybrew](https://github.com/stevieb9/berrybrew). When a version is
+available in both 64- and 32-bit variants, the 64-bit variant will always be
+chosen.
+
+### Other Parameters
+
+All of the test stages allow you to run coverage and extended tests, to
+provide custom steps, and to install arbitrary packages.
+
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `coverage` | string | `""` | By default the test stages do not run tests with coverage enabled. You can use this parameter to enable a coverage test. By default this will be done with the latest stable release of Perl that this stage is using. The value of this string determines the type of coverage report that is generated. See below for the allowed options. |
+| `coverage_partitions` | number | 1 | Running tests under `Devel::Cover` can be **much** slower than running them normally. You can partition coverage testing into an arbitrary number of partitions to make this faster. |
+| `coverage_perl` | string | `""` | The version of Perl to use when running coverage tests. By default the highest stable version included in this stage's Perls will be used. |
+| `publish_coverage_artifact` | boolean | false | If this is true then the raw output from `Devel::Cover` will be published as a build artifact. This is disabled by default because some test suites generate incredibly enormous numbers of coverage files, which take a very long time to publish. |
+| `test_xt` | boolean | false | If this is true, then one of the test runs will be done with the `AUTOMATED_TESTING`, `AUTHOR_TESTING`, `EXTENDED_TESTING`, and `RELEASE_TESTING` environment variables will be set. In addition, the `xt` directory will be tested in addition the usual `t` directory. This will be done with the latest stable release of Perl that this stage is using.  |
+| `pre_test_steps` and `post_test_steps` | array of steps | `[]` | You can provide an arbitrary list of steps to be run at the start or end of the job that runs the tests. |
+| * `apt` (Linux), `brew`, (macOS), `choco` (Windows) | array of strings | `[]` | You can use this to pass a list of packages to be installed by the appropriate package manager (Apt, Brew, or Chocolatey). |
+
+The following values are accepted for the `coverage` parameter:
+
+* `html` - Generates a report as a set of HTML files.
+* `clover` - Generates a report in the format expected by the [Atlassian
+  Clover software](https://www.atlassian.com/software/clover).
+* `codecov` - Uploads coverage data to
+  [codecov.io](https://codecov.io/). You must also set `CODECOV_TOKEN` as a
+  [pipeline
+  variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
+  almost certainly want to make this value secret. If your repository
+  contains a `.codecov.yml` file then this will be used when uploading the
+  report.
+* `coveralls` - Uploads coverage data to
+  [coveralls.io](https://coveralls.io/). You must also set `COVERALLS_TOKEN` as a
+  [pipeline
+  variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
+  almost certainly want to make this value secret.
+* `kritika` - Uploads coverage data to
+  [kritika.io](https://kritika.io/). You must also set `KRITIKA_TOKEN` as a
+  [pipeline
+  variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
+  almost certainly want to make this value secret.
+* `sonarqube` - Generates a report in the format expected by
+  [SonarQube](https://www.sonarqube.org/). See [the
+  `Devel::Cover::Report::SonarGeneric`
+  docs](https://metacpan.org/pod/Devel::Cover::Report::SonarGeneric) for
+  details on how to have this automatically uploaded to SonarQube.
 
 ## How This Works
 
@@ -218,27 +218,31 @@ requires a newer Perl (for example,
 are not present when running tests. This means there's a better chance of
 discovering missing prereqs.
 
-The Pipeline itself has two stages. The Build stage contains a single
+The Pipeline itself has several stages. The Build stage contains a single
 job. This job checks out your source and generates a tarball from it using
 your build tooling. The helper tools can detect the use of dzil or minilla,
 and will use them when appropriate. Otherwise the tools fall back to using
 your `Makefile.PL` or `Build.PL` and executing `make dist` or `./Build
 dist`. The resulting tarball is saved as a pipeline artifact.
 
-The test stage contains one or more jobs, each of which tests your
-distribution on a single platform and version of Perl. It downloads the
-tarball created in the Build stage, extracts this, and then executes it's
-`Makefile.PL` or `Build.PL`, as appropriate. The tests are run using
+Then there is one test stage for each of the supported operating systems,
+Linux, macOS, and Windows. These stages have several jobs. One of these jobs
+generates a matrix of test jobs based on the parameters you provide. Each
+entry in the matrix turns into a separate job for a specific configuration.
+
+These matrix jobs download the tarball created in the Build stage. It extracts
+this tarball and executes the contained `Makefile.PL` or `Build.PL`, as
+appropriate. The tests are then run using
 [`prove`](https://metacpan.org/pod/distribution/Test-Harness/bin/prove).
 
-If you asked for coverage testing, then the appropriate
-`HARNESS_PERL_SWITCHES` environment variable settings are used to invoke
+If you asked for coverage testing, the appropriate `HARNESS_PERL_SWITCHES`
+environment variable settings are used to invoke
 [`Devel::Cover`](https://metacpan.org/pod/Devel::Cover). All of the coverage
-output is saved as a build artifact. Some coverage reporters also upload the
-report directly to a code coverage service. Finally, the test output from
-`prove` is turned into JUnit XML and uploaded as a set of test results, which
-lets you see a more detailed view of test failures in the Azure Pipelines
-screen for each CI run.
+output is optionall saved as a build artifact. Some coverage reporters also
+upload the report directly to a code coverage service. Finally, the test
+output from `prove` is turned into JUnit XML and uploaded as a set of test
+results, which lets you see a more detailed view of test failures in the Azure
+Pipelines screen for each CI run.
 
 ## Todo Items
 

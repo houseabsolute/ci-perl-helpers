@@ -1,0 +1,8 @@
+steps:
+  - bash: |
+      set -e
+      set -x
+      mkdir "$CI_WORKSPACE_DIRECTORY/bin" && \
+      curl -fsSL --compressed https://git.io/cpm > "$CI_WORKSPACE_DIRECTORY/bin/cpm" && \
+      chmod 0755 "$CI_WORKSPACE_DIRECTORY/bin/cpm"
+    displayName: Install cpm

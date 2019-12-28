@@ -1,0 +1,21 @@
+steps:
+  - bash: |
+      set -e
+      set -x
+      case "$OSTYPE" in
+          windows*|msys*)
+              workers=1
+          ;;
+          *)
+              workers=16
+          ;;
+      esac
+      "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl \
+      "$CI_WORKSPACE_DIRECTORY/bin/cpm" install \
+      --global \
+      --show-build-log-on-failure \
+      --verbose \
+      --workers $workers \
+      --feature tools-perl \
+      --cpanfile "$CIPH_TOOLS_CPANFILE"
+    displayName: Install tools prereqs

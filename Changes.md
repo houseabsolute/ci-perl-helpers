@@ -1,3 +1,29 @@
+## 0.1.0 2020-01-01
+
+**Old configurations will not work with this release. Please see the
+[README.md](README.md) for details on how to configure these helpers for your
+project.**
+
+* The single test stage has been split up into three stages, one for each of
+  Linux, macOS, and Windows.
+
+* You can easily configure whatever set of Perl versions you want on each OS,
+  though Windows is still limited to Perl versions provided by
+  [Berrybrew](https://github.com/stevieb9/berrybrew). In addition, you can now
+  set `test_xt` and coverage parameters for all operating system, not just
+  Linux,
+
+* You can run coverage testing with a Perl version of your choice. By default
+  this will be done with the most recent stable release that you are testing
+  with.
+
+* All test stages now allow you to specify an arbitrary list of packages to be
+  installed using apt, Brew, or Chocolatey, as appropriate.
+
+* You can now pass an arbitrary list of steps to be executed both before and
+  after the steps executed by the test stage in the job that runs tests.
+
+
 ## 0.0.15 2019-12-27
 
 * Separated the creation of the coverage report from running tests in the

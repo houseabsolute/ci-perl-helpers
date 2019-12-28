@@ -2,7 +2,7 @@ parameters:
   perlbrew_root: $(Pipeline.Workspace)/perl5/perlbrew
 
 steps:
-  - template: ../install-perlbrew.yml
+  - template: ../shared/install-perlbrew.yml
   - task: CacheBeta@1
     displayName: Define perl install
     inputs:

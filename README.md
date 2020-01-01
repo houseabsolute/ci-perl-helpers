@@ -133,7 +133,7 @@ The templates accept the following parameters to determine which Perls to test w
 | `use_default_perls` | boolean | `false` | If this is true, the stage will use whatever the default Perl versions are for that operating system. See the "Quick Start" section above for a description of each template's defaults. |
 | `perls` | array of strings | `[]` | You can use this to provide an explicit list of Perl versions to test with. |
 | `from_perl` and `to_perl` | string | `""` | You can set one or both of these to ask for a range of Perl versions. The range is *inclusive* of both the low and high ends. See below for more details. |
-| `include_threads` | boolean | false | If this is true then both unthreaded and threaded version of each Perl will be tested. This parameter is not supported by the `windows.yml` template since on Windows Perl is always built with threads. |
+| `include_threads` | boolean | false | If this is true then both unthreaded and threaded versions of each Perl will be tested. This parameter is not supported by the `windows.yml` template since on Windows Perl is always built with threads. |
 | `allow_failure` | array of strings | `[ "blead" ]` | An array of Perl versions for which test failures are not treated as a failure of the CI job. You can refer to Perl versions in this array using the same options as you do elsewhere. |
 
 #### Ranges

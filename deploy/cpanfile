@@ -1,4 +1,5 @@
 requires 'Git::Helpers';
+requires 'Git::Sub';
 requires 'JSON::MaybeXS';
 requires 'List::AllUtils';
 requires 'MetaCPAN::Client';
@@ -8,6 +9,7 @@ requires 'MooseX::Getopt::Dashes';
 requires 'Path::Tiny';
 requires 'Specio::Declare';
 requires 'Specio::Library::Builtins';
+requires 'Specio::Library::Path::Tiny';
 requires 'autodie';
 requires 'namespace::autoclean';
 

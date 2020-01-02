@@ -4,6 +4,6 @@ use warnings;
 use FindBin qw( $Bin );
 use lib "$Bin/../lib", "$Bin/../../shared/lib";
 
-use D::WriteToolsPerlDockerfile;
+use C::NewPerlChecker;
 
-exit D::WriteToolsPerlDockerfile->new_with_options->run;
+exit C::NewPerlChecker->new_with_options->run;

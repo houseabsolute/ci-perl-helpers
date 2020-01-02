@@ -13,13 +13,14 @@ use Encode qw( decode );
 use Getopt::Long;
 use HTTP::Tiny;
 use JSON::PP qw( decode_json encode_json );
+use Time::Piece;
 
 my %OS = map { $_ => 1 } qw( Linux macOS Windows );
 
 sub new {
     my $class = shift;
 
-    my %opts;
+    my %opts = ( debug => $ENV{CIPH_DEBUG} );
     my $perls;
     my $from_perl;
     my $to_perl;
@@ -210,8 +211,18 @@ sub _selected_perls_from_range {
     for my $perl ( sort { $a->{version_numified} <=> $b->{version_numified} }
         values %{ $self->_perl_data->{perls} } ) {
 
-        next unless $perl->{maturity} eq 'released';
-        next unless $perl->{is_latest_in_minor};
+        unless ( $perl->{maturity} eq 'released' ) {
+            $self->_debug(
+                "Skipping $perl->{name} ($perl->{maturity}) because it is not marked as stable"
+            );
+            next;
+        }
+        unless ( $perl->{is_latest_in_minor} ) {
+            $self->_debug(
+                "Skipping $perl->{name} ($perl->{maturity}) because it is not the last of its minor release series"
+            );
+            next;
+        }
 
         next
             unless $from_perl_num <= $perl->{version_numified}
@@ -270,7 +281,7 @@ sub _validate_perls {
 
 sub _perl_data {
     my $self = shift;
-    return $self->{perl_data} = $self->_build_perl_data;
+    return $self->{perl_data} //= $self->_build_perl_data;
 }
 
 sub _build_perl_data {
@@ -284,11 +295,23 @@ sub _build_perl_data {
         @raw = $self->_get_perls_from_metacpan;
     }
 
+    my $repo_date = $self->_repo_date;
+
     my %identifiers;
     my %perls;
     my %minors;
     for my $perl (@raw) {
-        next if $perl->{version_numified} < 5.008;
+        if ( $perl->{version_numified} < 5.008 ) {
+            $self->_debug(
+                "Skipping $perl->{name} because $perl->{version_numified} < 5.008"
+            );
+            next;
+        }
+
+        if ( $perl->{name} =~ /-RC/ ) {
+            $self->_debug("Skipping perl $perl->{name} because it is an RC");
+            next;
+        }
 
         my ( $full, $majmin, $min ) = $perl->{name} =~ /-((5\.(\d+))\.\d+)/a;
         unless ($full) {
@@ -297,10 +320,21 @@ sub _build_perl_data {
 
         # There are a whole bunch of -RCX releases that parse as the same
         # version as a real released version.
-        next
-            if exists $perls{$full}
+        if (   exists $perls{$full}
             && $perls{$full}{maturity} eq 'released'
-            && $perl->{maturity} eq 'developer';
+            && $perl->{maturity} eq 'developer' ) {
+
+            $self->_debug("Skipping perl $perl->{name} because it is an RC");
+            next;
+        }
+
+        my $release_date
+            = Time::Piece->strptime( $perl->{date}, '%Y-%m-%dT%H:%M:%S' );
+        if ( $release_date >= $repo_date ) {
+            $self->_debug(
+                "Skipping perl $perl->{name} because it was released after this commit ($release_date > $repo_date)");
+            next;
+        }
 
         $perl->{version} = $full;
         $perl->{minor}   = $min;
@@ -311,6 +345,7 @@ sub _build_perl_data {
         $identifiers{$full}   = 1;
         $identifiers{$majmin} = 1;
     }
+
 
     for my $minor ( keys %minors ) {
         my @sorted
@@ -344,7 +379,7 @@ sub _get_perls_from_metacpan {
     my %query = (
         size   => 5000,
         query  => { term => { distribution => 'perl' } },
-        fields => [qw( maturity name version version_numified )],
+        fields => [qw( date maturity name version version_numified )],
     );
 
     my $uri  = 'https://fastapi.metacpan.org/v1/release/_search';
@@ -421,6 +456,9 @@ sub _perl_data_from_berrybrew {
             && $raw{ $perl->{ver} }{berrybrew_version} =~ /_64$/;
 
         $raw{ $perl->{ver} } = {
+
+            # We don't really care about the date for Windows.
+            date              => '1970-01-01T00:00:00',
             version           => $perl->{ver},
             name              => q{-} . $perl->{ver},
             version_numified  => $self->_numify( $perl->{ver} ),
@@ -430,6 +468,18 @@ sub _perl_data_from_berrybrew {
     }
 
     return values %raw;
+}
+
+sub _repo_date {
+    my $cmd    = q{git log --pretty='%aI' -1};
+    my $output = `$cmd`;
+    if ($?) {
+        my $exit = $? << 8;
+        die "Error running $cmd - got exit code of $?\n";
+    }
+    chomp $output;
+    $output =~ s/([\-\+]\d\d):(\d\d)$/$1$2/a;
+    return Time::Piece->strptime( $output, '%Y-%m-%dT%H:%M:%S%z' );
 }
 
 sub run {
@@ -549,6 +599,14 @@ sub _base_job {
     }
 
     return ( $key => \%job );
+}
+
+sub _debug {
+    my $self = shift;
+
+    return unless $self->{debug};
+
+    warn @_, "\n" or die $!;
 }
 
 sub _error {

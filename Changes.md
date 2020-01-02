@@ -1,3 +1,11 @@
+## 0.1.1 2020-01-02
+
+* When generating the test matrix we skip any version of Perl which was
+  released after the commit of this repo that is being used. Otherwise we
+  could ask for a Perl version for which there is no corresponding Docker
+  image.
+
+
 ## 0.1.0 2020-01-01
 
 **Old configurations will not work with this release. Please see the

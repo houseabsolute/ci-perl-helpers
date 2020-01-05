@@ -3,6 +3,8 @@
 * All test templates now accept an `extra_prereqs` parameter. This is list of
   additional Perl packages to install before running the tests.
 
+* Fix our use of `brew` in the macOS template. We cannot call it with `sudo`.
+
 
 ## 0.1.1 2020-01-02
 

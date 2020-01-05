@@ -147,7 +147,7 @@ stages:
                 set -e
                 set -x
                 for pkg in ${{ join( ' ', parameters.brew ) }}; do
-                    sudo brew install ${{ join( ' ', parameters.brew ) }}
+                    brew install ${{ join( ' ', parameters.brew ) }}
                 done
               displayName: Install extra packages with brew
 

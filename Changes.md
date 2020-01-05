@@ -1,4 +1,4 @@
-## 0.1.2
+## 0.1.2 2020-01-05
 
 * All test templates now accept an `extra_prereqs` parameter. This is list of
   additional Perl packages to install before running the tests.

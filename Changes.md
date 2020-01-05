@@ -1,3 +1,9 @@
+## 0.1.2
+
+* All test templates now accept an `extra_prereqs` parameter. This is list of
+  additional Perl packages to install before running the tests.
+
+
 ## 0.1.1 2020-01-02
 
 * When generating the test matrix we skip any version of Perl which was

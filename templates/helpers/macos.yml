@@ -29,6 +29,9 @@ parameters:
   - name: publish_coverage_artifact
     type: boolean
     default: false
+  - name: extra_prereqs
+    type: object
+    default: []
   - name: cache_key
     type: string
     default: 'cache'
@@ -193,6 +196,7 @@ stages:
           - template: steps/test-core-steps.yml
             parameters:
               runtime_perl_path: ''
+              extra_prereqs: ${{ parameters.extra_prereqs }}
               cache_key: ${{ parameters.cache_key }}
               publish_coverage_artifact: ${{ parameters.publish_coverage_artifact }}
 

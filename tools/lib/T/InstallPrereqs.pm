@@ -5,6 +5,7 @@ use warnings FATAL => 'all';
 use autodie qw( :all );
 
 use CPAN::Meta;
+use Getopt::Long;
 use Path::Tiny qw( path );
 
 use Moo;
@@ -17,6 +18,9 @@ sub run {
 
     $self->_debug_step;
 
+    my $extra;
+    GetOptions( 'extra-prereqs:s' => \$extra );
+
     my $dir = $self->_pushd( $self->extracted_dist_dir );
 
     my @with_develop = $self->test_xt ? '--with-develop' : ();
@@ -28,6 +32,14 @@ sub run {
         '--with-suggests',
         '--cpanfile', $self->cache_dir->child('prereqs-cpanfile'),
     );
+
+    if ($extra) {
+        my @extra = split /,/, $extra;
+        $self->cpan_install(
+            'runtime-perl',
+            split /,/, $extra,
+        );
+    }
 
     my @coverage;
     if ( $self->coverage ) {

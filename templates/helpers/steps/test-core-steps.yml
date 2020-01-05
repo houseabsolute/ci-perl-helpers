@@ -4,6 +4,9 @@ parameters:
   - name: cache_key
     type: string
     default: 'cache'
+  - name: extra_prereqs
+    type: object
+    default: []
   - name: publish_coverage_artifact
     type: boolean
     default: false
@@ -81,7 +84,11 @@ steps:
   - bash: |
       set -e
       set -x
-      "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl install-prereqs.pl
+      extra_prereqs=""
+      if [ -n "${{ join( ',', parameters.extra_prereqs ) }}" ]; then
+          extra_prereqs="--extra-prereqs ${{ join( ',', parameters.extra_prereqs ) }}"
+      fi
+      "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl install-prereqs.pl $extra_prereqs
     displayName: Install test & runtime dependencies
 
   - bash: |

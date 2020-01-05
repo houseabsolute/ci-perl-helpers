@@ -171,6 +171,7 @@ provide custom steps, and to install arbitrary packages.
 | `coverage_perl` | string | `""` | The version of Perl to use when running coverage tests. By default the highest stable version included in this stage's Perls will be used. |
 | `publish_coverage_artifact` | boolean | false | If this is true then the raw output from `Devel::Cover` will be published as a build artifact. This is disabled by default because some test suites generate incredibly enormous numbers of coverage files, which take a very long time to publish. |
 | `test_xt` | boolean | false | If this is true, then one of the test runs will be done with the `AUTOMATED_TESTING`, `AUTHOR_TESTING`, `EXTENDED_TESTING`, and `RELEASE_TESTING` environment variables will be set. In addition, the `xt` directory will be tested in addition the usual `t` directory. This will be done with the latest stable release of Perl that this stage is using.  |
+| `extra_prereqs` | array | `[]` | A list of extra packages to be installed before running tests. |
 | `pre_test_steps` and `post_test_steps` | array of steps | `[]` | You can provide an arbitrary list of steps to be run at the start or end of the job that runs the tests. |
 | * `apt` (Linux), `brew`, (macOS), `choco` (Windows) | array of strings | `[]` | You can use this to pass a list of packages to be installed by the appropriate package manager (Apt, Brew, or Chocolatey). |
 

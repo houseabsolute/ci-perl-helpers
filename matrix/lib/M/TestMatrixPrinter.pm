@@ -230,9 +230,6 @@ sub _selected_perls_from_range {
         push @perls, $perl;
     }
 
-    $perls[-1]{test_xt} = 1
-        if $self->{test_xt};
-
     if ( $self->{os} ne 'Windows' ) {
         if ($include_dev) {
             push @perls,
@@ -527,9 +524,11 @@ sub _coverage_jobs {
 
     my $report = $self->{coverage} eq 'true' ? 'html' : $self->{coverage};
 
+    my ( undef, $job ) = $self->_base_job($perl);
+    $job->{test_xt} = 0;
+
     unless ( $self->{coverage_partitions}
         && $self->{coverage_partitions} > 1 ) {
-        my ( undef, $job ) = $self->_base_job($perl);
         $job->{coverage} = $report;
         $job->{title} .= ' with coverage';
 
@@ -539,7 +538,6 @@ sub _coverage_jobs {
     my %matrix;
     for my $part ( 1 .. $self->{coverage_partitions} ) {
         my $new_key = $key . "_partition_$part";
-        my ( undef, $job ) = $self->_base_job($perl);
 
         $job->{coverage}            = $report;
         $job->{coverage_partition}  = $part;
@@ -565,7 +563,13 @@ sub _base_job {
 
     my $title = "$self->{os} $perl_param";
     $title .= ' threads'             if $threads;
-    $title .= ' with extended tests' if $self->{test_xt};
+
+    my $test_xt = 0;
+    if ( $self->{test_xt} && !$threads && $self->_is_max_stable_perl($perl) )
+    {
+        $title .= ' with extended tests';
+        $test_xt = 1;
+    }
 
     my $allow_failure
         = grep { $perl->{version} =~ /\Q$_/ } @{ $self->{allow_failure} };
@@ -575,7 +579,7 @@ sub _base_job {
         threads       => ( $threads ? 1 : q{} ),
         title         => $title,
         allow_failure => ( $allow_failure ? 1 : 0 ),
-        test_xt       => ( $perl->{test_xt} ? 1 : 0 ),
+        test_xt       => ( $test_xt ? 1 : 0 ),
         title         => $title,
         coverage      => q{},
     );
@@ -599,6 +603,17 @@ sub _base_job {
     }
 
     return ( $key => \%job );
+}
+
+sub _is_max_stable_perl {
+    my $self = shift;
+    my $perl = shift;
+
+    $self->{max_stable_perl} //=
+        ( grep { $_->{maturity} eq 'released' } @{ $self->{selected_perls} } )
+        [-1]{version};
+
+    return $perl->{version} eq $self->{max_stable_perl};
 }
 
 sub _debug {

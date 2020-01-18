@@ -1,3 +1,10 @@
+## 0.1.3 2020-01-18
+
+* If `test_xt` was true, then all jobs with the most recent stable Perl would
+  run extended tests, including jobs running with coverage enabled. Now only
+  one such job (without coverage or threads) will run these tests.
+
+
 ## 0.1.2 2020-01-05
 
 * All test templates now accept an `extra_prereqs` parameter. This is list of

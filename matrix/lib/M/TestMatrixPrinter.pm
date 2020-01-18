@@ -63,15 +63,15 @@ sub new {
 
         if ( $perls && $from_perl ) {
             die
-                q{You cannot pass both `perls` and `from_perl` parameters to the linux stage};
+                qq{You cannot pass both `perls` and `from_perl` parameters to the $opts{os} stage};
         }
         elsif ( $perls && $to_perl ) {
             die
-                q{You cannot pass both `perls` and `to_perl` parameters to the linux stage};
+                qq{You cannot pass both `perls` and `to_perl` parameters to the $opts{os} stage};
         }
         elsif ( !( $perls || $from_perl || $to_perl ) ) {
             die
-                q{Tried to generate the Linux matrix but none of `perls`, `from_perl`, or `to_perl` were set.};
+                qq{Tried to generate the $opts{os} matrix but none of `perls`, `from_perl`, or `to_perl` were set.};
         }
 
         $self->_set_selected_perls( $perls, $from_perl, $to_perl );

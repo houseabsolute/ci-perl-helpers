@@ -48,6 +48,7 @@ stages:
   - template: templates/build.yml@ci-perl-helpers
   - template: templates/linux.yml@ci-perl-helpers
     parameters:
+      test_xt: true
       use_default_perls: true
   - template: templates/macos.yml@ci-perl-helpers
     parameters:

@@ -1,7 +1,7 @@
 package R::HelperScript;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use CPAN::Meta;
 use Config qw( %Config );

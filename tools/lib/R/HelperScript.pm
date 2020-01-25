@@ -589,10 +589,10 @@ sub _show_env {
     print "Env:\n" . Dumper( \%ENV ) or die $!;
     print 'Cwd = ', path(q{.})->realpath . "\n" or die $!;
     if ( my $tree = which('tree') ) {
-        $self->_system( $tree, q{.} );
+        $self->_system( $tree, q{..} );
     }
     else {
-        $self->_system(qw( ls -l . ));
+        $self->_system(qw( ls -l .. ));
     }
 }
 

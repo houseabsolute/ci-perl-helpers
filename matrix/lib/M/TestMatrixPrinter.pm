@@ -86,7 +86,7 @@ sub new {
         }
 
         if ($coverage_perl) {
-            my ($coverage_perl) = $self->_clean_perl_versions($coverage_perl);
+            ($coverage_perl) = $self->_clean_perl_versions($coverage_perl);
             $self->_validate_perls($coverage_perl);
             $self->{coverage_perl}
                 = $self->_latest_matching_perl($coverage_perl);
@@ -159,53 +159,10 @@ sub _latest_matching_perl {
 }
 
 sub _selected_perls_from_range {
-    my $self      = shift;
-    my $from_perl = shift;
-    my $to_perl   = shift;
+    my $self = shift;
 
-    my ( $from_perl_num, $to_perl_num, $include_dev, $include_blead );
-    if ($from_perl) {
-        $self->_validate_perls($from_perl)
-            or return undef;
-
-        # This ensures that if we have something like "5.24 ... 5.28" we include
-        # both 5.24 and 5.28 in our range.
-        $from_perl .= '.0'
-            if $from_perl =~ /^\d+\.\d+$/a;
-        $from_perl_num = $self->_numify($from_perl);
-    }
-    if ($to_perl) {
-        $self->_validate_perls($to_perl)
-            or return undef;
-
-        if ( $to_perl eq 'dev' ) {
-            $include_dev = 1;
-            $to_perl       = $self->_perl_data->{latest_stable_version}{version};
-        }
-        elsif ( $to_perl eq 'blead' ) {
-            $include_dev   = 1;
-            $include_blead = 1;
-            $to_perl       = $self->_perl_data->{latest_stable_version}{version};
-        }
-
-        $to_perl .= '.999'
-            if $to_perl =~ /^\d+\.\d+$/a;
-        $to_perl_num = $self->_numify($to_perl);
-    }
-    else {
-        $include_dev   = 1;
-        $include_blead = 1;
-    }
-
-    if ( $from_perl_num && $to_perl_num ) {
-        unless ( $from_perl_num <= $to_perl_num ) {
-            die
-                "The from_perl parameter ($from_perl) is not less than or equal to the to_perl parameter ($to_perl)";
-        }
-    }
-
-    $from_perl_num //= 5.008_009;
-    $to_perl_num   //= 10**10;
+    my ( $from_perl_num, $to_perl_num, $include_dev, $include_blead )
+        = $self->_range_as_numbers(@_);
 
     my @perls;
     for my $perl ( sort { $a->{version_numified} <=> $b->{version_numified} }
@@ -254,6 +211,58 @@ sub _selected_perls_from_range {
     return undef;
 }
 
+sub _range_as_numbers {
+    my $self      = shift;
+    my $from_perl = shift;
+    my $to_perl   = shift;
+
+    my ( $from_perl_num, $to_perl_num, $include_dev, $include_blead );
+    if ($from_perl) {
+        $self->_validate_perls($from_perl)
+            or return undef;
+
+        # This ensures that if we have something like "5.24 ... 5.28" we include
+        # both 5.24 and 5.28 in our range.
+        $from_perl .= '.0'
+            if $from_perl =~ /^\d+\.\d+$/a;
+        $from_perl_num = $self->_numify($from_perl);
+    }
+    if ($to_perl) {
+        $self->_validate_perls($to_perl)
+            or return undef;
+
+        if ( $to_perl eq 'dev' ) {
+            $include_dev = 1;
+            $to_perl = $self->_perl_data->{latest_stable_version}{version};
+        }
+        elsif ( $to_perl eq 'blead' ) {
+            $include_dev   = 1;
+            $include_blead = 1;
+            $to_perl = $self->_perl_data->{latest_stable_version}{version};
+        }
+
+        $to_perl .= '.999'
+            if $to_perl =~ /^\d+\.\d+$/a;
+        $to_perl_num = $self->_numify($to_perl);
+    }
+    else {
+        $include_dev   = 1;
+        $include_blead = 1;
+    }
+
+    if ( $from_perl_num && $to_perl_num ) {
+        unless ( $from_perl_num <= $to_perl_num ) {
+            die
+                "The from_perl parameter ($from_perl) is not less than or equal to the to_perl parameter ($to_perl)";
+        }
+    }
+
+    $from_perl_num //= 5.008_009;
+    $to_perl_num   //= 10**10;
+
+    return ( $from_perl_num, $to_perl_num, $include_dev, $include_blead );
+}
+
 sub _numify {
     shift;
     my $version = shift;
@@ -271,9 +280,8 @@ sub _validate_perls {
     my $ok      = $self->_perl_data->{identifiers};
     my @invalid = grep { !$ok->{$_} } @perls
         or return 1;
-    die "Arguments included one or more invalid Perl versions: @invalid";
 
-    return 0;
+    die "Arguments included one or more invalid Perl versions: @invalid";
 }
 
 sub _perl_data {
@@ -329,7 +337,8 @@ sub _build_perl_data {
             = Time::Piece->strptime( $perl->{date}, '%Y-%m-%dT%H:%M:%S' );
         if ( $release_date >= $repo_date ) {
             $self->_debug(
-                "Skipping perl $perl->{name} because it was released after this commit ($release_date > $repo_date)");
+                "Skipping perl $perl->{name} because it was released after this commit ($release_date > $repo_date)"
+            );
             next;
         }
 
@@ -342,7 +351,6 @@ sub _build_perl_data {
         $identifiers{$full}   = 1;
         $identifiers{$majmin} = 1;
     }
-
 
     for my $minor ( keys %minors ) {
         my @sorted
@@ -468,11 +476,12 @@ sub _perl_data_from_berrybrew {
 }
 
 sub _repo_date {
-    my $cmd    = q{git log --pretty='%aI' -1};
+    my $cmd = q{git log --pretty='%aI' -1};
+    ## no critic (InputOutput::ProhibitBacktickOperators )
     my $output = `$cmd`;
     if ($?) {
         my $exit = $? << 8;
-        die "Error running $cmd - got exit code of $?\n";
+        die "Error running $cmd - got exit code of $exit\n";
     }
     chomp $output;
     $output =~ s/([\-\+]\d\d):(\d\d)$/$1$2/a;
@@ -490,7 +499,8 @@ sub run {
     my $j = JSON::PP->new->canonical;
     $j->pretty if $self->{pretty};
 
-    say $j->encode( \%matrix );
+    say $j->encode( \%matrix )
+        or die $!;
 
     return 0;
 }
@@ -514,8 +524,6 @@ sub _coverage_jobs {
     my $self = shift;
 
     return unless $self->{coverage};
-
-    my $job_meth = lc $self->{os} . '_job';
 
     my $perl = $self->{coverage_perl}
         // $self->_perl_data->{latest_stable_version};
@@ -562,7 +570,7 @@ sub _base_job {
         if $threads;
 
     my $title = "$self->{os} $perl_param";
-    $title .= ' threads'             if $threads;
+    $title .= ' threads' if $threads;
 
     my $test_xt = 0;
     if ( $self->{test_xt} && !$threads && $self->_is_max_stable_perl($perl) )

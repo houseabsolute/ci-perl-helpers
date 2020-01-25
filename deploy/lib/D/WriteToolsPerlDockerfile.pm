@@ -35,7 +35,7 @@ sub run ($self) {
         # We need to make sure that this variable is set. Otherwise when we
         # try to use it later and it's unset, then we end up with the literal
         # string "$(WriteToolsPerlDockerfile.base_image_tags1)" as the tag.
-        say "##vso[task.setVariable variable=base_image_tag1;isOutput=true]"
+        say '##vso[task.setVariable variable=base_image_tag1;isOutput=true]'
             or die $!;
     }
 

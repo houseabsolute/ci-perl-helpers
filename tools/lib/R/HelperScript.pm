@@ -171,7 +171,7 @@ has has_makefile_pl => (
 has tools_perl => (
     is      => 'ro',
     isa     => t('Str'),
-    default => sub { 'tools-perl' },
+    default => sub {'tools-perl'},
 );
 
 has runtime_perl => (
@@ -585,7 +585,7 @@ sub _posix_path {
 sub _show_env {
     my $self = shift;
 
-    print "\$^O = $^O\n" or die $!;
+    print "\$^O = $^O\n"             or die $!;
     print "Env:\n" . Dumper( \%ENV ) or die $!;
     print 'Cwd = ', path(q{.})->realpath . "\n" or die $!;
     if ( my $tree = which('tree') ) {

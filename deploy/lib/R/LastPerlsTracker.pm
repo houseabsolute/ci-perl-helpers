@@ -24,7 +24,7 @@ has _last_perls => (
     isa     => t( 'HashRef', of => t('Bool') ),
     lazy    => 1,
     default => sub ($self) {
-        { map { $_ => 1 } $self->_last_perls_raw->{perls}->@* }
+        return { map { $_ => 1 } $self->_last_perls_raw->{perls}->@* };
     },
 );
 
@@ -36,10 +36,11 @@ has _last_perls_raw => (
 );
 
 has _last_perls_file => (
-    is      => 'ro',
-    isa     => t('Path'),
-    lazy    => 1,
-    default => sub ($self) { $self->_artifacts_dir->child('last-perls.json') },
+    is   => 'ro',
+    isa  => t('Path'),
+    lazy => 1,
+    default =>
+        sub ($self) { $self->_artifacts_dir->child('last-perls.json') },
 );
 
 has _artifacts_dir => (
@@ -49,6 +50,7 @@ has _artifacts_dir => (
     default => sub { path( $ENV{CI_ARTIFACT_STAGING_DIRECTORY} ) },
 );
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _write_last_perls ( $self, $tag, @perls ) {
     my %content = (
         tag   => $tag,
@@ -61,6 +63,7 @@ sub _write_last_perls ( $self, $tag, @perls ) {
     $self->_last_perls_file->parent->mkpath( 0, 0755 );
     $self->_last_perls_file->spew( encode_json( \%content ) );
 }
+## use critic
 
 sub _build_last_perls_raw ($self) {
     return { perls => [] } unless $self->_last_perls_file->exists;

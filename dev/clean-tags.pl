@@ -1,7 +1,8 @@
-use v5.30.1;
-use strict;
-use warnings;
+#!/usr/bin/env perl
 
+use v5.30.1;
+
+use strict;
 use warnings 'FATAL' => 'all';
 use feature 'postderef', 'signatures';
 use autodie qw( :all );
@@ -101,7 +102,8 @@ use lib "$Bin/../deploy/lib";
 
     sub _request ( $self, @req ) {
         my $req = HTTP::Request->new(@req);
-        say "$req[0] $req[1]";
+        say "$req[0] $req[1]"
+            or die $!;
         my $resp = $self->_ua->request($req);
         if ( $resp->is_success ) {
             my $content = $resp->decoded_content;
@@ -109,12 +111,15 @@ use lib "$Bin/../deploy/lib";
             return decode_json($content);
         }
         if ( $resp->code == 404 ) {
-            say 'Not found';
+            say 'Not found'
+                or die $!;
             return;
         }
 
         die $resp->as_string;
     }
+
+    __PACKAGE__->meta->make_immutable;
 }
 
 exit C->new_with_options->run;

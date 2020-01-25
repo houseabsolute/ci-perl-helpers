@@ -72,8 +72,8 @@ sub run ($self) {
 
 sub _build_last_perls ($self) {
     return {} unless $self->_last_perls_file->exists;
-    my $last = decode_json( $self->_last_perls_file->slurp );
-    return { map { $_ => 1 } $last->@* };
+    my $last_perls = decode_json( $self->_last_perls_file->slurp );
+    return { map { $_ => 1 } $last_perls->@* };
 }
 
 sub _build_cache_dir {
@@ -140,7 +140,8 @@ sub _get_auth_header {
     my $token = $ENV{CI_PERL_HELPERS_ACCESS_TOKEN}
         or die "The CI_PERL_HELPERS_ACCESS_TOKEN env var is not set\n";
 
-    return Authorization => 'Basic ' . encode_base64( 'token:' . $token, q{} );
+    return Authorization => 'Basic '
+        . encode_base64( 'token:' . $token, q{} );
 }
 
 sub _most_recent_tag ($self) {

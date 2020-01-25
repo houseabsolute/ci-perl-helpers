@@ -34,7 +34,7 @@ sub _build_perl_releases {
     my %releases;
     while ( my $r = $releases->next ) {
         next unless $r->name =~ /^perl-5/;
-        next if $r->name =~ /RC/;
+        next if $r->name     =~ /RC/;
         my $parsed = _parse_numeric_version( $r->version )
             or next;
         push $releases{ $parsed->{minor} }->@*, $parsed;

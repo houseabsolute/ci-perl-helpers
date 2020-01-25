@@ -49,7 +49,7 @@ sub _base_image ($self) {
 }
 
 sub _base_image_tags ($self) {
-    return map {  'tools-perl-' . $_ } $self->image_versions->@*;
+    return map { 'tools-perl-' . $_ } $self->image_versions->@*;
 }
 ## use critic
 

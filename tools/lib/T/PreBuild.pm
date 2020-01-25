@@ -131,7 +131,7 @@ sub _module_install_authordeps {
 
     my $content = $self->checkout_dir->child('Makefile.PL')->slurp_utf8;
     return map { $ModuleInstallCommands{$_} }
-        grep   { $content =~ /\Q$_/ } keys %ModuleInstallCommands;
+        grep { $content =~ /\Q$_/ } keys %ModuleInstallCommands;
 }
 
 sub _configure_requires {

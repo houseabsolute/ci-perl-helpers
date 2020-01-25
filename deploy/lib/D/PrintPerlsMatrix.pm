@@ -60,12 +60,12 @@ sub run ($self) {
         $matrix{$key} = {
             perl    => $r->version,
             threads => JSON()->false,
-            tags    => $self->_tags_string($self->_tags_for_release( $r, 0 )),
+            tags => $self->_tags_string( $self->_tags_for_release( $r, 0 ) ),
         };
         $matrix{ $key . '_threads' } = {
             perl    => $r->version,
             threads => JSON()->true,
-            tags    => $self->_tags_string($self->_tags_for_release( $r, 1 )),
+            tags => $self->_tags_string( $self->_tags_for_release( $r, 1 ) ),
         };
     }
 

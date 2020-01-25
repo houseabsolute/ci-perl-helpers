@@ -1,17 +1,20 @@
 #!/usr/bin/env perl
 
+use v5.30.1;
+
+use strict;
+use warnings 'FATAL' => 'all';
+use feature 'postderef', 'signatures';
+use autodie qw( :all );
+
+use FindBin qw( $Bin );
+use lib "$Bin/../deploy/lib";
+
 {
     package Builder;
 
-    use v5.30.1;
-    use strict;
-    use warnings;
-    use feature 'postderef', 'signatures';
-    use warnings 'FATAL' => 'all';
-    use autodie qw( :all );
     use namespace::autoclean;
 
-    use FindBin qw( $Bin );
     use Path::Tiny qw( path tempdir );
     use Specio::Library::Builtins;
     use Specio::Library::Path::Tiny;
@@ -21,8 +24,6 @@
     ## no critic (TestingAndDebugging::ProhibitNoWarnings)
     no warnings 'experimental::postderef', 'experimental::signatures';
     ## use critic
-
-    use lib "$Bin/../deploy/lib";
 
     with 'MooseX::Getopt', 'R::Tagger';
 
@@ -140,9 +141,12 @@
     }
 
     sub _system {
-        say "@_";
+        say "@_"
+            or die $!;
         system(@_);
     }
+
+    __PACKAGE__->meta->make_immutable;
 }
 
 exit Builder->new_with_options->run;

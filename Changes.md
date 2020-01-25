@@ -1,3 +1,8 @@
+## 0.1.4
+
+* Fix failure to run `curl` with `--compressed` flag on Windows.
+
+
 ## 0.1.3 2020-01-18
 
 * If `test_xt` was true, then all jobs with the most recent stable Perl would

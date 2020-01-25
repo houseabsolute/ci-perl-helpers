@@ -54,12 +54,6 @@ steps:
   - bash: |
       set -e
       set -x
-      mkdir -p $(CI_ARTIFACT_STAGING_DIRECTORY)
-    displayName: Make artifact directory
-
-  - bash: |
-      set -e
-      set -x
       "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl show-env.pl
     displayName: Show environment
 

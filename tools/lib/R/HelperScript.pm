@@ -358,8 +358,20 @@ sub _maybe_check_system {
     ## no critic (InputOutput::RequireCheckedSyscalls)
     my $exit = system(@cmd);
     if ($check) {
-        die "Could not run [@cmd]: $!"
-            if $exit;
+        if ($exit) {
+            my $msg = "Could not run [@cmd]: ";
+            if ( $exit == -1 ) {
+                $msg .= $!;
+            }
+            else {
+                $msg .= 'exit code was ' . ( $? >> 8 );
+            }
+            if ( my $signal = $exit & 127 ) {
+                $msg .= sprintf( ' (died with signal %d)', $signal );
+            }
+
+            die $msg;
+        }
     }
 
     return $exit;

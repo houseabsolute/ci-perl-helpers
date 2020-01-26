@@ -151,6 +151,9 @@ stages:
                 done
               displayName: Install extra packages with brew
 
+          - bash: brew install tree
+            displayName: Install tree package
+
           - ${{ parameters.pre_test_steps }}
 
           - template: steps/install-helper-tools.yml

@@ -141,6 +141,14 @@ stages:
           vmImage: windows-latest
         steps:
 
+          - powershell: |
+              # This reverts the change in
+              # https://github.com/actions/virtual-environments/pull/211/.
+              Add-MachinePathItem "C:\Program Files\Git\mingw64\bin"
+              Add-MachinePathItem "C:\Program Files\Git\usr\bin"
+              Add-MachinePathItem "C:\Program Files\Git\bin"
+            displayName: Ensure git mingw utilities are in our path
+
           # I'd really prefer to use chocolatey for this but the chocolatey
           # package for berrybrew simply installs the HEAD of the berrybrew repo,
           # so it's impossible to guarantee a working install, much less a

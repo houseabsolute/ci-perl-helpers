@@ -2,6 +2,11 @@
 
 * Fix failure to run `curl` with `--compressed` flag on Windows.
 
+* Fix issues caused by changes to the default `$PATH` on Windows. See
+  https://github.com/actions/virtual-environments/pull/211/ for what
+  changed. I suspect this PR will be reverted but it doesn't hurt to
+  explicitly add the paths we care about.
+
 
 ## 0.1.3 2020-01-18
 

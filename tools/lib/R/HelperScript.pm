@@ -589,7 +589,9 @@ sub _show_env {
     print "Env:\n" . Dumper( \%ENV ) or die $!;
     print 'Cwd = ', path(q{.})->realpath . "\n" or die $!;
     if ( my $tree = which('tree') ) {
-        $self->_system( $tree, q{..} );
+        my @cmd = $tree;
+        push @cmd, qw( /a /f ) if $^O eq 'MSWin32';
+        $self->_system( @cmd, q{..} );
     }
     else {
         $self->_system(qw( ls -l .. ));

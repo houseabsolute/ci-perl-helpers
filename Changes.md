@@ -1,4 +1,4 @@
-## 0.1.4
+## 0.1.4 2020-01-26
 
 * Fix failure to run `curl` with `--compressed` flag on Windows.
 

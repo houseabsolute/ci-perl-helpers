@@ -27,6 +27,17 @@ has pretty => (
 );
 
 sub run ($self) {
+    my $matrix = $self->_create_matrix;
+
+    my $j = JSON()->new->canonical;
+    $j->pretty if $self->pretty;
+    say $j->encode($matrix)
+        or die $!;
+
+    return 0;
+}
+
+sub _create_matrix ($self) {
     my $releases = $self->_perl_releases;
 
     my %perls;
@@ -78,12 +89,7 @@ sub run ($self) {
         threads => JSON()->false,
     };
 
-    my $j = JSON()->new->canonical;
-    $j->pretty if $self->pretty;
-    say $j->encode( \%matrix )
-        or die $!;
-
-    return 0;
+    return \%matrix;
 }
 
 sub _tags_string ( $self, @tags ) {
@@ -92,7 +98,8 @@ sub _tags_string ( $self, @tags ) {
 
 sub _tags_for_release ( $self, $r, $threads ) {
     if ( $r->minor % 2 ) {
-        return $self->_tags_for_prefix( 'dev', $threads );
+        ## no critic (Subroutines::ProhibitReturnSort)
+        return sort $self->_tags_for_prefix( 'dev', $threads );
     }
 
     my @tags = $self->_tags_for_prefix( $r->version, $threads );
@@ -102,7 +109,8 @@ sub _tags_for_release ( $self, $r, $threads ) {
         push @tags, $self->_tags_for_prefix( $majmin, $threads );
     }
 
-    return @tags;
+    ## no critic (Subroutines::ProhibitReturnSort)
+    return sort @tags;
 }
 
 sub _tags_for_prefix ( $self, $prefix, $threads ) {

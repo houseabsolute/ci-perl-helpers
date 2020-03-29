@@ -13,12 +13,17 @@ use MetaCPAN::Client;
 use Specio::Declare;
 use Specio::Library::Builtins;
 
-my $M = MetaCPAN::Client->new;
-
 use Moose::Role;
 ## no critic (TestingAndDebugging::ProhibitNoWarnings)
 no warnings 'experimental::postderef', 'experimental::signatures';
 ## use critic
+
+has _client => (
+    is      => 'ro',
+    isa     => object_can_type( methods => ['release'] ),
+    lazy    => 1,
+    default => sub { MetaCPAN::Client->new },
+);
 
 has _perl_releases => (
     is      => 'ro',
@@ -27,8 +32,8 @@ has _perl_releases => (
     builder => '_build_perl_releases',
 );
 
-sub _build_perl_releases {
-    my $releases = $M->release( { distribution => 'perl' } );
+sub _build_perl_releases ($self) {
+    my $releases = $self->_client->release( { distribution => 'perl' } );
     die 'No releases for perl?' unless $releases->total;
 
     my %releases;

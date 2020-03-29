@@ -36,7 +36,7 @@ sub _build_image_versions {
     unshift @versions, $tag
         if $tag =~ /\Av\d+\.\d+\.\d+\z/;
 
-    return \@versions;
+    return [ sort @versions ];
 }
 
 my $TagRoot = 'houseabsolute/ci-perl-helpers-ubuntu';

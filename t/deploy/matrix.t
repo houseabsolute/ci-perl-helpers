@@ -5,7 +5,7 @@ use feature 'postderef', 'signatures';
 use autodie qw( :all );
 
 use FindBin qw( $Bin );
-use lib "$Bin/../lib", "$Bin/../../shared/lib";
+use lib "$Bin/../../deploy/lib", "$Bin/../../shared/lib";
 
 use D::PrintPerlsMatrix;
 use Mock::Quick;

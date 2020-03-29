@@ -192,7 +192,7 @@ stages:
               fi
             displayName: Perlbrew install Perl $(perl) as runtime-perl
 
-          - template: steps/install-cpm.yml
+          - template: ../shared/install-cpm.yml
 
           - template: steps/install-tools-prereqs.yml
 

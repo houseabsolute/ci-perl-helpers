@@ -13,8 +13,27 @@ trigger:
       - dev/
 
 stages:
+  - stage: TestDeploymentCode
+    displayName: Run tests for the deployment code
+    jobs:
+      - job: RunTests
+        displayName: Run the tests
+        pool:
+          vmImage: ubuntu-18.04
+        steps:
+          - template: templates/deploy/install-perl.yml
+            parameters:
+              perlbrew_root: $(PERLBREW_ROOT)
+              with_test_prereqs: true
+          - bash: |
+              set -e
+              set -x
+              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 prove -lr -j 12 t
+            displayName: Run tests with prove
+
   - stage: DeployToolsPerlImage
     displayName: Deploy the tools-perl base image
+    dependsOn: TestDeploymentCode
     jobs:
       - job: BuildToolsPerlImage
         displayName: Deploy the tools-perl base image
@@ -24,6 +43,7 @@ stages:
           - template: templates/deploy/install-perl.yml
             parameters:
               perlbrew_root: $(PERLBREW_ROOT)
+              with_test_prereqs: false
           - bash: |
               set -eo pipefail
               set -x

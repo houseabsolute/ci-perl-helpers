@@ -14,9 +14,9 @@ requires 'autodie';
 requires 'namespace::autoclean';
 
 # for autodie qw( :all )
-requires 'IPC::System::Simple'
+requires 'IPC::System::Simple';
 
-on test => requires {
+on test => sub {
     requires 'Mock::Quick';
     requires 'Test2::V0';
 };

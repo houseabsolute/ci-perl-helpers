@@ -237,7 +237,7 @@ stages:
               "$BERRYBREW_EXE" clone "$BERRYBREW_PERL" runtime-perl
             displayName: Berrybrew clone installed Perl as runtime-perl
 
-          - template: steps/install-cpm.yml
+          - template: ../shared/install-cpm.yml
 
           - template: steps/install-tools-prereqs.yml
 

@@ -8,8 +8,9 @@ use warnings 'FATAL' => 'all';
 use autodie qw( :all );
 use namespace::autoclean;
 
-use Data::Dumper;
+use Data::Dumper::Concise;
 use MIME::Base64 qw( encode_base64 );
+use HTTP::Tiny;
 use JSON::MaybeXS qw( decode_json encode_json );
 use Path::Tiny qw( path );
 use Specio::Declare;
@@ -22,6 +23,18 @@ no warnings 'experimental::postderef', 'experimental::signatures';
 ## use critic
 
 with 'MooseX::Getopt::Dashes', 'R::PerlReleaseFetcher';
+
+has dry_run => (
+    is      => 'ro',
+    isa     => t('Bool'),
+    default => 0,
+);
+
+has quiet => (
+    is      => 'ro',
+    isa     => t('Bool'),
+    default => 0,
+);
 
 has _current_perls => (
     is      => 'ro',
@@ -56,16 +69,21 @@ sub run ($self) {
         map { $_->version } $self->_current_perls->@*;
 
     unless (@new) {
-        say 'No new Perl versions since the last check'
-            or die $!;
+        unless ( $self->quiet ) {
+            say 'No new Perl versions since the last check'
+                or die $!;
+        }
         return 0;
     }
 
-    say "Found new perls: @new"
-        or die $!;
+    unless ( $self->quiet ) {
+        say "Found new perls: @new"
+            or die $!;
+    }
 
     $self->_trigger_build;
-    $self->_write_last_perls;
+    $self->_write_last_perls
+        unless $self->dry_run;
 
     return 0;
 }
@@ -114,8 +132,10 @@ sub _build_current_perls ($self) {
 sub _trigger_build ($self) {
     my $tag = $self->_most_recent_tag;
 
-    say "Triggering build for tag $tag"
-        or die $!;
+    unless ( $self->quiet ) {
+        say "Triggering build for tag $tag"
+            or die $!;
+    }
 
     my $auth = $self->_get_auth_header;
 
@@ -158,7 +178,7 @@ sub _most_recent_tag ($self) {
         && $tags->[0]{name} ) {
 
         my $msg = "Got unexpected response from GitHub repo tags API:\n";
-        $msg .= _dump($tags);
+        $msg .= Dumper($tags);
         die $msg;
     }
     return $tags->[0]{name};
@@ -171,6 +191,15 @@ sub _request ( $self, $method, $uri, $headers, $content = undef ) {
         if $headers;
     $opts{content} = encode_json($content)
         if $content;
+
+    if ( $self->dry_run && $method eq 'POST' ) {
+        say "$method $uri"
+            or die $!;
+        say Dumper( \%opts )
+            or die $!;
+        return;
+    }
+
     my $resp = $http->request( $method, $uri, \%opts );
 
     unless ( $resp->{success} ) {
@@ -186,17 +215,6 @@ sub _request ( $self, $method, $uri, $headers, $content = undef ) {
     }
 
     return $decoded;
-}
-
-sub _dump ($var) {
-    local $Data::Dumper::Terse         = 1;
-    local $Data::Dumper::Indent        = 1;
-    local $Data::Dumper::Useqq         = 1;
-    local $Data::Dumper::Deparse       = 1;
-    local $Data::Dumper::Quotekeys     = 0;
-    local $Data::Dumper::Sortkeys      = 1;
-    local $Data::Dumper::Trailingcomma = 1;
-    return Dumper($var);
 }
 
 sub _write_last_perls ( $self ) {

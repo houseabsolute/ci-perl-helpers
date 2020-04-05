@@ -419,9 +419,21 @@ sub _get_perls_from_metacpan {
         die $msg;
     }
 
-    my $decoded = decode_json( $resp->{content} );
-    unless ($decoded) {
+    unless ( defined $resp->{content} && length $resp->{content} ) {
         die "POST to $uri did not return any content";
+    }
+
+    my $decoded;
+    {
+        local $@ = undef;
+        $decoded = eval { decode_json( $resp->{content} ) };
+        if ($@) {
+            die "Could not parse body of $uri response as JSON: $@";
+        }
+    }
+
+    unless ($decoded) {
+        die "POST to $uri did not return valid JSON";
     }
 
     unless ( $decoded
@@ -430,7 +442,7 @@ sub _get_perls_from_metacpan {
         && ref $decoded->{hits} eq 'HASH' ) {
 
         die
-            "POST to $uri did not return content with the expected data structure: $resp->{content}";
+            "POST to $uri did not return content with the expected data structure - got `$resp->{content}`";
     }
 
     unless ( $decoded->{hits}{total} ) {

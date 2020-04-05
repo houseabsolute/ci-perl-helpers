@@ -17,5 +17,6 @@ steps:
       --verbose \
       --workers $workers \
       --feature tools-perl \
+      --without-test \
       --cpanfile "$CIPH_TOOLS_CPANFILE"
     displayName: Install tools prereqs

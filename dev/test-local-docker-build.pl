@@ -197,6 +197,7 @@ perlbrew exec --with tools-perl \
             --workers 16 \
             --feature docker \
             --feature tools-perl \
+            --without-test \
             --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 EOF
             : <<'EOF';
@@ -214,6 +215,7 @@ perlbrew exec --with runtime-perl \
             --feature 'coverage-kritika' \
             --feature 'coverage-sonarqube' \
             --feature runtime \
+            --without-test \
             --cpanfile /usr/local/ci-perl-helpers-tools/cpanfile
 EOF
 

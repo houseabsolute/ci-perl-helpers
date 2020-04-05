@@ -46,28 +46,28 @@ sub new {
 
     my $ok = eval {
         unless ( $OS{ $opts{os} // q{} } ) {
-            my $valid = join q{, }, sort keys %OS;
-            die "You must provide a valid --os ($valid) flag";
+            my $valid = join q{, }, sort { lc $a cmp lc $b } keys %OS;
+            die "You must provide a valid --os ($valid) flag.";
         }
 
         if ( $opts{os} eq 'Windows' ) {
             unless ( ( $opts{berrybrew_tag} // q{} ) =~ /^v\d+\.\d+$/a ) {
                 die
-                    'You must provide a valid --berrybrew-tag when the OS is set to Windows';
+                    'You must provide a valid --berrybrew-tag when the OS is set to Windows.';
             }
             if ( $opts{include_threads} ) {
                 die
-                    'You cannot pass --include-threads when generating a matrix for Windows';
+                    'You cannot pass --include-threads when generating a matrix for Windows.';
             }
         }
 
         if ( $perls && $from_perl ) {
             die
-                qq{You cannot pass both `perls` and `from_perl` parameters to the $opts{os} stage};
+                qq{You cannot pass both `perls` and `from_perl` parameters to the $opts{os} stage.};
         }
         elsif ( $perls && $to_perl ) {
             die
-                qq{You cannot pass both `perls` and `to_perl` parameters to the $opts{os} stage};
+                qq{You cannot pass both `perls` and `to_perl` parameters to the $opts{os} stage.};
         }
         elsif ( !( $perls || $from_perl || $to_perl ) ) {
             die

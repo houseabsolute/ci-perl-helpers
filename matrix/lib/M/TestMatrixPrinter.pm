@@ -313,6 +313,22 @@ sub _build_perl_data {
             next;
         }
 
+        if (   $perl->{version_numified} >= 5.008
+            && $perl->{version_numified} < 5.008009 ) {
+            $self->_debug(
+                "Skipping perl $perl->{name} because we don't include 5.8.x except for 5.8.9"
+            );
+            next;
+        }
+
+        if (   $perl->{version_numified} >= 5.010
+            && $perl->{version_numified} < 5.010001 ) {
+            $self->_debug(
+                "Skipping perl $perl->{name} because we don't include 5.10.x except for 5.10.1"
+            );
+            next;
+        }
+
         if ( $perl->{name} =~ /-RC/ ) {
             $self->_debug("Skipping perl $perl->{name} because it is an RC");
             next;

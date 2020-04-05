@@ -392,8 +392,6 @@ sub _build_perl_data {
     };
 }
 
-my $BerryBrewTag = '1.29';
-
 sub _get_perls_from_metacpan {
     my $ht = HTTP::Tiny->new;
 

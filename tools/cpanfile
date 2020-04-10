@@ -98,3 +98,8 @@ feature runtime => sub {
     # We want a recent version of prove.
     requires 'Test::Harness';
 };
+
+on test => sub {
+    requires 'Mock::Quick';
+    requires 'Test2::V0';
+};

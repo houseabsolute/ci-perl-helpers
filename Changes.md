@@ -1,3 +1,9 @@
+## 0.1.5
+
+* Fixed bugs that prevented testing of dists that used `Module::Build` or
+  `ExtUtils::MakeMaker` (as opposed to `Dist::Zilla`).
+
+
 ## 0.1.4 2020-01-26
 
 * Fix failure to run `curl` with `--compressed` flag on Windows.

@@ -28,7 +28,7 @@ sub run {
         $self->_build_build_pl;
     }
     elsif ( $self->has_makefile_pl ) {
-        $self->_build_build_pl;
+        $self->_build_makefile_pl;
     }
     else {
         die 'I have no idea how to build this distro.'
@@ -121,13 +121,11 @@ sub _build_makefile_pl {
                 'perl',
                 'Makefile.PL',
             );
-            $self->_with_perl5lib(
-                $self->tools_perl,
+            $self->_system(
                 'make',
                 'manifest',
             );
-            $self->_with_perl5lib(
-                $self->tools_perl,
+            $self->_system(
                 'make',
                 '--jobs', 10,
                 'dist',

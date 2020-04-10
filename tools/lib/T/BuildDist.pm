@@ -102,7 +102,7 @@ sub _build_build_pl {
             $self->_system(
                 $self->_brewed_perl( $self->tools_perl ),
                 './Build',
-                'distdir',
+                'dist',
             );
         },
     );

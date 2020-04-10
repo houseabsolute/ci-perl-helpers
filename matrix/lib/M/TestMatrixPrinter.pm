@@ -467,14 +467,37 @@ sub _perl_data_from_berrybrew {
         },
     );
     unless ( $resp->{success} ) {
-        die "Error GETting $uri";
+        die "Error GETting $uri\nstatus = $resp->{status}\n";
     }
 
-    # For some reason when we get this file with HTTP::Tiny it has a BOM at
-    # the start.
-    my $decoded = decode_json( $resp->{content} =~ s/^[^\[]+//r );
-    unless ($decoded) {
+    unless ( defined $resp->{content} && length $resp->{content} ) {
         die "GET $uri did not return any content";
+    }
+
+    my $content
+        = decode( 'utf-8-strict', $resp->{content}, Encode::FB_CROAK );
+
+    my $decoded;
+    {
+        local $@ = undef;
+
+        # For some reason when we get this file with HTTP::Tiny it has a BOM
+        # at the start.
+        $decoded = eval {
+            decode_json( $content =~ s/^(?:\x{FEFF}|\x{FFEF})//r ); };
+        if ($@) {
+            die "Could not parse body of $uri response as JSON: $@";
+        }
+    }
+
+    unless ( ref $decoded
+        && ref $decoded eq 'ARRAY'
+        && @{$decoded}
+        && ref $decoded->[0]
+        && ref $decoded->[0] eq 'HASH'
+        && $decoded->[0]{ver} ) {
+        die
+            "GET $uri did not return content with the expected data structure - got `$content`";
     }
 
     my %raw;

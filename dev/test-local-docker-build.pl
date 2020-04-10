@@ -101,6 +101,7 @@ use warnings;
         my $self = shift;
 
         if ( $self->code ) {
+            path( $Bin, 'tmp' )->mkpath(0755);
 
             # Path::Tiny->remove_tree seems to not remove .git dirs for some
             # reason.

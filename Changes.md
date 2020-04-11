@@ -1,4 +1,4 @@
-## 0.1.5
+## 0.1.5 2020-04-10
 
 * Fixed bugs that prevented testing of dists that used `Module::Build` or
   `ExtUtils::MakeMaker` (as opposed to `Dist::Zilla`).

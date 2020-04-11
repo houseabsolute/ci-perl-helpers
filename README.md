@@ -1,14 +1,16 @@
-# Perl Helper Tools for Continuous Integration
+# Perl Helper Tools for Azure Pipelines
 
-This repo contains a set of tools and CI templates designed to make it easy to
-test Perl projects with multiple versions of Perl across Linux, macOS, and
-Windows.
+This repo contains a set of tools and [Azure
+Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)
+templates designed to make it easy to test Perl projects with multiple
+versions of Perl across Linux, macOS, and Windows.
 
-## Alpha Warning
+## Stability Level
 
-**Warning. This stuff is all still pretty new and I may break it while working
-on it, I may break compatibility with any given commit, and I may brake for
-squirrels in the road. You have been warned.**
+I consider this stuff to be at a beta level of stability. I'm trying to do all
+work in branches so that the master branch will always work with existing
+projects. However, I may make breaking changes to the way templates are used,
+so I encourage you to pin your use to a tag. See below for details on how to do that.
 
 ## Creating a Service Connection
 
@@ -30,7 +32,8 @@ corresponds to a single code project (GitHub repo, Subversion repo, etc.).
     application to access GitHub on your behalf. You will need to allow this,
     obviously.
 
-If you have multiple Azure projects you will need to do this once per project.
+If you have multiple Azure DevOps projects you will need to do this once per
+project.
 
 ## Quick Start
 
@@ -66,13 +69,6 @@ This will test your Perl project in the following scenarios:
 * On Linux with the last stable release of each major Perl version starting
   from 5.8.9 up to the newest stable release (5.30.1 at the time this was
   written).
-  * The most recent stable release will install all of your `develop` phase
-    dependencies and run tests with the following environment variables set to
-    a true value:
-      * `AUTOMATED_TESTING`
-      * `AUTHOR_TESTING`
-      * `EXTENDED_TESTING`
-      * `RELEASE_TESTING`
 * On Linux with the latest dev release of Perl.
 * On Linux with the current contents of the `blead` branch of the
   [github.com/Perl/perl5 repo](https://github.com/Perl/perl5). If tests fail
@@ -82,8 +78,9 @@ This will test your Perl project in the following scenarios:
 ## Pinning a Helpers Version
 
 If you do not specify a `ref` when referring to this repo, your build will
-always pull the latest version of this project's templates. To pin your
-project to a specific verson of these templates, add a `ref` key:
+always pull the latest version of this project's templates from this repo's
+`master` branch. To pin your project to a specific verson of these templates,
+add a `ref` key:
 
 ```yaml
 resources:
@@ -119,7 +116,7 @@ test with. When referring to Perl versions there are two different ways to do
 so. You can pass a full version like `"5.12.1"` or `"5.28.2"`, or you can pass
 just the major and minor version like `"5.12"` or `"5.28"`. If you just pass
 major and minor then the helpers will automatically pick the highest patch
-release for that series of releases.
+release for that minor series of releases.
 
 You can also use the following strings:
 
@@ -167,14 +164,14 @@ provide custom steps, and to install arbitrary packages.
 
 | Name | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `coverage` | string | `""` | By default the test stages do not run tests with coverage enabled. You can use this parameter to enable a coverage test. By default this will be done with the latest stable release of Perl that this stage is using. The value of this string determines the type of coverage report that is generated. See below for the allowed options. |
+| `coverage` | string | `""` | By default the test stages do not run tests with coverage enabled. You can use this parameter to enable a coverage test. If you set this to a non-empty string then coverage will be tested with the most recent stable release of Perl included in this stage. The value of this string determines the type of coverage report that is generated. See below for the allowed options. |
 | `coverage_partitions` | number | 1 | Running tests under `Devel::Cover` can be **much** slower than running them normally. You can partition coverage testing into an arbitrary number of partitions to make this faster. |
-| `coverage_perl` | string | `""` | The version of Perl to use when running coverage tests. By default the highest stable version included in this stage's Perls will be used. |
+| `coverage_perl` | string | `""` | The version of Perl to use when running coverage tests. By default this will be the most recent stable version of Perl included in this stage will be used. |
 | `publish_coverage_artifact` | boolean | false | If this is true then the raw output from `Devel::Cover` will be published as a build artifact. This is disabled by default because some test suites generate incredibly enormous numbers of coverage files, which take a very long time to publish. |
-| `test_xt` | boolean | false | If this is true, then one of the test runs will be done with the `AUTOMATED_TESTING`, `AUTHOR_TESTING`, `EXTENDED_TESTING`, and `RELEASE_TESTING` environment variables will be set. In addition, the `xt` directory will be tested in addition the usual `t` directory. This will be done with the latest stable release of Perl that this stage is using.  |
-| `extra_prereqs` | array | `[]` | A list of extra packages to be installed before running tests. |
+| `test_xt` | boolean | false | If this is true, then one of the test runs will be done with the `AUTOMATED_TESTING`, `AUTHOR_TESTING`, `EXTENDED_TESTING`, and `RELEASE_TESTING` environment variables will be set. In addition, the `xt` directory will be tested in addition the usual `t` directory. This will be done with the most recent stable release of Perl included in this stage. |
+| `extra_prereqs` | array | `[]` | A list of extra Perl packages to be installed before running tests. This list will be passed to `cpm install`. |
 | `pre_test_steps` and `post_test_steps` | array of steps | `[]` | You can provide an arbitrary list of steps to be run at the start or end of the job that runs the tests. |
-| * `apt` (Linux), `brew`, (macOS), `choco` (Windows) | array of strings | `[]` | You can use this to pass a list of packages to be installed by the appropriate package manager (Apt, Brew, or Chocolatey). |
+| `apt` (Linux), `brew`, (macOS), `choco` (Windows) | array of strings | `[]` | You can use this to pass a list of packages to be installed by the appropriate package manager (Apt, Brew, or Chocolatey). |
 
 The following values are accepted for the `coverage` parameter:
 
@@ -211,13 +208,14 @@ various tasks, and a set of Docker images for Linux testing.
 
 The Docker images contain two versions of Perl, one of which is used to run
 the tools and build the distribution, and one of which is used to execute your
-package's tests. This is useful for a few reasons. It lets the tools use
-modern Perl idioms. It means you can test on older Perls even if your tooling
-requires a newer Perl (for example,
-[`Dist::Zilla`](https://metacpan.org/pod/Dist::Zilla) requires Perl
-5.14.0). It also means that dependencies needed for building, for example
+package's tests. This is useful for a few reasons. First, it me use modern
+Perl idioms (like subroutine signatures) in the the tools. Second, it means
+you can test on older Perls even if your tooling requires a newer Perl. For
+example, [`Dist::Zilla`](https://metacpan.org/pod/Dist::Zilla) requires Perl
+5.14.0 but I have distros which use it and still support 5.8.9. It also means
+that dependencies needed for building, for example
 [`Dist::Zilla`](https://metacpan.org/pod/Dist::Zilla) and its dependencies,
-are not present when running tests. This means there's a better chance of
+are not present when running tests. That means there's a better chance of
 discovering missing prereqs.
 
 The Pipeline itself has several stages. The Build stage contains a single
@@ -228,19 +226,20 @@ your `Makefile.PL` or `Build.PL` and executing `make dist` or `./Build
 dist`. The resulting tarball is saved as a pipeline artifact.
 
 Then there is one test stage for each of the supported operating systems,
-Linux, macOS, and Windows. These stages have several jobs. One of these jobs
-generates a matrix of test jobs based on the parameters you provide. Each
-entry in the matrix turns into a separate job for a specific configuration.
+Linux, macOS, and Windows. These stages have several jobs. The first job in
+each stage dynamically generates a matrix of test jobs based on the parameters
+you provide. Each entry in the matrix turns into a separate job for a single
+Perl version.
 
-These matrix jobs download the tarball created in the Build stage. It extracts
-this tarball and executes the contained `Makefile.PL` or `Build.PL`, as
-appropriate. The tests are then run using
+Each matrix job downloads the tarball created in the Build stage. The job
+extracts this tarball and executes the contained `Makefile.PL` or `Build.PL`,
+as appropriate. The tests are then run using
 [`prove`](https://metacpan.org/pod/distribution/Test-Harness/bin/prove).
 
 If you asked for coverage testing, the appropriate `HARNESS_PERL_SWITCHES`
 environment variable settings are used to invoke
 [`Devel::Cover`](https://metacpan.org/pod/Devel::Cover). All of the coverage
-output is optionall saved as a build artifact. Some coverage reporters also
+output is optionally saved as a build artifact. Some coverage reporters also
 upload the report directly to a code coverage service. Finally, the test
 output from `prove` is turned into JUnit XML and uploaded as a set of test
 results, which lets you see a more detailed view of test failures in the Azure

@@ -1,5 +1,6 @@
 variables:
   PERLBREW_ROOT: "$(Pipeline.Workspace)/perl5/perlbrew"
+  DOCKER_BUILDKIT: 1
 
 trigger:
   branches:

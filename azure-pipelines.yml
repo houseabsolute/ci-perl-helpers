@@ -7,7 +7,16 @@ trigger:
       - no-ci-*
   paths:
     exclude:
+      - .gitignore
+      - .test-vars-ignore
+      - Changes.md
+      - cron/
       - dev/
+      - git/
+      - perlcriticrc
+      - perltidyrc
+      - README.md
+      - tidyall.ini
 
 stages:
   - stage: TestDeploymentCode

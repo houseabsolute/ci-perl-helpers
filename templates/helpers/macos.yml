@@ -170,7 +170,7 @@ stages:
             parameters:
               perlbrew_root: $(PERLBREW_ROOT)
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define tools-perls cache
             inputs:
               key: '"v2" | "tools-perl" | "${{ parameters.cache_key }}" | "$(latest_stable_perl)" | "macOS" | $(CIPH_TOOLS_CPANFILE)'
@@ -184,7 +184,7 @@ stages:
               fi
             displayName: Perlbrew install Perl $(latest_stable_perl) as tools-perl
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define runtime-perl base cache
             inputs:
               key: '"v2" | "runtime-perl" | "${{ parameters.cache_key }}" | "$(perl)" | "threads=$(threads)" | "macOS"'

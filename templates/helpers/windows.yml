@@ -174,7 +174,7 @@ stages:
 
           - template: steps/install-helper-tools.yml
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define tools-perl base cache
             inputs:
               key: '"v1" | "tools-perl base" | "${{ parameters.cache_key }}" | "$(latest_stable_perl)" | "Windows"'
@@ -201,7 +201,7 @@ stages:
               exit $( cat exit-code )
             displayName: Berrybrew install tools-perl
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define tools-perl clone cache
             inputs:
               key: '"v1" | "tools-perl clone" | "${{ parameters.cache_key }}" | "$(perl)" | "Windows" | $(CIPH_TOOLS_CPANFILE)'
@@ -213,7 +213,7 @@ stages:
               "$BERRYBREW_EXE" clone "$LATEST_STABLE_PERL" tools-perl
             displayName: Berrybrew clone installed Perl as runtime-perl
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define runtime-perl base cache
             inputs:
               key: '"v1" | "runtime-perl base" | "${{ parameters.cache_key }}" | "$(berrybrew_perl)" | "Windows"'
@@ -225,7 +225,7 @@ stages:
               "$BERRYBREW_EXE" install "$BERRYBREW_PERL"
             displayName: Berrybrew install runtime-perl
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define runtime-perl clone cache
             inputs:
               key: '"v1" | "runtime-perl clone" | "${{ parameters.cache_key }}" | "$(perl)" | "Windows"'

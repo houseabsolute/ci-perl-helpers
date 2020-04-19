@@ -34,7 +34,7 @@ stages:
           - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl pre-build.pl
             displayName: Pre build
 
-          - task: CacheBeta@1
+          - task: Cache@2
             displayName: Define build dependencies cache
             inputs:
               key: '"v1" | "build-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/tools-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/build-deps-cpanfile'

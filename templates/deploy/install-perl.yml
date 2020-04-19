@@ -4,7 +4,7 @@ parameters:
 
 steps:
   - template: ../shared/install-perlbrew.yml
-  - task: CacheBeta@1
+  - task: Cache@2
     displayName: Define perl install
     inputs:
       key: '"v1" | "perl" | "5.30.1" | "with_test_prereqs=${{ parameters.with_test_prereqs }}" | ./deploy/cpanfile'

@@ -74,6 +74,7 @@ steps:
     inputs:
       key: '"v1" | "runtime-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/runtime-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/prereqs-cpanfile'
       path: ${{ parameters.runtime_perl_path }}
+    condition: ne( '${{ parameters.runtime_perl_path }}', '' )
 
   - bash: |
       set -e

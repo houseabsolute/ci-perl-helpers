@@ -137,8 +137,10 @@ stages:
             value: $(CI_WORKSPACE_DIRECTORY)/ci-perl-helpers-tools/bin
           - name: CIPH_TOOLS_CPANFILE
             value: $(CI_WORKSPACE_DIRECTORY)/ci-perl-helpers-tools/cpanfile
+          # We can't use $(Pipeline.Workspace) for this because it varies
+          # between runs, which breaks caching of the installed Perl.
           - name: PERLBREW_ROOT
-            value: $(Pipeline.Workspace)/perl5/perlbrew
+            value: /Users/runner/perl5/perlbrew
         pool:
           vmImage: macOS-latest
         steps:
@@ -151,6 +153,12 @@ stages:
                 done
               displayName: Install extra packages with brew
 
+          - bash: |
+              env|sort
+              ls -l /Users
+              ls -l /Users/runner
+              ls -l /Users/runner/runners
+
           - bash: brew install tree
             displayName: Install tree package
 
@@ -159,12 +167,14 @@ stages:
           - template: steps/install-helper-tools.yml
 
           - template: ../shared/install-perlbrew.yml
+            parameters:
+              perlbrew_root: $(PERLBREW_ROOT)
 
           - task: CacheBeta@1
             displayName: Define tools-perls cache
             inputs:
-              key: '"v1" | "tools-perl" | "${{ parameters.cache_key }}" | "$(latest_stable_perl)" | "macOS" | $(CIPH_TOOLS_CPANFILE)'
-              path: $(Pipeline.Workspace)/perl5/perlbrew/perls/tools-perl
+              key: '"v2" | "tools-perl" | "${{ parameters.cache_key }}" | "$(latest_stable_perl)" | "macOS" | $(CIPH_TOOLS_CPANFILE)'
+              path: $(PERLBREW_ROOT)/perls/tools-perl
 
           - bash: |
               set -e
@@ -177,8 +187,8 @@ stages:
           - task: CacheBeta@1
             displayName: Define runtime-perl base cache
             inputs:
-              key: '"v1" | "runtime-perl" | "${{ parameters.cache_key }}" | "$(perl)" | "threads=$(threads)" | "macOS"'
-              path: $(Pipeline.Workspace)/perl5/perlbrew/perls/runtime-perl
+              key: '"v2" | "runtime-perl" | "${{ parameters.cache_key }}" | "$(perl)" | "threads=$(threads)" | "macOS"'
+              path: $(PERLBREW_ROOT)/perls/runtime-perl
 
           - bash: |
               set -e
@@ -198,6 +208,11 @@ stages:
 
           - template: steps/test-core-steps.yml
             parameters:
+              # This is used to cache dependencies of the distro being
+              # tested. We can't cache this because the macOS workspace
+              # directory can change between runs. Ideally, we'd move our
+              # local-lib dirs to somewhere stable, but for now we'll just
+              # skip this cache on macOS.
               runtime_perl_path: ''
               extra_prereqs: ${{ parameters.extra_prereqs }}
               cache_key: ${{ parameters.cache_key }}

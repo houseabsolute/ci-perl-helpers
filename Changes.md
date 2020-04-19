@@ -1,3 +1,14 @@
+## 0.1.6
+
+* Fixed a bug that caused macOS builds to fail semi-randomly (after the first
+  build). The issue is that the macOS workspace directory can change between
+  runs. We were caching & restoring directory trees under this workspace
+  directory, so if the cache restore put the restored tree in the wrong
+  workspace directory, failures ensured. [I reported this MS via their
+  community
+  forum](https://developercommunity.visualstudio.com/content/problem/997095/workspace-directory-for-macos-hosted-agents-change.html).
+
+
 ## 0.1.5 2020-04-10
 
 * Fixed bugs that prevented testing of dists that used `Module::Build` or

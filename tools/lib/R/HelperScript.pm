@@ -87,10 +87,9 @@ has brew_dir => (
     isa     => t('Dir'),
     lazy    => 1,
     default => sub {
-        $^O eq 'linux' ? path(qw( /usr local perl5 perlbrew ))->absolute
-            : $^O eq 'darwin'
-            ? $_[0]->workspace_root->child(qw( perl5 perlbrew ))
-            : path('C:\berrybrew');
+        return $^O eq 'MSWin32'
+            ? path('C:\berrybrew')
+            : path( $ENV{PERLBREW_ROOT} );
     },
 );
 

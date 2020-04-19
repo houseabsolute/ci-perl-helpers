@@ -35,7 +35,7 @@ stages:
           - bash: |
               set -e
               set -x
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 prove -lr -j 12 t
+              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 prove -lr -j 12 t
             displayName: Run tests with prove
 
   - stage: DeployToolsPerlImage
@@ -54,7 +54,7 @@ stages:
           - bash: |
               set -eo pipefail
               set -x
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 perl ./deploy/bin/write-tools-perl-dockerfile.pl
+              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/write-tools-perl-dockerfile.pl
             name: WriteToolsPerlDockerfile
             displayName: Write tools-perl dockerfile
           - task: Docker@2
@@ -87,7 +87,7 @@ stages:
           - bash: |
               set -eo pipefail
               set -x
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 perl ./deploy/bin/print-perls-matrix.pl | tee ./deploy-matrix
+              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/print-perls-matrix.pl | tee ./deploy-matrix
               perls=$( cat ./deploy-matrix )
               set +x
               echo "##vso[task.setVariable variable=perls;isOutput=true]$perls"
@@ -112,7 +112,7 @@ stages:
               if [ "$(threads)" == "true" ]; then
                   threads="--threads"
               fi
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.1 perl ./deploy/bin/write-runtime-perl-dockerfile.pl \
+              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/write-runtime-perl-dockerfile.pl \
                   --perl $(perl) \
                   $threads
             displayName: Write runtime-perl dockerfile for perl=$(perl), threads=$(threads)

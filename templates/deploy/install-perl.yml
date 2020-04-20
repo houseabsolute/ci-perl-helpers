@@ -7,15 +7,15 @@ steps:
   - task: Cache@2
     displayName: Define perl install
     inputs:
-      key: '"v1" | "perl" | "5.30.1" | "with_test_prereqs=${{ parameters.with_test_prereqs }}" | ./deploy/cpanfile'
-      path: ${{ parameters.perlbrew_root }}/perls/perl-5.30.1
+      key: '"v1" | "perl" | "5.30.2" | "with_test_prereqs=${{ parameters.with_test_prereqs }}" | ./deploy/cpanfile'
+      path: ${{ parameters.perlbrew_root }}/perls/perl-5.30.2
   - bash: |
       set -e
       set -x
-      if [ ! -d "${{ parameters.perlbrew_root }}/perls/perl-5.30.1" ]; then
-          "${{ parameters.perlbrew_root }}/bin/perlbrew" install --verbose --notest --noman -j $(nproc) 5.30.1
+      if [ ! -d "${{ parameters.perlbrew_root }}/perls/perl-5.30.2" ]; then
+          "${{ parameters.perlbrew_root }}/bin/perlbrew" install --verbose --notest --noman -j $(nproc) 5.30.2
       fi
-    displayName: Perlbrew install Perl 5.30.1
+    displayName: Perlbrew install Perl 5.30.2
   - template: ../shared/install-cpm.yml
   - bash: |
       set -e
@@ -26,7 +26,7 @@ steps:
           test_flag="--without-test"
       fi
 
-      "${{ parameters.perlbrew_root }}/bin/perlbrew" exec --with 5.30.1 \
+      "${{ parameters.perlbrew_root }}/bin/perlbrew" exec --with 5.30.2 \
       "$(Pipeline.Workspace)/bin/cpm" install \
       --global \
       --show-build-log-on-failure \

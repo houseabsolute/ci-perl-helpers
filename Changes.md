@@ -1,4 +1,4 @@
-## 0.1.6
+## 0.1.6 2020-04-19
 
 * Fixed a bug that caused macOS builds to fail semi-randomly (after the first
   build). The issue is that the macOS workspace directory can change between

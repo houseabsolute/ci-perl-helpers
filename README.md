@@ -19,21 +19,40 @@ Connection" for your Azure project. Fortunately this is only needed once per
 Azure project, and a single project can contain many pipelines, each of which
 corresponds to a single code project (GitHub repo, Subversion repo, etc.).
 
-* Go to https://dev.azure.com/
-* Click on the project that contains (or will contain) the pipelines which will use these templates.
-* Click on the gear icon in the lower left.
-* Click on "Service Connections".
-* Select "New service connection", then "GitHub".
-* You will be prompted for a connection name. It does not matter what you
-  choose, but for simplicity I recommend you use
-  `houseabsolute/ci-perl-helpers`.
-* Click on "Authorize".
-  * You may be prompted to log in to GitHub and/or to allow a third party
-    application to access GitHub on your behalf. You will need to allow this,
-    obviously.
+Go to https://dev.azure.com/.
+
+Click on the project that contains (or will contain) the pipelines which will use these templates.
+
+Click on the gear icon in the lower left.
+
+<img src="img/1-project-home.png" width="600" alt="Location of gear icon">
+  
+Click on "Service Connections".
+
+<img src="img/2-project-settings.png" width="600" alt='Location of "Service Connections" link'>
+
+Select "New service connection", then "GitHub".
+
+<img src="img/3-create-service-connection.png" width="600" alt='"New service connection" prompt'>
+
+For "Authentication method" select "Grant authorization".
+
+<img src="img/4-new-service-connection.png" width="600" alt="Creating a service connection">
+
+For "OAuth Configuration" select "AzurePipelines".
+
+Click on "Authorize". You may be prompted to log in to GitHub and/or to allow
+a third party application to access GitHub on your behalf. You will need to
+allow this, obviously.
+    
+You name the connection `houseabsolute/ci-perl-helpers` if this is the only
+thing you will use it for, but the name can be anything you want.
+
+Click on "Save".
 
 If you have multiple Azure DevOps projects you will need to do this once per
-project.
+project. Note that a single project can contain many repos with many
+pipelines. You only need separate projects if you want separate ACLs.
 
 ## Quick Start
 
@@ -60,6 +79,9 @@ stages:
     parameters:
       use_default_perls: true
 ```
+
+The `resources.repositories.endpointl` value must match the name of the Service
+Connection you created.
 
 This will test your Perl project in the following scenarios:
 

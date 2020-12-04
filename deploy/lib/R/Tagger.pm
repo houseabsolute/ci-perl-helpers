@@ -18,10 +18,10 @@ no warnings 'experimental::postderef', 'experimental::signatures';
 ## use critic
 
 has image_versions => (
-    is      => 'ro',
-    isa     => t( 'ArrayRef', of => t('Str') ),
-    lazy    => 1,
-    builder => '_build_image_versions',
+    is            => 'ro',
+    isa           => t( 'ArrayRef', of => t('Str') ),
+    lazy          => 1,
+    builder       => '_build_image_versions',
     documentation =>
         'A version to append to the image tag. This will default to the name of the current branch.',
 );

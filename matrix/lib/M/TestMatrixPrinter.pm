@@ -636,7 +636,7 @@ sub _base_job {
         threads       => ( $threads ? 1 : q{} ),
         title         => $title,
         allow_failure => ( $allow_failure ? 1 : 0 ),
-        test_xt       => ( $test_xt ? 1 : 0 ),
+        test_xt       => ( $test_xt       ? 1 : 0 ),
         title         => $title,
         coverage      => q{},
     );

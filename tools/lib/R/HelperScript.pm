@@ -316,7 +316,7 @@ sub _perl_local_script {
     my @paths = $self->local_lib_root->child( $perl, 'bin', $script );
     if ( $^O eq 'MSWin32' ) {
         push @paths, (
-            $self->brew_dir->child( $perl, 'perl', 'bin', $script ),
+            $self->brew_dir->child( $perl, 'perl', 'bin',  $script ),
             $self->brew_dir->child( $perl, 'perl', 'site', 'bin', $script ),
         );
     }

@@ -22,7 +22,8 @@ jobs:
               else
                   # Our checkout is in a detached head state, and this is the
                   # only way I've found to get the branch name in that case.
-                  branch=$( git describe --all | sed 's/^remotes\/origin\///' )
+                  refs=$( git describe --all )
+                  branch=$( echo "$refs" | sed 's/^remotes\/origin\///' )
                   echo "Setting image version from branch name - $branch"
                   image_version=$branch
               fi

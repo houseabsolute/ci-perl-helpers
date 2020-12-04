@@ -1,3 +1,11 @@
+## 0.1.7 2020-12-04
+
+* Fixed a bug where we could not figure out what Docker image version to
+  use. The method we used to use stopped working at some point, so I had to
+  find a new creative way to find the corresponding branch in a detached git
+  checkout.
+
+
 ## 0.1.6 2020-04-19
 
 * Fixed a bug that caused macOS builds to fail semi-randomly (after the first

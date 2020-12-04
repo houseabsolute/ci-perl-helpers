@@ -20,10 +20,17 @@ jobs:
                   echo "Setting image version from tag - $tag"
                   image_version=$tag
               else
-                  # Our checkout is in a detached head state, and this is the
-                  # only way I've found to get the branch name in that case.
-                  refs=$( git describe --all )
-                  branch=$( echo "$refs" | sed 's/^remotes\/origin\///' )
+                  # Our checkout is in a detached head state, so we need to
+                  # figure out what branch it corresponds to in the remote.
+
+                  # Get all the remote branch names.
+                  remote_heads="$( git ls-remote --heads origin )"
+                  # Get the commit SHA for our local checkout.
+                  local_head_ref="$( git rev-parse HEAD )"
+                  # Find the first match in our remote heads for our local checkout.
+                  our_head="$( echo "$remote_heads" | grep $local_head_ref | head -1 )"
+                  # Extract branch name from the heads info.
+                  branch=$( echo "$our_head" | cut -d / -f 3 )
                   echo "Setting image version from branch name - $branch"
                   image_version=$branch
               fi

@@ -36,9 +36,9 @@ has _last_perls_raw => (
 );
 
 has _last_perls_file => (
-    is   => 'ro',
-    isa  => t('Path'),
-    lazy => 1,
+    is      => 'ro',
+    isa     => t('Path'),
+    lazy    => 1,
     default =>
         sub ($self) { $self->_artifacts_dir->child('last-perls.json') },
 );

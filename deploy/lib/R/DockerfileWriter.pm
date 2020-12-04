@@ -27,9 +27,9 @@ has perl => (
 );
 
 has filename => (
-    is      => 'ro',
-    isa     => t('Str'),
-    default => 'Dockerfile',
+    is            => 'ro',
+    isa           => t('Str'),
+    default       => 'Dockerfile',
     documentation =>
         'The path to which the Dockerfile content should be written.',
 );

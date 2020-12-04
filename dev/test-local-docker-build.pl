@@ -49,7 +49,7 @@ use warnings;
         is     => 'ro',
         isa    => t('NonEmptyStr'),
         format => 's',
-        doc =>
+        doc    =>
             'A local directory containing the code to use for testing. This should be a git checkout of a Perl project.',
     );
 

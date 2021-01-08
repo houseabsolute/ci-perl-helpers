@@ -1,3 +1,9 @@
+## 0.1.8 2021-01-08
+
+* If a distro has a script named `dev-bin/install-xt-tools.sh` we now run this
+  before running xt tests.
+
+
 ## 0.1.7 2020-12-04
 
 * Fixed a bug where we could not figure out what Docker image version to

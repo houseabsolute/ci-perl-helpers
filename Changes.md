@@ -1,3 +1,9 @@
+## 0.1.9 2021-01-08
+
+* If the distro name starts with "Dist-Zilla", then the distro's lib dir will
+  be included in `@INC` (via `dzil -I lib`) when running `dzil build.
+
+
 ## 0.1.8 2021-01-08
 
 * If a distro has a script named `dev-bin/install-xt-tools.sh` we now run this

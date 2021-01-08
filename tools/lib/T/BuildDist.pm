@@ -48,6 +48,17 @@ sub run {
 sub _build_dzil {
     my $self = shift;
 
+    my $content = path('dist.ini')->slurp_utf8;
+    my ($distro) = $content =~ /name\s*=\s*(\S+)/;
+
+    my @i;
+
+    # This assumes that any dzil-related module will use itself during dzil
+    # build.
+    if ( $distro && $distro =~ /\ADist-Zilla/ ) {
+        @i = ( '-I', 'lib' );
+    }
+
     # The working dir might be something like '~/project` and pushd can't
     # handle the '~', apparently.
     my $dir = $self->_pushd( $self->checkout_dir );
@@ -57,6 +68,7 @@ sub _build_dzil {
             $self->_system(
                 $self->_brewed_perl( $self->tools_perl ),
                 $self->_perl_local_script( $self->tools_perl, 'dzil' ),
+                @i,
                 'build',
             );
         },

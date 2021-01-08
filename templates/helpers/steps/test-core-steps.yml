@@ -10,6 +10,9 @@ parameters:
   - name: publish_coverage_artifact
     type: boolean
     default: false
+  - name: test_xt
+    type: boolean
+    default: true
 
 steps:
   - bash: |
@@ -88,6 +91,14 @@ steps:
 
   - bash: |
       set -e
+      if [ "$CIPH_TEST_XT" -eq 1 ]; then
+          sudo ./dev-bin/install-xt-tools.sh
+      fi
+    displayName: Install tools for xt tests
+    condition: 
+
+  - bash: |
+      set -e
       set -x
       "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl prep-for-tests.pl
     displayName: Prep distro for tests (make or ./Build)
@@ -103,6 +114,7 @@ steps:
       set -x
       "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl run-tests.pl
     displayName: Run tests
+    condition: eq( ${{ parameters.test_xt }}, true )
 
   - bash: |
       set -e

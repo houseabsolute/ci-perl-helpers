@@ -223,6 +223,13 @@ The following values are accepted for the `coverage` parameter:
   docs](https://metacpan.org/pod/Devel::Cover::Report::SonarGeneric) for
   details on how to have this automatically uploaded to SonarQube.
 
+## Installing Tools for Extended Tests
+
+If you have a script at `./dev-bin/install-xt-tools.sh`, this will be run
+before running extended tests. This script can be used to do things like
+installing non-Perl dependencies. The best place to install things is in
+`/usr/local/bin`, which is already in the `PATH` when tests are run.
+
 ## How This Works
 
 These tools consist of a set of Azure Pipeline templates, Perl scripts for

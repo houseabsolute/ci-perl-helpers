@@ -91,9 +91,7 @@ steps:
 
   - bash: |
       set -e
-      if [ "$CIPH_TEST_XT" -eq 1 ]; then
-          sudo ./dev-bin/install-xt-tools.sh
-      fi
+      sudo ./dev-bin/install-xt-tools.sh
     displayName: Install tools for xt tests
     condition: eq( ${{ parameters.test_xt }}, true )
 

@@ -6,6 +6,9 @@ trigger:
   branches:
     exclude:
       - no-ci-*
+  tags:
+    include:
+      - v*
   paths:
     exclude:
       - .gitignore

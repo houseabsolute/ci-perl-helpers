@@ -95,7 +95,7 @@ steps:
           sudo ./dev-bin/install-xt-tools.sh
       fi
     displayName: Install tools for xt tests
-    condition: 
+    condition: eq( ${{ parameters.test_xt }}, true )
 
   - bash: |
       set -e
@@ -114,7 +114,6 @@ steps:
       set -x
       "$CIPH_TOOLS_BIN_DIR"/with-perl tools-perl run-tests.pl
     displayName: Run tests
-    condition: eq( ${{ parameters.test_xt }}, true )
 
   - bash: |
       set -e

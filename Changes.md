@@ -1,3 +1,9 @@
+## 0.1.10 2021-02-06
+
+* The last release accidentally disabled running tests except for jobs where
+  `test_xt` was true.
+
+
 ## 0.1.9 2021-01-08
 
 * If the distro name starts with "Dist-Zilla", then the distro's lib dir will

@@ -1,3 +1,9 @@
+## 0.1.11 2021-02-06
+
+* Make sure the test_xt parameter is passed through to all relevant templates,
+  and make it default to false.
+
+
 ## 0.1.10 2021-02-06
 
 * The last release accidentally disabled running tests except for jobs where

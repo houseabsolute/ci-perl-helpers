@@ -217,5 +217,6 @@ stages:
               extra_prereqs: ${{ parameters.extra_prereqs }}
               cache_key: ${{ parameters.cache_key }}
               publish_coverage_artifact: ${{ parameters.publish_coverage_artifact }}
+              test_xt: ${{ parameters.test_xt }}
 
           - ${{ parameters.post_test_steps }}

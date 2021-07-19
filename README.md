@@ -45,8 +45,10 @@ Click on "Authorize". You may be prompted to log in to GitHub and/or to allow
 a third party application to access GitHub on your behalf. You will need to
 allow this, obviously.
     
-You name the connection `houseabsolute/ci-perl-helpers` if this is the only
-thing you will use it for, but the name can be anything you want.
+The connection name can be anything you want. It is simply used to refer to
+the connection in your `azure-pipelines.yml` files. I suggest using
+`houseabsolute/ci-perl-helpers` if you don't have a naming scheme you want to
+use.
 
 Click on "Save".
 

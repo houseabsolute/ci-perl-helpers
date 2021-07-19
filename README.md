@@ -82,7 +82,7 @@ stages:
       use_default_perls: true
 ```
 
-The `resources.repositories.endpointl` value must match the name of the Service
+The `resources.repositories.endpoint` value must match the name of the Service
 Connection you created.
 
 This will test your Perl project in the following scenarios:

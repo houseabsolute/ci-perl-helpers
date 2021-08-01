@@ -8,8 +8,7 @@ use warnings 'FATAL' => 'all';
 use autodie qw( :all );
 use namespace::autoclean;
 
-use Git::Helpers qw( current_branch_name );
-use Git::Sub qw( describe );
+use Git::Sub qw( describe rev_parse );
 use Specio::Library::Builtins;
 
 use Moose::Role;
@@ -27,10 +26,7 @@ has image_versions => (
 );
 
 sub _build_image_versions {
-    my @versions
-        = $ENV{BUILD_SOURCEBRANCHNAME}
-        ? $ENV{BUILD_SOURCEBRANCHNAME}
-        : current_branch_name();
+    my @versions = git::rev_parse( '--abbrev-ref', 'HEAD' );
 
     my $tag = git::describe('--tags');
     unshift @versions, $tag

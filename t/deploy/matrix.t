@@ -40,18 +40,19 @@ my $client = qstrict( release => qmeth { return $release } );
             5.30.1
             5.31.1
             5.31.2
-            )
+        )
     );
 
     # These are used in R::Tagger.
     my $branch = 'test-branch';
     my $tag    = 'v1.1.1';
-    local $ENV{BUILD_SOURCEBRANCHNAME} = $branch;
-    local *git::describe = sub { return $tag };
+
+    local *git::rev_parse = sub {$branch};
+    local *git::describe  = sub { return $tag };
 
     my $ppm = D::PrintPerlsMatrix->new( _client => $client );
 
-    my $matrix = $ppm->_create_matrix;
+    my $matrix      = $ppm->_create_matrix;
     my @expect_keys = sort map { ( $_, $_ . '_threads' ) }
         map { 'perl_' . $_ }
         qw( 5_8_9 5_10_1 5_24_0 5_24_1 5_24_2 5_30_0 5_30_1 5_31_2 );

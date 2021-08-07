@@ -8,7 +8,7 @@ use warnings 'FATAL' => 'all';
 use autodie qw( :all );
 use namespace::autoclean;
 
-use Git::Sub qw( describe rev_parse );
+use Git::Sub qw( describe ls_remote rev_parse );
 use Specio::Library::Builtins;
 
 use Moose::Role;
@@ -26,7 +26,17 @@ has image_versions => (
 );
 
 sub _build_image_versions {
-    my @versions = git::rev_parse( '--abbrev-ref', 'HEAD' );
+    my %remote_heads;
+    for my $head ( git::ls_remote( '--heads', 'origin' ) ) {
+        my ( $c, $ref ) = split /\s+/, $head;
+        $ref =~ s{^refs/heads/}{};
+        $remote_heads{$c} = $ref;
+    }
+    my $commit = git::rev_parse('HEAD');
+
+    my @versions = $remote_heads{$commit}
+        or die
+        "Current commit ($commit) does not correspond to any remote HEAD!";
 
     my $tag = git::describe('--tags');
     unshift @versions, $tag

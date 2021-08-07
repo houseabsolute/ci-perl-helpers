@@ -145,6 +145,8 @@ stages:
             value: $(test_xt)
           - name: CIPH_TOOLS_BIN_DIR
             value: /usr/local/ci-perl-helpers-tools/bin
+        pool:
+          vmImage: ubuntu-18.04
         container: $[ variables['container'] ]
         # It'd be nice to skip the checkout step, but we may need access to
         # config files from the repo for things like coverage. For example,

@@ -26,6 +26,8 @@ stages:
         dependsOn: SetImageVersion
         variables:
           image_version: $[ dependencies.SetImageVersion.outputs['ImageVersionProducer.image_version'] ]
+        pool:
+          vmImage: ubuntu-18.04
         container: houseabsolute/ci-perl-helpers-ubuntu:5.30.2-$(image_version)
         steps:
           - bash: /usr/local/ci-perl-helpers-tools/bin/with-perl tools-perl show-env.pl

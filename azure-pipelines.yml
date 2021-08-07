@@ -23,6 +23,7 @@ trigger:
       - tidyall.ini
 
 stages:
+
   - stage: TestDeploymentCode
     displayName: Run tests for the deployment code
     jobs:
@@ -31,6 +32,10 @@ stages:
         pool:
           vmImage: ubuntu-18.04
         steps:
+          - bash: |
+              perl -E 'use Data::Dumper;      {        local $Data::Dumper::Terse = 1;        local $Data::Dumper::Indent = 1;        local $Data::Dumper::Useqq = 1;        local $Data::Dumper::Deparse = 1;        local $Data::Dumper::Quotekeys = 0;        local $Data::Dumper::Sortkeys = 1;        local $Data::Dumper::Trailingcomma = 1;        print Dumper(\%ENV);      }'
+            displayName: Show environment
+
           - template: templates/deploy/install-perl.yml
             parameters:
               perlbrew_root: $(PERLBREW_ROOT)
@@ -41,93 +46,93 @@ stages:
               $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 prove -lr -j 12 t
             displayName: Run tests with prove
 
-  - stage: DeployToolsPerlImage
-    displayName: Deploy the tools-perl base image
-    dependsOn: TestDeploymentCode
-    jobs:
-      - job: BuildToolsPerlImage
-        displayName: Deploy the tools-perl base image
-        pool:
-          vmImage: ubuntu-18.04
-        steps:
-          - template: templates/deploy/install-perl.yml
-            parameters:
-              perlbrew_root: $(PERLBREW_ROOT)
-              with_test_prereqs: false
-          - bash: |
-              set -eo pipefail
-              set -x
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/write-tools-perl-dockerfile.pl
-            name: WriteToolsPerlDockerfile
-            displayName: Write tools-perl dockerfile
-          - task: Docker@2
-            displayName: Log in to Docker Hub
-            inputs:
-              command: login
-              containerRegistry: DockerHubHouseabsolute
-          - task: Docker@2
-            displayName: Build and push tools-perl image
-            inputs:
-              command: buildAndPush
-              containerRegistry: DockerHubHouseabsolute
-              repository: houseabsolute/ci-perl-helpers-ubuntu
-              tags: |
-                $(WriteToolsPerlDockerfile.base_image_tag0)
-                $(WriteToolsPerlDockerfile.base_image_tag1)
+  # - stage: DeployToolsPerlImage
+  #   displayName: Deploy the tools-perl base image
+  #   dependsOn: TestDeploymentCode
+  #   jobs:
+  #     - job: BuildToolsPerlImage
+  #       displayName: Deploy the tools-perl base image
+  #       pool:
+  #         vmImage: ubuntu-18.04
+  #       steps:
+  #         - template: templates/deploy/install-perl.yml
+  #           parameters:
+  #             perlbrew_root: $(PERLBREW_ROOT)
+  #             with_test_prereqs: false
+  #         - bash: |
+  #             set -eo pipefail
+  #             set -x
+  #             $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/write-tools-perl-dockerfile.pl
+  #           name: WriteToolsPerlDockerfile
+  #           displayName: Write tools-perl dockerfile
+  #         - task: Docker@2
+  #           displayName: Log in to Docker Hub
+  #           inputs:
+  #             command: login
+  #             containerRegistry: DockerHubHouseabsolute
+  #         - task: Docker@2
+  #           displayName: Build and push tools-perl image
+  #           inputs:
+  #             command: buildAndPush
+  #             containerRegistry: DockerHubHouseabsolute
+  #             repository: houseabsolute/ci-perl-helpers-ubuntu
+  #             tags: |
+  #               $(WriteToolsPerlDockerfile.base_image_tag0)
+  #               $(WriteToolsPerlDockerfile.base_image_tag1)
 
-  - stage: DeployRuntimePerlImages
-    displayName: Deploy the runtime-perl images
-    dependsOn: DeployToolsPerlImage
-    jobs:
-      - job: GenerateMatrix
-        displayName: Generate the matrix of Perl versions to build
-        pool:
-          vmImage: ubuntu-18.04
-        steps:
-          - template: templates/deploy/install-perl.yml
-            parameters:
-              perlbrew_root: $(PERLBREW_ROOT)
-          - bash: |
-              set -eo pipefail
-              set -x
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/print-perls-matrix.pl | tee ./deploy-matrix
-              perls=$( cat ./deploy-matrix )
-              set +x
-              echo "##vso[task.setVariable variable=perls;isOutput=true]$perls"
-            name: matrixGenerator
-            displayName: Generate perl version matrix
+  # - stage: DeployRuntimePerlImages
+  #   displayName: Deploy the runtime-perl images
+  #   dependsOn: DeployToolsPerlImage
+  #   jobs:
+  #     - job: GenerateMatrix
+  #       displayName: Generate the matrix of Perl versions to build
+  #       pool:
+  #         vmImage: ubuntu-18.04
+  #       steps:
+  #         - template: templates/deploy/install-perl.yml
+  #           parameters:
+  #             perlbrew_root: $(PERLBREW_ROOT)
+  #         - bash: |
+  #             set -eo pipefail
+  #             set -x
+  #             $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/print-perls-matrix.pl | tee ./deploy-matrix
+  #             perls=$( cat ./deploy-matrix )
+  #             set +x
+  #             echo "##vso[task.setVariable variable=perls;isOutput=true]$perls"
+  #           name: matrixGenerator
+  #           displayName: Generate perl version matrix
 
-      - job: BuildOneImage
-        displayName: Deploy the runtime-perl images
-        pool:
-          vmImage: ubuntu-18.04
-        dependsOn: GenerateMatrix
-        strategy:
-          matrix: $[ dependencies.GenerateMatrix.outputs['matrixGenerator.perls'] ]
-        steps:
-          - template: templates/deploy/install-perl.yml
-            parameters:
-              perlbrew_root: $(PERLBREW_ROOT)
-          - bash: |
-              set -eo pipefail
-              set -x
-              threads="--no-threads"
-              if [ "$(threads)" == "true" ]; then
-                  threads="--threads"
-              fi
-              $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/write-runtime-perl-dockerfile.pl \
-                  --perl $(perl) \
-                  $threads
-            displayName: Write runtime-perl dockerfile for perl=$(perl), threads=$(threads)
-          - task: Docker@2
-            displayName: Log in to Docker Hub
-            inputs:
-              command: login
-              containerRegistry: DockerHubHouseabsolute
-          - task: Docker@2
-            displayName: Build and push runtime-perl image for perl=$(perl), threads=$(threads)
-            inputs:
-              command: buildAndPush
-              containerRegistry: DockerHubHouseabsolute
-              repository: houseabsolute/ci-perl-helpers-ubuntu
-              tags: $(tags)
+  #     - job: BuildOneImage
+  #       displayName: Deploy the runtime-perl images
+  #       pool:
+  #         vmImage: ubuntu-18.04
+  #       dependsOn: GenerateMatrix
+  #       strategy:
+  #         matrix: $[ dependencies.GenerateMatrix.outputs['matrixGenerator.perls'] ]
+  #       steps:
+  #         - template: templates/deploy/install-perl.yml
+  #           parameters:
+  #             perlbrew_root: $(PERLBREW_ROOT)
+  #         - bash: |
+  #             set -eo pipefail
+  #             set -x
+  #             threads="--no-threads"
+  #             if [ "$(threads)" == "true" ]; then
+  #                 threads="--threads"
+  #             fi
+  #             $(PERLBREW_ROOT)/bin/perlbrew exec --with 5.30.2 perl ./deploy/bin/write-runtime-perl-dockerfile.pl \
+  #                 --perl $(perl) \
+  #                 $threads
+  #           displayName: Write runtime-perl dockerfile for perl=$(perl), threads=$(threads)
+  #         - task: Docker@2
+  #           displayName: Log in to Docker Hub
+  #           inputs:
+  #             command: login
+  #             containerRegistry: DockerHubHouseabsolute
+  #         - task: Docker@2
+  #           displayName: Build and push runtime-perl image for perl=$(perl), threads=$(threads)
+  #           inputs:
+  #             command: buildAndPush
+  #             containerRegistry: DockerHubHouseabsolute
+  #             repository: houseabsolute/ci-perl-helpers-ubuntu
+  #             tags: $(tags)

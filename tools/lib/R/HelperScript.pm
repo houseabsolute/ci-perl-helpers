@@ -453,7 +453,7 @@ has test_xt => (
 );
 
 sub _coverage_options {
-    return qw( clover codecov coveralls html kritika sonarqube );
+    return qw( clover codecov coveralls html sonarqube );
 }
 
 has coverage => (

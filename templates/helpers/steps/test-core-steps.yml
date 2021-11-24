@@ -35,17 +35,9 @@ steps:
               echo "##vso[task.complete result=Failed;]"
           fi
       fi
-      if [ "$CIPH_COVERAGE" == "kritika" ]; then
-          if [ -z "$CIPH_KRITIKA_TOKEN" ]; then
-              set +x
-              echo "##vso[task.logissue type=error;]You must set the KRITIKA_TOKEN secret for this pipeline if you want to submit coverage data to kritika.io. See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables for information on how to set secrets with Azure Pipelines."
-              echo "##vso[task.complete result=Failed;]"
-          fi
-      fi
     env:
       CIPH_CODECOV_TOKEN: $(CODECOV_TOKEN)
       CIPH_COVERALLS_TOKEN: $(COVERALLS_TOKEN)
-      CIPH_KRITIKA_TOKEN: $(KRITIKA_TOKEN)
     displayName: Check coverage settings
 
   - task: DownloadPipelineArtifact@2
@@ -120,7 +112,6 @@ steps:
     displayName: Run coverage report
     env:
       CIPH_COVERALLS_TOKEN: $(COVERALLS_TOKEN)
-      CIPH_KRITIKA_TOKEN: $(KRITIKA_TOKEN)
     condition: |
       and(
           ne( variables['coverage'], '' ),

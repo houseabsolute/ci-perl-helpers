@@ -213,7 +213,6 @@ perlbrew exec --with runtime-perl \
             --feature 'coverage-clover' \
             --feature 'coverage-coveralls' \
             --feature 'coverage-html' \
-            --feature 'coverage-kritika' \
             --feature 'coverage-sonarqube' \
             --feature runtime \
             --without-test \

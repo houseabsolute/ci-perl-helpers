@@ -73,7 +73,6 @@ sub _coverage_prereqs {
         Codecov
         Clover
         Coveralls
-        Kritika
         SonarGeneric
     );
 

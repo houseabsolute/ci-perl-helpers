@@ -214,11 +214,6 @@ The following values are accepted for the `coverage` parameter:
   [pipeline
   variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
   almost certainly want to make this value secret.
-* `kritika` - Uploads coverage data to
-  [kritika.io](https://kritika.io/). You must also set `KRITIKA_TOKEN` as a
-  [pipeline
-  variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables). You
-  almost certainly want to make this value secret.
 * `sonarqube` - Generates a report in the format expected by
   [SonarQube](https://www.sonarqube.org/). See [the
   `Devel::Cover::Report::SonarGeneric`

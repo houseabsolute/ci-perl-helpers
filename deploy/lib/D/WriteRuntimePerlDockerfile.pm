@@ -104,7 +104,6 @@ EOF
             --feature 'coverage-clover' \
             --feature 'coverage-coveralls' \
             --feature 'coverage-html' \
-            --feature 'coverage-kritika' \
             --feature 'coverage-sonarqube' \
 EOF
     }

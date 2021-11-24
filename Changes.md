@@ -1,6 +1,9 @@
 ## 0.1.12 2021-11-24
+
 * Fixed package installs under Linux. The helpers now run `apt-get update`
   before attempting to `apt-get install` anything.
+
+* Removed the Kritika coverage option. This service appears to be defunct.
 
 
 ## 0.1.11 2021-02-06

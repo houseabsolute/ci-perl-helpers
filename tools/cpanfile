@@ -73,10 +73,6 @@ feature 'coverage-html' => sub {
 
 };
 
-feature 'coverage-kritika' => sub {
-    requires 'Devel::Cover::Report::Kritika';
-};
-
 feature 'coverage-sonarqube' => sub {
     requires 'Devel::Cover::Report::SonarGeneric';
 };

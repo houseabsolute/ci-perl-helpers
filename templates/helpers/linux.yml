@@ -157,6 +157,7 @@ stages:
             - bash: |
                 set -e
                 set -x
+                sudo apt-get update
                 sudo apt-get --yes install ${{ join( ' ', parameters.apt ) }}
               displayName: Install extra packages with apt
 

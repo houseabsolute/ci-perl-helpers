@@ -19,8 +19,8 @@ trigger:
       - git/
       - perlcriticrc
       - perltidyrc
+      - precious.toml
       - README.md
-      - tidyall.ini
 
 stages:
   - stage: TestDeploymentCode

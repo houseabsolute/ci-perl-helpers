@@ -72,8 +72,3 @@ add_packages = Carp Test::Builder
 # I've only ever had this fire when calling ->mkpath on a Path::Tiny or
 # similar object.
 [-ValuesAndExpressions::ProhibitLeadingZeros]
-
-# We've removed "second" from the forbidden list since it's pretty unambiguous
-# in DateTime
-[NamingConventions::ProhibitAmbiguousNames]
-forbid = abstract bases close contract last left no record right set

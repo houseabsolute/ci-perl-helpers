@@ -1,3 +1,8 @@
+## 0.2.0 2022-04-25
+
+* The base image for all Docker images is now Ubuntu 20.04 instead of 18.04.
+
+
 ## 0.1.12 2021-11-24
 
 * Fixed package installs under Linux. The helpers now run `apt-get update`

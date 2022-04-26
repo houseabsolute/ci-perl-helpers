@@ -45,7 +45,7 @@ sub run ($self) {
 ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _content ($self) {
     return sprintf( <<'EOF', $self->perl );
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
 RUN apt-get --yes update && \
     apt-get --yes upgrade && \
@@ -67,7 +67,7 @@ RUN apt-get --yes update && \
         # For XML-Parser which is a transitive dep of TAP::Harness::JUnit.
         libexpat-dev \
         # Same as less.
-        libreadline7 \
+        libreadline8 \
         libssl1.1 \
         libssl-dev \
         make \

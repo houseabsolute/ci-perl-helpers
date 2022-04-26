@@ -29,7 +29,7 @@ stages:
       - job: RunTests
         displayName: Run the tests
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         steps:
           - template: templates/deploy/install-perl.yml
             parameters:
@@ -48,7 +48,7 @@ stages:
       - job: BuildToolsPerlImage
         displayName: Deploy the tools-perl base image
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         steps:
           - template: templates/deploy/install-perl.yml
             parameters:
@@ -82,7 +82,7 @@ stages:
       - job: GenerateMatrix
         displayName: Generate the matrix of Perl versions to build
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         steps:
           - template: templates/deploy/install-perl.yml
             parameters:
@@ -100,7 +100,7 @@ stages:
       - job: BuildOneImage
         displayName: Deploy the runtime-perl images
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         dependsOn: GenerateMatrix
         strategy:
           matrix: $[ dependencies.GenerateMatrix.outputs['matrixGenerator.perls'] ]

@@ -61,7 +61,7 @@ has is_stable => (
     is      => 'ro',
     isa     => t('Bool'),
     lazy    => 1,
-    default => sub ( $self ) { !( $self->minor % 2 ) },
+    default => sub ($self) { !( $self->minor % 2 ) },
 );
 
 has is_latest_in_minor => (

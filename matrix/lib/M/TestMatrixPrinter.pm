@@ -483,8 +483,8 @@ sub _perl_data_from_berrybrew {
 
         # For some reason when we get this file with HTTP::Tiny it has a BOM
         # at the start.
-        $decoded = eval {
-            decode_json( $content =~ s/^(?:\x{FEFF}|\x{FFEF})//r ); };
+        $decoded
+            = eval { decode_json( $content =~ s/^(?:\x{FEFF}|\x{FFEF})//r ); };
         if ($@) {
             die "Could not parse body of $uri response as JSON: $@";
         }

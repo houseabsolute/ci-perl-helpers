@@ -217,7 +217,7 @@ sub _request ( $self, $method, $uri, $headers, $content = undef ) {
     return $decoded;
 }
 
-sub _write_last_perls ( $self ) {
+sub _write_last_perls ($self) {
     my @content = map { $_->version }
         sort { $a->numeric_version <=> $b->numeric_version }
         $self->_current_perls->@*;

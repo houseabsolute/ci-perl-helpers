@@ -15,6 +15,7 @@ use lib "$Bin/../deploy/lib";
 
     use namespace::autoclean;
 
+    use FindBin qw( $Bin );
     use Path::Tiny qw( path tempdir );
     use Specio::Library::Builtins;
     use Specio::Library::Path::Tiny;
@@ -31,7 +32,7 @@ use lib "$Bin/../deploy/lib";
         is            => 'ro',
         isa           => t('NonEmptyStr'),
         required      => 1,
-        documentation => 'Enable debugging output for the test run',
+        documentation => 'The perl to build the images with',
     );
 
     has push => (

@@ -71,7 +71,7 @@ subtest '_build_perl_data from MetaCPAN - errors' => sub {
     my %response;
 
     no warnings 'redefine';
-    local *HTTP::Tiny::post = sub {
+    local *M::Curl::post = sub {
         return \%response;
     };
 
@@ -139,7 +139,7 @@ subtest '_build_perl_data from MetaCPAN - success' => sub {
     my %response;
 
     no warnings 'redefine';
-    local *HTTP::Tiny::post = sub {
+    local *M::Curl::post = sub {
         return \%response;
     };
 
@@ -295,7 +295,7 @@ subtest '_build_perl_data from berrybrew perls.json file - errors' => sub {
     my %response;
 
     no warnings 'redefine';
-    local *HTTP::Tiny::get = sub {
+    local *M::Curl::get = sub {
         return \%response;
     };
 
@@ -358,7 +358,7 @@ subtest '_build_perl_data from berrybrew perls.json file - success' => sub {
     my %response;
 
     no warnings 'redefine';
-    local *HTTP::Tiny::get = sub {
+    local *M::Curl::get = sub {
         return \%response;
     };
 

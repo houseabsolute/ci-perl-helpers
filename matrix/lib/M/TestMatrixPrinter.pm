@@ -11,8 +11,8 @@ use autodie;
 
 use Encode qw( decode );
 use Getopt::Long;
-use HTTP::Tiny;
 use JSON::PP qw( decode_json encode_json );
+use M::Curl;
 use Time::Piece;
 
 my %OS = map { $_ => 1 } qw( Linux macOS Windows );
@@ -393,8 +393,6 @@ sub _build_perl_data {
 }
 
 sub _get_perls_from_metacpan {
-    my $ht = HTTP::Tiny->new;
-
     my %query = (
         size   => 5000,
         query  => { term => { distribution => 'perl' } },
@@ -403,14 +401,13 @@ sub _get_perls_from_metacpan {
 
     my $uri  = 'https://fastapi.metacpan.org/v1/release/_search';
     my $body = encode_json( \%query );
-    my $resp = $ht->post(
-        $uri, {
-            headers => {
-                'Accepts'      => 'application/json',
-                'Content-Type' => 'application/json',
-            },
-            content => $body,
+    my $resp = M::Curl::post(
+        $uri,
+        {
+            'Accepts'      => 'application/json',
+            'Content-Type' => 'application/json',
         },
+        $body,
     );
     unless ( $resp->{success} ) {
         my $msg
@@ -428,7 +425,7 @@ sub _get_perls_from_metacpan {
         local $@ = undef;
         $decoded = eval { decode_json( $resp->{content} ) };
         if ($@) {
-            die "Could not parse body of $uri response as JSON: $@";
+            die "Could not parse body of $uri response as JSON: $@\n$resp->{content}\n";
         }
     }
 
@@ -455,15 +452,12 @@ sub _get_perls_from_metacpan {
 sub _perl_data_from_berrybrew {
     my $self = shift;
 
-    my $ht = HTTP::Tiny->new;
-
     my $uri
         = "https://raw.githubusercontent.com/stevieb9/berrybrew/$self->{berrybrew_tag}/data/perls.json";
-    my $resp = $ht->get(
-        $uri, {
-            headers => {
-                'Accepts' => 'application/json',
-            },
+    my $resp = M::Curl::get(
+        $uri,
+        {
+            'Accepts' => 'application/json',
         },
     );
     unless ( $resp->{success} ) {

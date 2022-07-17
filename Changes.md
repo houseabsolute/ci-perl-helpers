@@ -1,3 +1,11 @@
+## 0.2.1
+
+* Fix an issue with generating the test matrix that seems to have popped up
+  recently. The system perl used to be able to fetch `https` URLs, presumably
+  because it had `IO::Socket::SSL` available, but this appears to no longer be
+  the case.
+
+
 ## 0.2.0 2022-04-25
 
 * The base image for all Docker images is now Ubuntu 20.04 instead of 18.04.

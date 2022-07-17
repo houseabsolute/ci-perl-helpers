@@ -1,4 +1,4 @@
-## 0.2.1
+## 0.2.1 2022-07-17
 
 * Fix an issue with generating the test matrix that seems to have popped up
   recently. The system perl used to be able to fetch `https` URLs, presumably

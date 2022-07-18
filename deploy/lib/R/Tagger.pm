@@ -34,9 +34,10 @@ sub _build_image_versions {
     }
     my $commit = git::rev_parse('HEAD');
 
-    my @versions = $remote_heads{$commit}
+    my $version = $remote_heads{$commit}
         or die
         "Current commit ($commit) does not correspond to any remote HEAD!";
+    my @versions = $version;
 
     my $tag = git::describe('--tags');
     unshift @versions, $tag

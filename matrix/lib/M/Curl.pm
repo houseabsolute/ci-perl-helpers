@@ -31,10 +31,12 @@ sub _run_curl {
     my $headers = shift;
     my $body    = shift;
 
-    my @cmd = ( 'curl',
-                '--silent',
-                '--write-out', "\\n\%{http_code}\\n",
-                '-X', $method );
+    my @cmd = (
+        'curl',
+        '--silent',
+        '--write-out', "\\n\%{http_code}\\n",
+        '-X',          $method,
+    );
     for my $name ( sort keys %{$headers} ) {
         push @cmd, '-H', "$name: $headers->{$name}";
     }

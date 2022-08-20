@@ -1,4 +1,4 @@
-## 0.2.2
+## 0.2.2 2022-08-20
 
 * All Azure VMs now use Ubuntu 20.04 instead of 18.04.
 

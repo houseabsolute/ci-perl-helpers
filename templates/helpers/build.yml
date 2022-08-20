@@ -39,7 +39,7 @@ stages:
           - task: Cache@2
             displayName: Define build dependencies cache
             inputs:
-              key: '"v1" | "build-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/tools-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/build-deps-cpanfile'
+              key: '"v2" | "build-deps" | "${{ parameters.cache_key }}" | $(CI_WORKSPACE_DIRECTORY)/cache/tools-perl-version | $(CI_WORKSPACE_DIRECTORY)/cache/build-deps-cpanfile'
               # We can only reference pre-defined variables here.
               path: $(Pipeline.Workspace)/local-lib/tools-perl
 

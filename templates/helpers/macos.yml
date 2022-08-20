@@ -58,7 +58,7 @@ stages:
       - job: GenerateMatrix
         displayName: Generate macOS test matrix
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         variables:
           ${{ if parameters.use_default_perls }}:
             perls: "--perls latest"

@@ -65,7 +65,7 @@ stages:
       - job: GenerateMatrix
         displayName: Generate Linux test matrix
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         dependsOn: SetImageVersion
         variables:
           ${{ if parameters.use_default_perls }}:
@@ -146,7 +146,7 @@ stages:
           - name: CIPH_TOOLS_BIN_DIR
             value: /usr/local/ci-perl-helpers-tools/bin
         pool:
-          vmImage: ubuntu-18.04
+          vmImage: ubuntu-20.04
         container: $[ variables['container'] ]
         # It'd be nice to skip the checkout step, but we may need access to
         # config files from the repo for things like coverage. For example,

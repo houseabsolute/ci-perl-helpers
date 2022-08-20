@@ -7,7 +7,7 @@ jobs:
   - job: SetImageVersion
     displayName: Set the image_version if none was set explicitly
     pool:
-      vmImage: ubuntu-18.04
+      vmImage: ubuntu-20.04
     steps:
       - checkout: ci-perl-helpers
         condition: eq( '${{ parameters.image_version }}', '' )

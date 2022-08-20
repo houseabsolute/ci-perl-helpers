@@ -1,3 +1,8 @@
+## 0.2.2
+
+* All Azure VMs now use Ubuntu 20.04 instead of 18.04.
+
+
 ## 0.2.1 2022-07-17
 
 * Fix an issue with generating the test matrix that seems to have popped up

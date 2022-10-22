@@ -1,3 +1,9 @@
+## 0.2.3 2022-10-22
+
+* Fixed a bug in the templates where they would always attempt to call
+  `./dev-bin/install-xt-tools.sh` even if it didn't exist.
+
+
 ## 0.2.2 2022-08-20
 
 * All Azure VMs now use Ubuntu 20.04 instead of 18.04.

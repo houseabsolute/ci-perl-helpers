@@ -83,7 +83,9 @@ steps:
 
   - bash: |
       set -e
-      sudo ./dev-bin/install-xt-tools.sh
+      if [ -f ./dev-bin/install-xt-tools.sh ]; then
+          sudo ./dev-bin/install-xt-tools.sh
+      fi
     displayName: Install tools for xt tests
     condition: eq( ${{ parameters.test_xt }}, true )
 

@@ -231,7 +231,7 @@ EOF
         }
 
         return sprintf( <<'EOF', $from_tag, $distro, $cpm );
-FROM houseabsolute/ci-perl-helpers-ubuntu:%s
+FROM ghcr.io/houseabsolute/ci-perl-helpers-ubuntu:%s
 
 RUN useradd -m -u 1001 vsts_azpcontainer
 

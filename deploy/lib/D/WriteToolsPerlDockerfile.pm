@@ -115,6 +115,7 @@ RUN perlbrew exec --with tools-perl \
     && rm -fr /root/.perl-cpm
 
 LABEL maintainer="Dave Rolsky <autarch@urth.org>"
+LABEL org.opencontainers.image.source=https://github.com/houseabsolute/ci-perl-helpers
 EOF
 }
 ## use critic

@@ -3,6 +3,6 @@ steps:
       set -e
       set -x
       mkdir "$(Pipeline.Workspace)/bin" && \
-      curl -fsSL https://git.io/cpm > "$(Pipeline.Workspace)/bin/cpm" && \
+      curl -fsSL https://raw.githubusercontent.com/skaji/cpm/main/cpm > "$(Pipeline.Workspace)/bin/cpm" && \
       chmod 0755 "$(Pipeline.Workspace)/bin/cpm"
     displayName: Install cpm

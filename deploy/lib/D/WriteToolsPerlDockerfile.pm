@@ -85,7 +85,7 @@ RUN apt-get --yes update && \
         zlib1g-dev
 
 RUN mkdir ~/bin && \
-    curl -fsSL --compressed https://git.io/cpm > /usr/local/bin/cpm && \
+    curl -fsSL --compressed https://raw.githubusercontent.com/skaji/cpm/main/cpm > /usr/local/bin/cpm && \
     chmod 0755 /usr/local/bin/cpm
 
 RUN curl -L https://install.perlbrew.pl | sh && \

@@ -156,6 +156,7 @@ COPY ./tools /usr/local/ci-perl-helpers-tools
 RUN chown -R 1001:1001 /usr/local/perl5
 
 LABEL maintainer="Dave Rolsky <autarch@urth.org>"
+LABEL org.opencontainers.image.source=https://github.com/houseabsolute/ci-perl-helpers
 EOF
 }
 

@@ -8,7 +8,7 @@ use warnings 'FATAL' => 'all';
 use autodie qw( :all );
 use namespace::autoclean;
 
-use Git::Sub qw( describe ls_remote rev_parse );
+use Git::Sub qw( describe );
 use Specio::Library::Builtins;
 
 use Moose::Role;
@@ -26,22 +26,18 @@ has image_versions => (
 );
 
 sub _build_image_versions {
-    my %remote_heads;
-    for my $head ( git::ls_remote( '--heads', 'origin' ) ) {
-        my ( $c, $ref ) = split /\s+/, $head;
-        $ref =~ s{^refs/heads/}{};
-        $remote_heads{$c} = $ref;
-    }
-    my $commit = git::rev_parse('HEAD');
-
-    my $version = $remote_heads{$commit}
-        or die
-        "Current commit ($commit) does not correspond to any remote HEAD!";
-    my @versions = $version;
+    die "The BUILD_SOURCEBRANCHNAME env var must be set when building images"
+        unless $ENV{BUILD_SOURCEBRANCHNAME};
+    my @versions = $ENV{BUILD_SOURCEBRANCHNAME};
 
     my $tag = git::describe('--tags');
-    unshift @versions, $tag
-        if $tag =~ /\Av\d+\.\d+\.\d+\z/;
+    if ($tag eq $ENV{BUILD_SOURCEBRANCHNAME}) {
+        # We should not be tagging any other branches.
+        push @versions, 'master';
+    } else {
+        unshift @versions, $tag
+            if $tag =~ /\Av\d+\.\d+\.\d+\z/;
+    }
 
     return [ sort @versions ];
 }

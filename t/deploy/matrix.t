@@ -43,22 +43,11 @@ my $client = qstrict( release => qmeth { return $release } );
         )
     );
 
-    # These are used in R::Tagger.
-    my @remote_heads = (
-        "ed6ab1c5c282ca4607756e1d35d8da91eb3d77cb\trefs/heads/better-junit\n",
-        "f53dbd18aec72c4d5278d5949ac3cd6cdfb948db\trefs/heads/fix-branch-name\n",
-        "6f19ea49ea83b3cd30200237d69df3cab3ee29ae\trefs/heads/fix-set-image-version\n",
-        "f99d5afca40b4b3f34e49230a5803a09d006b0b0\trefs/heads/install-xt-tools\n",
-        "4760b89ce18de3cbf3be5c51f0f0a7cb17d17c18\trefs/heads/master\n",
-    );
-    my $commit = '4760b89ce18de3cbf3be5c51f0f0a7cb17d17c18';
+    my $branch = 'test-branch';
     my $tag    = 'v1.1.1';
 
-    local *git::ls_remote = sub {@remote_heads};
-    local *git::rev_parse = sub {$commit};
+    local $ENV{BUILD_SOURCEBRANCHNAME} = $branch;
     local *git::describe  = sub {$tag};
-
-    my $branch = 'master';
 
     my $ppm = D::PrintPerlsMatrix->new( _client => $client );
 

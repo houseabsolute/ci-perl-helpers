@@ -1,7 +1,7 @@
 ## 0.3.1 2023-03-17
 
-* Same as 0.3.0, but the Docker image creation for that tag failed. This fixes
-  that.
+* Same as 0.3.0, but the Docker image creation for that tag failed. This
+  release fixes that.
 
 
 ## 0.3.0 2023-03-16

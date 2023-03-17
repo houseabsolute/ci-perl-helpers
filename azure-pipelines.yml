@@ -61,7 +61,7 @@ stages:
             name: WriteToolsPerlDockerfile
             displayName: Write tools-perl dockerfile
           - task: Docker@2
-            displayName: Log in to Docker Hub
+            displayName: Log in to GitHub Container Registry
             inputs:
               command: login
               containerRegistry: GitHub Container Registry

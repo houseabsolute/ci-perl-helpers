@@ -1,10 +1,10 @@
 ## 0.3.0 2023-03-16
 
 * Images are now stored in the GitHub Container registry rather than Docker
-  Hub. Unfortunately, because of upcoming Docker Hub changes, all images from
-  previous versions will be deleted soon. If you've pinned your use of these
-  helpers to an earlier version, then your CI will stop working when those
-  images are deleted.
+  Hub. Unfortunately, because of upcoming Docker Hub pricing changes, all
+  images from previous versions will be deleted soon. If you've pinned your
+  use of these helpers to an earlier version, then your CI will stop working
+  when those images are deleted.
 
 
 ## 0.2.3 2022-10-22

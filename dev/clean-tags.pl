@@ -16,7 +16,7 @@ use lib "$Bin/../deploy/lib";
     use namespace::autoclean;
 
     use HTTP::Request;
-    use JSON::MaybeXS qw( decode_json encode_json );
+    use JSON::MaybeXS  qw( decode_json encode_json );
     use List::AllUtils qw( max uniq );
     use LWP::UserAgent;
 

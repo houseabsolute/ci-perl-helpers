@@ -425,7 +425,8 @@ sub _get_perls_from_metacpan {
         local $@ = undef;
         $decoded = eval { decode_json( $resp->{content} ) };
         if ($@) {
-            die "Could not parse body of $uri response as JSON: $@\n$resp->{content}\n";
+            die
+                "Could not parse body of $uri response as JSON: $@\n$resp->{content}\n";
         }
     }
 

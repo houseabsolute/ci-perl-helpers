@@ -31,10 +31,12 @@ sub _build_image_versions {
     my @versions = $ENV{BUILD_SOURCEBRANCHNAME};
 
     my $tag = git::describe('--tags');
-    if ($tag eq $ENV{BUILD_SOURCEBRANCHNAME}) {
+    if ( $tag eq $ENV{BUILD_SOURCEBRANCHNAME} ) {
+
         # We should not be tagging any other branches.
         push @versions, 'master';
-    } else {
+    }
+    else {
         unshift @versions, $tag
             if $tag =~ /\Av\d+\.\d+\.\d+\z/;
     }

@@ -7,7 +7,7 @@ use autodie qw( :all );
 use local::lib '--deactivate-all';
 
 use Getopt::Long qw( :config pass_through );
-use Path::Tiny qw( path );
+use Path::Tiny   qw( path );
 use Specio::Library::Path::Tiny;
 
 use Moo;

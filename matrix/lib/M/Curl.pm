@@ -10,7 +10,7 @@ use warnings FATAL => 'all';
 use autodie;
 
 use IPC::Open2 qw( open2 );
-use Symbol qw( gensym );
+use Symbol     qw( gensym );
 
 sub get {
     my $uri     = shift;
@@ -48,7 +48,7 @@ sub _run_curl {
     push @cmd, $uri;
 
     my $stdout = gensym();
-    my $pid    = open2(  $stdout, undef, @cmd );
+    my $pid    = open2( $stdout, undef, @cmd );
     my $output;
     while (<$stdout>) {
         $output .= $_;

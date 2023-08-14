@@ -4,13 +4,13 @@ use strict;
 use warnings FATAL => 'all';
 
 use CPAN::Meta;
-use Config qw( %Config );
+use Config                qw( %Config );
 use Data::Dumper::Concise qw( Dumper );
 use Devel::Confess;
 use File::Which qw( which );
 use File::pushd qw( pushd );
-use FindBin qw( $Bin );
-use IPC::Run3 qw( run3 );
+use FindBin     qw( $Bin );
+use IPC::Run3   qw( run3 );
 use Module::CPANfile;
 use Path::Tiny qw( path );
 use Path::Tiny::Rule;

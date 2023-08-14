@@ -47,7 +47,7 @@ my $client = qstrict( release => qmeth { return $release } );
     my $tag    = 'v1.1.1';
 
     local $ENV{BUILD_SOURCEBRANCHNAME} = $branch;
-    local *git::describe  = sub {$tag};
+    local *git::describe = sub {$tag};
 
     my $ppm = D::PrintPerlsMatrix->new( _client => $client );
 

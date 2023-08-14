@@ -4,7 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 use autodie qw( :all );
 
-use Getopt::Long qw( :config pass_through );
+use Getopt::Long   qw( :config pass_through );
 use List::AllUtils qw( all );
 
 use Moo;

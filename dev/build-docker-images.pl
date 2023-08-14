@@ -15,7 +15,7 @@ use lib "$Bin/../deploy/lib";
 
     use namespace::autoclean;
 
-    use FindBin qw( $Bin );
+    use FindBin    qw( $Bin );
     use Path::Tiny qw( path tempdir );
     use Specio::Library::Builtins;
     use Specio::Library::Path::Tiny;

@@ -7,10 +7,10 @@ versions of Perl across Linux, macOS, and Windows.
 
 ## Stability Level
 
-I consider this stuff to be at a beta level of stability. I'm trying to do all
-work in branches so that the master branch will always work with existing
-projects. However, I may make breaking changes to the way templates are used,
-so I encourage you to pin your use to a tag. See below for details on how to do that.
+I try to do all work in branches so that the master branch will always work
+with existing projects. However, I may make breaking changes to the way
+templates are used, so I encourage you to pin your use to a tag. See below for
+details on how to do that.
 
 ## Creating a Service Connection
 

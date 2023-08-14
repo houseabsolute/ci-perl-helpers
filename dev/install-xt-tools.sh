@@ -16,4 +16,6 @@ curl --silent --location \
 "$TARGET/ubi" --project houseabsolute/precious --in "$TARGET"
 "$TARGET/ubi" --project houseabsolute/omegasort --in "$TARGET"
 
+npm install prettier
+
 echo "Add $TARGET to your PATH in order to use precious for linting and tidying"

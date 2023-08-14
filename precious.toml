@@ -55,3 +55,18 @@ exclude = "tools/templates/*.pod"
 cmd = [ "podtidy", "--columns", "80", "--inplace", "--nobackup" ]
 ok_exit_codes = 0
 lint_failure_exit_codes = 1
+
+[commands.prettier]
+type    = "both"
+include = "**/*.md"
+cmd     = [
+    "./node_modules/.bin/prettier",
+    "--no-config",
+    "--print-width", "100",
+    "--prose-wrap", "always",
+]
+lint_flags = "--check"
+tidy_flags = "--write"
+ok_exit_codes = 0
+lint_failure_exit_codes = 1
+ignore_stderr = [ "Code style issues" ]

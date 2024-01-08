@@ -15,8 +15,11 @@ jobs:
           set -e
           set -x
           if [ -z "${{ parameters.image_version }}" ]; then
+              set +e
               tag=$( git describe --tags )
-              if [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              exit=$?
+              set -e
+              if [[ "$exit" -ne "128" && "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                   echo "Setting image version from tag - $tag"
                   image_version=$tag
               else

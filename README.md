@@ -1,3 +1,6 @@
+> [!WARNING]
+> Some recent change in Azure Pipelines broke this project and I will not be fixing it.
+
 # Perl Helper Tools for Azure Pipelines
 
 This repo contains a set of tools and
